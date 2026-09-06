@@ -1,0 +1,2 @@
+# Sakai Dashboard
+This is the internal dashboard for Sakai, providing analytics, UI components, and administrative views.
