@@ -40,10 +40,12 @@ pipeline {
             }
         }
         
-        stage('Build Staging Docker Image') {
+        stage('Build & Push Docker Image') {
             steps {
                 echo 'Building Docker production image...'
                 sh 'docker build -t dedisalam/frontend-web:latest -f docker/web/Dockerfile.prod .'
+                echo 'Pushing Docker image to Docker Hub...'
+                sh 'docker push dedisalam/frontend-web:latest'
             }
         }
         
