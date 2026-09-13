@@ -133,7 +133,7 @@ export class TopbarWidget implements OnInit {
     currentUser = signal<UserProfile | null>(null);
 
     readonly dashboardUrl = environment.appUrls.dashboard;
-    readonly loginUrl = `${environment.appUrls.auth}/auth/login`;
+    readonly loginUrl = `${environment.appUrls.auth}/login`;
     readonly registerUrl = `${environment.appUrls.auth}/auth/register`;
 
     constructor(public router: Router) {}

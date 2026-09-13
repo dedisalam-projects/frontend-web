@@ -54,10 +54,11 @@ describe('Auth Pages & Routes', () => {
 
     describe('Routes Configuration', () => {
         it('should define app routes with redirect to login', async () => {
-            expect(routes.length).toBe(2);
-            expect(routes[1].redirectTo).toBe('auth/login');
+            const redirectRoute = routes.find((r) => r.redirectTo);
+            expect(redirectRoute?.redirectTo).toBe('login');
 
-            const loaded = await (routes[0].loadChildren as any)();
+            const authRoute = routes.find((r) => r.path === 'auth');
+            const loaded = await (authRoute?.loadChildren as any)();
             expect(loaded).toBeTruthy();
         });
 
