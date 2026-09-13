@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { ToastModule } from 'primeng/toast';
 import { MenuModule } from 'primeng/menu';
@@ -98,7 +98,8 @@ export class AppTopbar implements OnInit, OnDestroy {
     layoutService = inject(LayoutService);
     messageService = inject(MessageService);
     http = inject(HttpClient);
-    private socket!: Socket;
+    private platformId = inject(PLATFORM_ID);
+    private socket?: Socket;
 
     ngOnInit() {
         const userEmail = this.getUserEmail();
@@ -119,20 +120,26 @@ export class AppTopbar implements OnInit, OnDestroy {
             }
         ];
 
-        this.socket = io('http://localhost:3000/notifications');
-        
-        this.socket.on('connect', () => {
-            console.log('Connected to WebSocket server');
-        });
-
-        this.socket.on('login_event', (data: any) => {
-            this.messageService.add({
-                severity: 'info',
-                summary: 'User Logged In',
-                detail: `User ${data.email} has logged in at ${data.timestamp}`,
-                life: 5000
+        if (isPlatformBrowser(this.platformId)) {
+            const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null;
+            this.socket = io('http://localhost:3000/notifications', {
+                transports: ['websocket', 'polling'],
+                auth: { token }
             });
-        });
+
+            this.socket.on('connect', () => {
+                console.log('Connected to WebSocket server');
+            });
+
+            this.socket.on('login_event', (data: any) => {
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'User Logged In',
+                    detail: `User ${data.email} has logged in at ${data.timestamp}`,
+                    life: 5000
+                });
+            });
+        }
     }
 
     ngOnDestroy() {
@@ -153,7 +160,7 @@ export class AppTopbar implements OnInit, OnDestroy {
             if (typeof localStorage !== 'undefined') {
                 const token = localStorage.getItem('accessToken');
                 if (token) {
-                    const payload = token.split('.')[1];
+                    const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
                     const decoded = JSON.parse(atob(payload));
                     return decoded.email || 'User';
                 }

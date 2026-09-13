@@ -9,7 +9,10 @@ function getCookie(name: string): string | null {
 function isTokenValid(token: string | null): boolean {
     if (!token) return false;
     try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
+        const parts = token.split('.');
+        if (parts.length < 2) return false;
+        const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(atob(base64));
         if (payload.exp && payload.exp * 1000 < Date.now()) {
             return false;
         }

@@ -1,0 +1,41 @@
+{
+    "$schema": "https://stryker-mutator.io/schemas/stryker-schema.json",
+    "testRunner": "vitest",
+    "vitest": {
+        "configFile": "vitest.landing.config.ts",
+        "related": false
+    },
+    "mutate": [
+        "projects/landing/src/app/**/*.ts",
+        "!projects/landing/src/app/**/*.spec.ts",
+        "!projects/landing/src/main*.ts",
+        "!projects/landing/src/server.ts",
+        "!projects/landing/src/app/app.routes.ts",
+        "!projects/landing/src/app/app.component.ts",
+        "!projects/landing/src/app/app.config*.ts",
+        "!projects/landing/src/app/app.routes.server.ts",
+        "!projects/landing/src/app/pages/landing/components/herowidget.component.ts",
+        "!projects/landing/src/app/pages/landing/components/featureswidget.component.ts",
+        "!projects/landing/src/app/pages/landing/components/footerwidget.component.ts"
+    ],
+    "coverageAnalysis": "all",
+    "reporters": ["html", "clear-text", "progress", "json"],
+    "htmlReporter": {
+        "fileName": "reports/mutation/landing/index.html"
+    },
+    "jsonReporter": {
+        "fileName": "reports/mutation/landing/mutation-report.json"
+    },
+    "thresholds": {
+        "high": 70,
+        "low": 50,
+        "break": 40
+    },
+    "timeoutMS": 60000,
+    "timeoutFactor": 2.5,
+    "concurrency": 1,
+    "maxTestRunnerReuse": 20,
+    "tempDirName": ".stryker-tmp/landing",
+    "incremental": true,
+    "incrementalFile": "reports/mutation/landing/.stryker-incremental.json"
+}

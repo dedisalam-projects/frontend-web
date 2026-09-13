@@ -50,3 +50,10 @@ test_login.mjs
 .playwright-mcp/
 .claude/
 
+# Stryker mutation testing
+.stryker-tmp/
+reports/mutation/
+
+# Playwright test results
+test-results/
+playwright-report/

@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from './app/layout/component/app.layout';
 import { Dashboard } from './app/pages/dashboard/dashboard';
-import { Documentation } from './app/pages/documentation/documentation';
+import { Users } from './app/pages/users/users';
 import { Notfound } from './app/pages/notfound/notfound';
 import { authGuard } from './app/guards/auth.guard';
 
@@ -12,9 +12,9 @@ export const appRoutes: Routes = [
         canActivate: [authGuard],
         children: [
             { path: '', component: Dashboard },
-            { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
-            { path: 'documentation', component: Documentation },
-            { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
+            { path: 'users', component: Users },
+            { path: 'pages/users', redirectTo: 'users', pathMatch: 'full' },
+            { path: 'archive', loadChildren: () => import('./app/pages/archive/archive.routes') }
         ]
     },
     { path: 'notfound', component: Notfound },

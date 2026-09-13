@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
@@ -14,7 +14,7 @@ import { AppFloatingConfigurator } from 'shared-ui';
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, ToastModule, AppFloatingConfigurator, HttpClientModule],
+    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, ToastModule, AppFloatingConfigurator],
     template: `
         <p-toast />
         <app-floating-configurator />
@@ -98,7 +98,10 @@ export class Login implements OnInit {
     private isTokenValid(token: string | null): boolean {
         if (!token) return false;
         try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
+            const parts = token.split('.');
+            if (parts.length < 2) return false;
+            const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(atob(base64));
             if (payload.exp && payload.exp * 1000 < Date.now()) {
                 return false;
             }
@@ -117,6 +120,14 @@ export class Login implements OnInit {
                 const token = res.data?.accessToken || res.accessToken;
                 if (token) {
                     localStorage.setItem('accessToken', token);
+                    const refreshToken = res.data?.refreshToken || res.refreshToken;
+                    if (refreshToken) {
+                        localStorage.setItem('refreshToken', refreshToken);
+                    }
+                    const user = res.data?.user || res.user;
+                    if (user) {
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                    }
                     document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax`;
                     window.location.href = 'http://localhost:4000/?token=' + token;
                 }

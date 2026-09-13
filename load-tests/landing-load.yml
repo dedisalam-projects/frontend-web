@@ -1,0 +1,29 @@
+config:
+  target: "http://localhost:4001"
+  phases:
+    - duration: 10
+      arrivalRate: 5
+      name: "Warm-up phase"
+    - duration: 20
+      arrivalRate: 15
+      rampTo: 30
+      name: "Ramp-up load"
+    - duration: 15
+      arrivalRate: 30
+      name: "Sustained peak load"
+  defaults:
+    headers:
+      User-Agent: "Artillery-LoadTest-Landing"
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+
+scenarios:
+  - name: "Landing SSR and Static Assets Flow"
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+            - contentType: "text/html"
+      - think: 1
+      - get:
+          url: "/favicon.ico"

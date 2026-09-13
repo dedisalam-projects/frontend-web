@@ -1,0 +1,35 @@
+{
+    "$schema": "https://stryker-mutator.io/schemas/stryker-schema.json",
+    "testRunner": "vitest",
+    "vitest": {
+        "configFile": "vitest.auth.config.ts",
+        "related": false
+    },
+    "mutate": [
+        "projects/auth/src/app/**/*.ts",
+        "!projects/auth/src/app/**/*.spec.ts",
+        "!projects/auth/src/main*.ts",
+        "!projects/auth/src/server.ts",
+        "!projects/auth/src/app/app.routes.ts",
+        "!projects/auth/src/app/app.component.ts"
+    ],
+    "coverageAnalysis": "all",
+    "reporters": ["html", "clear-text", "progress", "json"],
+    "htmlReporter": {
+        "fileName": "reports/mutation/auth/index.html"
+    },
+    "jsonReporter": {
+        "fileName": "reports/mutation/auth/mutation-report.json"
+    },
+    "thresholds": {
+        "high": 80,
+        "low": 60,
+        "break": 50
+    },
+    "timeoutMS": 60000,
+    "timeoutFactor": 2.5,
+    "concurrency": 2,
+    "tempDirName": ".stryker-tmp/auth",
+    "incremental": true,
+    "incrementalFile": "reports/mutation/auth/.stryker-incremental.json"
+}
