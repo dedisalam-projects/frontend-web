@@ -1,0 +1,2 @@
+# Sakai Landing Page
+Welcome to the Sakai platform. This is the main entry point to learn about our features and access the dashboard.

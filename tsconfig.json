@@ -2,6 +2,7 @@
 /* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
     "compileOnSave": false,
+    "files": [],
     "compilerOptions": { "ignoreDeprecations": "6.0",
         "outDir": "./dist/out-tsc",
         "strict": true,
@@ -20,7 +21,10 @@
         "baseUrl": "./",
         "paths": {
             "@/*": [
-                "src/*"
+                "projects/dashboard/src/*"
+            ],
+            "shared-ui": [
+              "./dist/shared-ui"
             ]
         }
     },
@@ -29,5 +33,25 @@
         "strictInjectionParameters": true,
         "strictInputAccessModifiers": true,
         "strictTemplates": true
-    }
+    },
+    "references": [
+      {
+        "path": "./projects/shared-ui/tsconfig.lib.json"
+      },
+      {
+        "path": "./projects/shared-ui/tsconfig.spec.json"
+      },
+      {
+        "path": "./projects/landing/tsconfig.app.json"
+      },
+      {
+        "path": "./projects/landing/tsconfig.spec.json"
+      },
+      {
+        "path": "./projects/auth/tsconfig.app.json"
+      },
+      {
+        "path": "./projects/auth/tsconfig.spec.json"
+      }
+    ]
 }
