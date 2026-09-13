@@ -44,8 +44,8 @@ export const authGuard: CanActivateFn = (route, state) => {
         localStorage.removeItem('accessToken');
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
 
-        // Redirect to auth app
-        window.location.href = `${environment.appUrls.auth}/`;
+        // Redirect to auth app login
+        window.location.href = `${environment.appUrls.auth}/auth/login`;
         return false;
     }
     return true;
