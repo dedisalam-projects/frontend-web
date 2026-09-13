@@ -23,8 +23,18 @@ Create a standalone `.mjs` wrapper script for PM2 that explicitly sets the allow
 **1. Create the wrapper script (e.g., `pm2-dashboard.mjs`):**
 
 ```javascript
-// Set the allowed hosts WITH ports BEFORE importing the Angular server engine
-process.env.NG_ALLOWED_HOSTS = 'localhost,localhost:4000,127.0.0.1,127.0.0.1:4000';
+// Set the allowed hosts WITH ports AND production domains BEFORE importing the Angular server engine
+const ALLOWED_HOSTS = [
+  'localhost',
+  'localhost:4000',
+  '127.0.0.1',
+  '127.0.0.1:4000',
+  'dedisalam.my.id',
+  'auth.dedisalam.my.id',
+  'dash.dedisalam.my.id'
+].join(',');
+
+process.env.NG_ALLOWED_HOSTS = ALLOWED_HOSTS;
 
 import express from 'express';
 

@@ -10,11 +10,7 @@ describe('UserService', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [
-                UserService,
-                provideHttpClient(),
-                provideHttpClientTesting()
-            ]
+            providers: [UserService, provideHttpClient(), provideHttpClientTesting()]
         });
         service = TestBed.inject(UserService);
         httpTestingController = TestBed.inject(HttpTestingController);
@@ -32,9 +28,7 @@ describe('UserService', () => {
 
     it('should fetch users successfully from backend', async () => {
         localStorage.setItem('accessToken', 'test-token');
-        const mockUsers: User[] = [
-            { id: '1', name: 'Alice', email: 'alice@example.com', role: 'admin', isActive: true }
-        ];
+        const mockUsers: User[] = [{ id: '1', name: 'Alice', email: 'alice@example.com', role: 'admin', isActive: true }];
 
         const promise = service.getUsers();
 
@@ -170,7 +164,7 @@ describe('UserService', () => {
                         const result = await promise;
 
                         expect(typeof result.id).toBe('string');
-                        expect(result.id.length).toBeGreaterThan(0);
+                        expect(result.id!.length).toBeGreaterThan(0);
                         expect(result.name).toBe(inputUser.name);
                         expect(result.email).toBe(inputUser.email);
                         expect(result.role).toBe(inputUser.role);

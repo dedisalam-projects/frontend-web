@@ -18,12 +18,7 @@ describe('AppConfigurator', () => {
 
         await TestBed.configureTestingModule({
             imports: [AppConfigurator],
-            providers: [
-                LayoutService,
-                providePrimeNG({ theme: { preset: Aura } }),
-                { provide: Router, useValue: routerMock },
-                { provide: PLATFORM_ID, useValue: 'browser' }
-            ]
+            providers: [LayoutService, providePrimeNG({ theme: { preset: Aura } }), { provide: Router, useValue: routerMock }, { provide: PLATFORM_ID, useValue: 'browser' }]
         }).compileComponents();
 
         fixture = TestBed.createComponent(AppConfigurator);

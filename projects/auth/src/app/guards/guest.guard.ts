@@ -1,4 +1,5 @@
 import { CanActivateFn } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 function getCookie(name: string): string | null {
     if (typeof document === 'undefined') return null;
@@ -30,7 +31,7 @@ export const guestGuard: CanActivateFn = (route, state) => {
             return true;
         }
         if (isTokenValid(cookieToken)) {
-            window.location.href = 'http://localhost:4000/';
+            window.location.href = `${environment.appUrls.dashboard}/`;
             return false;
         } else {
             // Expired cookie

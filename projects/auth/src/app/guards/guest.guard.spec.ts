@@ -96,9 +96,7 @@ describe('guestGuard — property-based (fast-check)', () => {
                 fc.integer({ min: 1, max: nowSec - 1 }), // exp is always in the past
                 (exp) => {
                     document.cookie = `accessToken=${makeCookieToken(exp)}; path=/;`;
-                    const result = TestBed.runInInjectionContext(() =>
-                        guestGuard({} as any, {} as any)
-                    );
+                    const result = TestBed.runInInjectionContext(() => guestGuard({} as any, {} as any));
                     document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
                     return result === true;
                 }
@@ -114,9 +112,7 @@ describe('guestGuard — property-based (fast-check)', () => {
                 fc.integer({ min: nowSec + 60, max: nowSec + 86400 }), // exp is future
                 (exp) => {
                     document.cookie = `accessToken=${makeCookieToken(exp)}; path=/;`;
-                    const result = TestBed.runInInjectionContext(() =>
-                        guestGuard({} as any, {} as any)
-                    );
+                    const result = TestBed.runInInjectionContext(() => guestGuard({} as any, {} as any));
                     document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
                     return result === false;
                 }
@@ -128,14 +124,10 @@ describe('guestGuard — property-based (fast-check)', () => {
     it('PROPERTY: any string that is not a valid JWT should allow access (return true)', () => {
         fc.assert(
             fc.property(
-                fc.string({ minLength: 1, maxLength: 100 }).filter(
-                    (s) => !s.includes('.') || s.split('.').length !== 3
-                ),
+                fc.string({ minLength: 1, maxLength: 100 }).filter((s) => !s.includes('.') || s.split('.').length !== 3),
                 (malformed) => {
                     document.cookie = `accessToken=${encodeURIComponent(malformed)}; path=/;`;
-                    const result = TestBed.runInInjectionContext(() =>
-                        guestGuard({} as any, {} as any)
-                    );
+                    const result = TestBed.runInInjectionContext(() => guestGuard({} as any, {} as any));
                     document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
                     return result === true;
                 }
@@ -146,25 +138,20 @@ describe('guestGuard — property-based (fast-check)', () => {
 
     it('PROPERTY: guard always returns a boolean (never throws)', () => {
         fc.assert(
-            fc.property(
-                fc.option(fc.string({ minLength: 0, maxLength: 200 })),
-                (tokenValue) => {
-                    if (tokenValue !== null) {
-                        document.cookie = `accessToken=${encodeURIComponent(tokenValue)}; path=/;`;
-                    }
-                    let result: boolean | undefined;
-                    let threw = false;
-                    try {
-                        result = TestBed.runInInjectionContext(() =>
-                            guestGuard({} as any, {} as any)
-                        ) as boolean;
-                    } catch {
-                        threw = true;
-                    }
-                    document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-                    return !threw && typeof result === 'boolean';
+            fc.property(fc.option(fc.string({ minLength: 0, maxLength: 200 })), (tokenValue) => {
+                if (tokenValue !== null) {
+                    document.cookie = `accessToken=${encodeURIComponent(tokenValue)}; path=/;`;
                 }
-            ),
+                let result: boolean | undefined;
+                let threw = false;
+                try {
+                    result = TestBed.runInInjectionContext(() => guestGuard({} as any, {} as any)) as boolean;
+                } catch {
+                    threw = true;
+                }
+                document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+                return !threw && typeof result === 'boolean';
+            }),
             { numRuns: 200 }
         );
     });

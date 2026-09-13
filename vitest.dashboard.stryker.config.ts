@@ -7,22 +7,19 @@ import angular from '@analogjs/vite-plugin-angular';
 export default defineConfig({
     plugins: [
         angular({
-            tsconfig: './projects/dashboard/tsconfig.spec.json',
-        }) as any,
+            tsconfig: './projects/dashboard/tsconfig.spec.json'
+        }) as any
     ],
     resolve: {
         alias: {
-            'shared-ui': new URL('./dist/shared-ui', import.meta.url).pathname,
-        },
+            'shared-ui': new URL('./dist/shared-ui', import.meta.url).pathname
+        }
     },
     test: {
         globals: true,
         environment: 'jsdom',
         setupFiles: ['./vitest-setup.ts'],
-        include: [
-            'projects/dashboard/src/app/guards/*.spec.ts',
-            'projects/dashboard/src/app/pages/service/*.spec.ts',
-        ],
-        reporters: ['verbose'],
-    },
+        include: ['projects/dashboard/src/app/guards/*.spec.ts', 'projects/dashboard/src/app/pages/service/*.spec.ts'],
+        reporters: ['verbose']
+    }
 });

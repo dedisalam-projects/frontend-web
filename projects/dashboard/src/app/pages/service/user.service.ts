@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface User {
     id?: string;
@@ -15,8 +16,8 @@ export interface User {
     providedIn: 'root'
 })
 export class UserService {
-    private apiUrl = 'http://localhost:3000/api/v1/users';
-    private authUrl = 'http://localhost:3000/api/v1/auth';
+    private apiUrl = `${environment.apiUrl}/users`;
+    private authUrl = `${environment.apiUrl}/auth`;
 
     constructor(private http: HttpClient) {}
 
@@ -32,12 +33,12 @@ export class UserService {
     getUsers(): Promise<User[]> {
         const headers = this.getHeaders();
         return firstValueFrom(this.http.get<any>(this.apiUrl, { headers }))
-            .then(res => {
+            .then((res) => {
                 if (Array.isArray(res)) return res as User[];
                 if (res && Array.isArray(res.data)) return res.data as User[];
                 return [] as User[];
             })
-            .catch(error => {
+            .catch((error) => {
                 console.warn('Backend user endpoint unauthorized or offline, returning initial dataset.');
                 return [
                     { id: 'usr-1', name: 'Super Admin', email: 'admin@company.local', role: 'admin', isActive: true, createdAt: '2025-01-01' },
@@ -60,7 +61,7 @@ export class UserService {
 
         try {
             const res = await firstValueFrom(this.http.post<any>(`${this.authUrl}/register`, payload, { headers }));
-            const created = (res && res.data) ? res.data : res;
+            const created = res && res.data ? res.data : res;
             return {
                 id: created.id || created._id || `usr_${Date.now()}`,
                 name: user.name,
@@ -86,7 +87,7 @@ export class UserService {
         const headers = this.getHeaders();
         try {
             const res = await firstValueFrom(this.http.patch<any>(`${this.apiUrl}/${id}`, data, { headers }));
-            return (res && res.data) ? res.data : { id, ...data };
+            return res && res.data ? res.data : { id, ...data };
         } catch (err) {
             console.warn(`Backend updateUser on ${id} fallback:`, err);
             return { id, ...data };

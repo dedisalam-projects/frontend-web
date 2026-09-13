@@ -7,10 +7,7 @@ describe('LayoutService', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [
-                LayoutService,
-                { provide: PLATFORM_ID, useValue: 'browser' }
-            ]
+            providers: [LayoutService, { provide: PLATFORM_ID, useValue: 'browser' }]
         });
         service = TestBed.inject(LayoutService);
     });

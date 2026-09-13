@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { Router, RouterModule } from '@angular/router';
 import { AppFloatingConfigurator } from 'shared-ui';
+import { environment } from '../../../../environments/environment';
 
 export interface UserProfile {
     name?: string;
@@ -34,8 +35,20 @@ export interface UserProfile {
             <span class="text-surface-900 dark:text-surface-0 font-medium text-2xl leading-normal mr-20">SAKAI</span>
         </a>
 
-        <button type="button" class="lg:hidden! inline-flex items-center justify-center rounded-full w-10 h-10 border border-surface bg-transparent cursor-pointer" pStyleClass="@next" enterFromClass="hidden" leaveToClass="hidden" [hideOnOutsideClick]="true" aria-label="Menu">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <button
+            type="button"
+            class="lg:hidden! inline-flex items-center justify-center rounded-full w-10 h-10 border border-surface bg-transparent cursor-pointer"
+            pStyleClass="@next"
+            enterFromClass="hidden"
+            leaveToClass="hidden"
+            [hideOnOutsideClick]="true"
+            aria-label="Menu"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
         </button>
 
         <div class="items-center bg-surface-0 dark:bg-surface-900 grow justify-between hidden lg:flex absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border">
@@ -71,27 +84,57 @@ export interface UserProfile {
                             {{ currentUser()?.name || currentUser()?.email }}
                         </span>
                     </div>
-                    <a href="http://localhost:4000/" class="inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold cursor-pointer no-underline shadow-sm" style="background:var(--p-primary-color);color:var(--p-primary-contrast-color);border:none;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                    <a
+                        [href]="dashboardUrl"
+                        class="inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold cursor-pointer no-underline shadow-sm"
+                        style="background:var(--p-primary-color);color:var(--p-primary-contrast-color);border:none;"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="7" height="9" x="3" y="3" rx="1" />
+                            <rect width="7" height="5" x="14" y="3" rx="1" />
+                            <rect width="7" height="9" x="14" y="12" rx="1" />
+                            <rect width="7" height="5" x="3" y="16" rx="1" />
+                        </svg>
                         <span>Dashboard</span>
                     </a>
-                    <button type="button" (click)="logout()" aria-label="Logout" class="inline-flex items-center justify-center rounded-full w-9 h-9 border border-surface bg-transparent hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-600 dark:text-surface-300 cursor-pointer transition-colors" title="Logout">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <button
+                        type="button"
+                        (click)="logout()"
+                        aria-label="Logout"
+                        class="inline-flex items-center justify-center rounded-full w-9 h-9 border border-surface bg-transparent hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-600 dark:text-surface-300 cursor-pointer transition-colors"
+                        title="Logout"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
                     </button>
                 } @else {
-                    <a href="http://localhost:4002/auth/login" class="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold cursor-pointer no-underline text-surface-900 dark:text-surface-0 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors">
+                    <a
+                        [href]="loginUrl"
+                        class="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold cursor-pointer no-underline text-surface-900 dark:text-surface-0 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+                    >
                         <span>Login</span>
                     </a>
-                    <a href="http://localhost:4002/auth/register" class="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold cursor-pointer no-underline shadow-sm" style="background:var(--p-primary-color);color:var(--p-primary-contrast-color);border:none;">
+                    <a
+                        [href]="registerUrl"
+                        class="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold cursor-pointer no-underline shadow-sm"
+                        style="background:var(--p-primary-color);color:var(--p-primary-contrast-color);border:none;"
+                    >
                         <span>Register</span>
                     </a>
                 }
-                <app-floating-configurator [float]="false"/>
+                <app-floating-configurator [float]="false" />
             </div>
         </div> `
 })
 export class TopbarWidget implements OnInit {
     currentUser = signal<UserProfile | null>(null);
+
+    readonly dashboardUrl = environment.appUrls.dashboard;
+    readonly loginUrl = `${environment.appUrls.auth}/auth/login`;
+    readonly registerUrl = `${environment.appUrls.auth}/auth/register`;
 
     constructor(public router: Router) {}
 
@@ -135,12 +178,12 @@ export class TopbarWidget implements OnInit {
     logout(): void {
         const token = this.getCookie('accessToken') || (typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null);
         if (token) {
-            fetch('http://localhost:3000/api/v1/auth/logout', {
+            fetch(`${environment.apiUrl}/auth/logout`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
-            }).catch(err => console.error('Logout API error', err));
+            }).catch((err) => console.error('Logout API error', err));
         }
         if (typeof document !== 'undefined') {
             document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';

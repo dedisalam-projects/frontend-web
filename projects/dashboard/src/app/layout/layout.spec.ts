@@ -30,15 +30,7 @@ describe('Dashboard Layout Suite', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [AppLayout, AppTopbar, AppSidebar, AppMenu, AppFooter, AppMenuitem],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-                provideRouter([]),
-                providePrimeNG({ theme: { preset: Aura } }),
-                { provide: PLATFORM_ID, useValue: 'browser' },
-                LayoutService,
-                MessageService
-            ]
+            providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), providePrimeNG({ theme: { preset: Aura } }), { provide: PLATFORM_ID, useValue: 'browser' }, LayoutService, MessageService]
         }).compileComponents();
 
         layoutService = TestBed.inject(LayoutService);

@@ -10,6 +10,7 @@ import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { AppFloatingConfigurator } from 'shared-ui';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-login',
@@ -49,7 +50,18 @@ import { AppFloatingConfigurator } from 'shared-ui';
                             <input pInputText id="email1" type="text" placeholder="Email address" class="w-full md:w-120 mb-8" [(ngModel)]="email" />
 
                             <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-                            <p-password inputId="password1" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false" ariaLabel="Password" hideIconAriaLabel="Hide password" showIconAriaLabel="Show password"></p-password>
+                            <p-password
+                                inputId="password1"
+                                [(ngModel)]="password"
+                                placeholder="Password"
+                                [toggleMask]="true"
+                                styleClass="mb-4"
+                                [fluid]="true"
+                                [feedback]="false"
+                                ariaLabel="Password"
+                                hideIconAriaLabel="Hide password"
+                                showIconAriaLabel="Show password"
+                            ></p-password>
 
                             <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                                 <div class="flex items-center">
@@ -58,7 +70,7 @@ import { AppFloatingConfigurator } from 'shared-ui';
                                 </div>
                                 <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary-700 dark:text-primary-300">Forgot password?</span>
                             </div>
-    <p-button label="Sign In" styleClass="w-full" severity="contrast" (onClick)="onLogin()"></p-button>
+                            <p-button label="Sign In" styleClass="w-full" severity="contrast" (onClick)="onLogin()"></p-button>
                         </div>
                     </div>
                 </div>
@@ -71,7 +83,11 @@ export class Login implements OnInit {
     password: string = '';
     checked: boolean = false;
 
-    constructor(private http: HttpClient, private router: Router, private messageService: MessageService) {}
+    constructor(
+        private http: HttpClient,
+        private router: Router,
+        private messageService: MessageService
+    ) {}
 
     ngOnInit() {
         if (typeof window !== 'undefined') {
@@ -81,7 +97,7 @@ export class Login implements OnInit {
                 return;
             }
             if (this.isTokenValid(cookieToken)) {
-                window.location.href = 'http://localhost:4000/';
+                window.location.href = `${environment.appUrls.dashboard}/`;
             } else {
                 document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
                 localStorage.removeItem('accessToken');
@@ -112,30 +128,32 @@ export class Login implements OnInit {
     }
 
     onLogin() {
-        this.http.post('http://localhost:3000/api/v1/auth/login', {
-            email: this.email,
-            password: this.password
-        }).subscribe({
-            next: (res: any) => {
-                const token = res.data?.accessToken || res.accessToken;
-                if (token) {
-                    localStorage.setItem('accessToken', token);
-                    const refreshToken = res.data?.refreshToken || res.refreshToken;
-                    if (refreshToken) {
-                        localStorage.setItem('refreshToken', refreshToken);
+        this.http
+            .post(`${environment.apiUrl}/auth/login`, {
+                email: this.email,
+                password: this.password
+            })
+            .subscribe({
+                next: (res: any) => {
+                    const token = res.data?.accessToken || res.accessToken;
+                    if (token) {
+                        localStorage.setItem('accessToken', token);
+                        const refreshToken = res.data?.refreshToken || res.refreshToken;
+                        if (refreshToken) {
+                            localStorage.setItem('refreshToken', refreshToken);
+                        }
+                        const user = res.data?.user || res.user;
+                        if (user) {
+                            localStorage.setItem('currentUser', JSON.stringify(user));
+                        }
+                        document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax`;
+                        window.location.href = `${environment.appUrls.dashboard}/?token=${token}`;
                     }
-                    const user = res.data?.user || res.user;
-                    if (user) {
-                        localStorage.setItem('currentUser', JSON.stringify(user));
-                    }
-                    document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax`;
-                    window.location.href = 'http://localhost:4000/?token=' + token;
+                },
+                error: (err) => {
+                    console.error('Login failed', err);
+                    this.messageService.add({ severity: 'error', summary: 'Login Failed', detail: 'Invalid email or password. Please try again.', life: 3000 });
                 }
-            },
-            error: (err) => {
-                console.error('Login failed', err);
-                this.messageService.add({ severity: 'error', summary: 'Login Failed', detail: 'Invalid email or password. Please try again.', life: 3000 });
-            }
-        });
+            });
     }
 }

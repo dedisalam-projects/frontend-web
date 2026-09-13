@@ -137,4 +137,3 @@ import { CommonModule } from '@angular/common';
     </div>`
 })
 export class FeaturesWidget {}
-

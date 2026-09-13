@@ -14,6 +14,7 @@ paths:
   - Use `signal()`, `computed()`, and `effect()` for local and shared state.
   - Expose signals as readonly via `mySignal.asReadonly()`.
   - Use `toSignal()` / `toObservable()` for RxJS interoperability. Avoid manual `.subscribe()` whenever possible.
+- **Zero Hardcoded Cross-App URLs**: Never hardcode `localhost` ports or absolute domain URLs in components, guards, templates, or services. All cross-application redirects, navigation targets, and API endpoints must be resolved from Angular `environment` configurations (`environment.appUrls` and `environment.apiUrl`), distinguishing development (`localhost:*`) from production (`*.dedisalam.my.id`).
 
 ## 2. SSR & Hydration Safety
 - **Platform Guards**: Protect all DOM, browser, and `window`/`document`/`localStorage` accesses with `isPlatformBrowser(this.platformId)` or inject `DOCUMENT`.

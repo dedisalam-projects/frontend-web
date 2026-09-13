@@ -23,21 +23,31 @@ In a multi-application Angular workspace (`landing`, `dashboard`, `auth`), micro
 ## Solution
 
 ### 1. Multi-Project Environment Configuration
-Never hardcode gateway URLs in services or components. Define `src/environments/environment.ts` and `src/environments/environment.development.ts` in each project:
+Never hardcode gateway URLs or cross-application links in services, templates, or components. Define `src/environments/environment.ts` (production) and `src/environments/environment.development.ts` (development) in each project:
 
 ```typescript
-// projects/<app>/src/environments/environment.ts
+// projects/<app>/src/environments/environment.ts (Production)
 export const environment = {
   production: true,
-  apiUrl: '/api/v1',
-  socketUrl: '',
+  apiUrl: 'https://api.dedisalam.my.id/api/v1',
+  socketUrl: 'https://api.dedisalam.my.id',
+  appUrls: {
+    landing: 'https://dedisalam.my.id',
+    auth: 'https://auth.dedisalam.my.id',
+    dashboard: 'https://dash.dedisalam.my.id'
+  }
 };
 
-// projects/<app>/src/environments/environment.development.ts
+// projects/<app>/src/environments/environment.development.ts (Development)
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api/v1',
   socketUrl: 'http://localhost:3000',
+  appUrls: {
+    landing: 'http://localhost:4001',
+    auth: 'http://localhost:4002',
+    dashboard: 'http://localhost:4000'
+  }
 };
 ```
 

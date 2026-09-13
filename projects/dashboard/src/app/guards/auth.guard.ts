@@ -1,4 +1,5 @@
 import { CanActivateFn } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 function getCookie(name: string): string | null {
     if (typeof document === 'undefined') return null;
@@ -25,7 +26,7 @@ function isTokenValid(token: string | null): boolean {
 export const authGuard: CanActivateFn = (route, state) => {
     if (typeof window !== 'undefined') {
         const urlToken = route.queryParams['token'];
-        
+
         if (urlToken && isTokenValid(urlToken)) {
             localStorage.setItem('accessToken', urlToken);
             document.cookie = `accessToken=${urlToken}; path=/; max-age=604800; SameSite=Lax`;
@@ -38,13 +39,13 @@ export const authGuard: CanActivateFn = (route, state) => {
             localStorage.setItem('accessToken', cookieToken);
             return true;
         }
-        
+
         // No valid cookie -> Clean up and redirect to auth
         localStorage.removeItem('accessToken');
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
 
         // Redirect to auth app
-        window.location.href = 'http://localhost:4002/';
+        window.location.href = `${environment.appUrls.auth}/`;
         return false;
     }
     return true;

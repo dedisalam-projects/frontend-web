@@ -16,13 +16,7 @@ describe('Login Component', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [Login],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-                provideRouter([]),
-                MessageService,
-                providePrimeNG({ theme: { preset: Aura } })
-            ]
+            providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), MessageService, providePrimeNG({ theme: { preset: Aura } })]
         }).compileComponents();
 
         httpTestingController = TestBed.inject(HttpTestingController);

@@ -12,7 +12,6 @@ import { LANDING_URL } from '../fixtures/auth.fixture';
  * 5. Responsive layout across desktop and mobile
  */
 test.describe('Landing Application E2E Suite', () => {
-
     test.beforeEach(async ({ page }) => {
         await page.goto(LANDING_URL);
         await page.waitForLoadState('domcontentloaded');
@@ -37,8 +36,7 @@ test.describe('Landing Application E2E Suite', () => {
             await themeBtn.click();
             await page.waitForTimeout(300);
             const hasDarkClass = await page.evaluate(() => {
-                return document.documentElement.classList.contains('app-dark') ||
-                       document.body.classList.contains('app-dark');
+                return document.documentElement.classList.contains('app-dark') || document.body.classList.contains('app-dark');
             });
             expect(typeof hasDarkClass).toBe('boolean');
         }

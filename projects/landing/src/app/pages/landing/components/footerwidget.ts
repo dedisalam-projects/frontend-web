@@ -71,5 +71,3 @@ import { Router, RouterModule } from '@angular/router';
 export class FooterWidget {
     constructor(public router: Router) {}
 }
-
-

@@ -8,17 +8,14 @@ export const API_URL = 'http://localhost:3000';
 export const TEST_CREDENTIALS = {
     admin: { email: 'admin@company.local', password: 'password123' },
     user: { email: 'john.doe@company.com', password: 'password123' },
-    invalid: { email: 'wrong@email.com', password: 'wrongpassword' },
+    invalid: { email: 'wrong@email.com', password: 'wrongpassword' }
 } as const;
 
 /**
  * Perform login via the Auth UI and return the access token.
  * Navigates to the auth app, fills credentials, submits, waits for redirect.
  */
-export async function loginViaUI(
-    page: Page,
-    credentials = TEST_CREDENTIALS.admin
-): Promise<string> {
+export async function loginViaUI(page: Page, credentials = TEST_CREDENTIALS.admin): Promise<string> {
     await page.goto(`${AUTH_URL}/auth/login`);
     await page.waitForLoadState('domcontentloaded');
 
@@ -39,11 +36,7 @@ export async function loginViaUI(
  * Inject token directly into cookies and localStorage — bypasses login UI.
  * Use for tests that don't need to test the login flow itself.
  */
-export async function injectAuthToken(
-    context: BrowserContext,
-    token: string,
-    dashboardUrl = DASHBOARD_URL
-): Promise<void> {
+export async function injectAuthToken(context: BrowserContext, token: string, dashboardUrl = DASHBOARD_URL): Promise<void> {
     await context.addCookies([
         {
             name: 'accessToken',
@@ -51,8 +44,8 @@ export async function injectAuthToken(
             domain: 'localhost',
             path: '/',
             httpOnly: false,
-            secure: false,
-        },
+            secure: false
+        }
     ]);
     // Also set in localStorage via JS execution
     const page = await context.newPage();
@@ -65,14 +58,12 @@ export async function injectAuthToken(
  * Create a mock JWT token with given payload for testing.
  * NOT a real signed JWT — for testing UI behavior only.
  */
-export function createMockToken(
-    payload: { exp?: number; sub?: string; role?: string } = {}
-): string {
+export function createMockToken(payload: { exp?: number; sub?: string; role?: string } = {}): string {
     const defaultPayload = {
         sub: 'usr-test-1',
         role: 'admin',
         exp: Math.floor(Date.now() / 1000) + 3600,
-        ...payload,
+        ...payload
     };
     const encoded = btoa(JSON.stringify(defaultPayload));
     return `eyJhbGciOiJIUzI1NiJ9.${encoded}.mock_signature`;

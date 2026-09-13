@@ -7,8 +7,8 @@ const npxCmd = isWindows ? 'npx.cmd' : 'npx';
 
 const apps = [
     { name: 'dashboard', port: 4000, color: '\x1b[34m' }, // Blue
-    { name: 'landing',   port: 4001, color: '\x1b[32m' }, // Green
-    { name: 'auth',      port: 4002, color: '\x1b[35m' }  // Magenta
+    { name: 'landing', port: 4001, color: '\x1b[32m' }, // Green
+    { name: 'auth', port: 4002, color: '\x1b[35m' } // Magenta
 ];
 
 const RESET = '\x1b[0m';
@@ -36,7 +36,7 @@ if (!existsSync(sharedUiDist)) {
 }
 
 console.log(`\n${BOLD}Starting development servers:${RESET}`);
-apps.forEach(app => {
+apps.forEach((app) => {
     console.log(`  - ${app.color}${app.name.padEnd(10)}${RESET} -> http://localhost:${app.port}`);
 });
 console.log(`  - \x1b[33mbackend   ${RESET} -> http://localhost:3000 (API Gateway)\n`);
@@ -83,7 +83,7 @@ for (const app of apps) {
 
     runningProcesses.push({ child, name: app.name });
 
-    child.stdout.on('data', data => {
+    child.stdout.on('data', (data) => {
         const lines = data.toString().split('\n');
         for (const line of lines) {
             if (line.trim()) {
@@ -92,7 +92,7 @@ for (const app of apps) {
         }
     });
 
-    child.stderr.on('data', data => {
+    child.stderr.on('data', (data) => {
         const lines = data.toString().split('\n');
         for (const line of lines) {
             if (line.trim()) {
@@ -101,7 +101,7 @@ for (const app of apps) {
         }
     });
 
-    child.on('close', code => {
+    child.on('close', (code) => {
         if (code !== 0 && code !== null) {
             console.error(`${prefix}exited with code ${code}`);
         }

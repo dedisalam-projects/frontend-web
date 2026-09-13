@@ -13,16 +13,7 @@ describe('Demo Data Services', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-                ProductService,
-                CustomerService,
-                CountryService,
-                PhotoService,
-                NodeService,
-                IconService
-            ]
+            providers: [provideHttpClient(), provideHttpClientTesting(), ProductService, CustomerService, CountryService, PhotoService, NodeService, IconService]
         });
         httpTestingController = TestBed.inject(HttpTestingController);
     });

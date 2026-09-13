@@ -5,9 +5,7 @@ const USERS_URL = `${DASHBOARD_URL}/users`;
 
 async function goToUsersPage(page: Page): Promise<void> {
     const validToken = createMockToken({ email: 'admin@system.local', role: 'admin' });
-    await page.context().addCookies([
-        { name: 'accessToken', value: validToken, domain: 'localhost', path: '/' },
-    ]);
+    await page.context().addCookies([{ name: 'accessToken', value: validToken, domain: 'localhost', path: '/' }]);
     await page.goto(USERS_URL);
     await page.evaluate((t) => localStorage.setItem('accessToken', t), validToken);
     await page.reload();

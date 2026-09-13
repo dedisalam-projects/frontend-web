@@ -95,9 +95,12 @@ describe('Landing Page & Widgets Suite', () => {
             const token = `header.${btoa(JSON.stringify({ name: 'Dedi', exp }))}.sig`;
             localStorage.setItem('accessToken', token);
 
-            const parseSpy = vi.spyOn(JSON, 'parse').mockImplementationOnce(() => ({ exp })).mockImplementationOnce(() => {
-                throw new Error('Corrupt payload');
-            });
+            const parseSpy = vi
+                .spyOn(JSON, 'parse')
+                .mockImplementationOnce(() => ({ exp }))
+                .mockImplementationOnce(() => {
+                    throw new Error('Corrupt payload');
+                });
 
             component.checkAuth();
             expect(component.currentUser()).toBeNull();

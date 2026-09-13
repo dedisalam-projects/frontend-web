@@ -41,7 +41,10 @@
               "allowedHosts": [
                 "localhost",
                 "127.0.0.1",
-                "[::1]"
+                "[::1]",
+                "dedisalam.my.id",
+                "auth.dedisalam.my.id",
+                "dash.dedisalam.my.id"
               ]
             },
             "ssr": {
@@ -50,6 +53,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/dashboard/src/environments/environment.ts",
+                  "with": "projects/dashboard/src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -162,7 +171,10 @@
               "allowedHosts": [
                 "localhost",
                 "127.0.0.1",
-                "[::1]"
+                "[::1]",
+                "dedisalam.my.id",
+                "auth.dedisalam.my.id",
+                "dash.dedisalam.my.id"
               ]
             },
             "ssr": {
@@ -171,6 +183,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/landing/src/environments/environment.ts",
+                  "with": "projects/landing/src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -262,7 +280,10 @@
               "allowedHosts": [
                 "localhost",
                 "127.0.0.1",
-                "[::1]"
+                "[::1]",
+                "dedisalam.my.id",
+                "auth.dedisalam.my.id",
+                "dash.dedisalam.my.id"
               ]
             },
             "ssr": {
@@ -271,6 +292,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/auth/src/environments/environment.ts",
+                  "with": "projects/auth/src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",

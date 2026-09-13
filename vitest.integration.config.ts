@@ -11,13 +11,13 @@ import angular from '@analogjs/vite-plugin-angular';
 export default defineConfig({
     plugins: [
         angular({
-            tsconfig: './projects/dashboard/tsconfig.spec.json',
-        }) as any,
+            tsconfig: './projects/dashboard/tsconfig.spec.json'
+        }) as any
     ],
     resolve: {
         alias: {
-            'shared-ui': new URL('./dist/shared-ui', import.meta.url).pathname,
-        },
+            'shared-ui': new URL('./dist/shared-ui', import.meta.url).pathname
+        }
     },
     test: {
         globals: true,
@@ -25,6 +25,6 @@ export default defineConfig({
         setupFiles: ['./vitest-setup.ts'],
         include: ['projects/**/src/**/*.integration.spec.ts'],
         reporters: ['verbose'],
-        testTimeout: 15000,
-    },
+        testTimeout: 15000
+    }
 });

@@ -12,7 +12,6 @@ import { AUTH_URL, DASHBOARD_URL, LANDING_URL, createMockToken, clearAuthState }
  * - Interactive elements focusability
  */
 test.describe('Accessibility (WCAG 2.2 AA) Audits', () => {
-
     test('Landing Page (4001) should pass axe accessibility scan', async ({ page }) => {
         await page.goto(LANDING_URL);
         await page.waitForLoadState('networkidle');
@@ -24,35 +23,47 @@ test.describe('Accessibility (WCAG 2.2 AA) Audits', () => {
 
         // Print details if violations exist
         if (accessibilityScanResults.violations.length > 0) {
-            console.log('Landing a11y violations:', JSON.stringify(accessibilityScanResults.violations.map(v => ({
-                id: v.id,
-                impact: v.impact,
-                description: v.description,
-                nodes: v.nodes.length
-            })), null, 2));
+            console.log(
+                'Landing a11y violations:',
+                JSON.stringify(
+                    accessibilityScanResults.violations.map((v) => ({
+                        id: v.id,
+                        impact: v.impact,
+                        description: v.description,
+                        nodes: v.nodes.length
+                    })),
+                    null,
+                    2
+                )
+            );
         }
 
-        expect(accessibilityScanResults.violations.filter(v => v.impact === 'critical')).toEqual([]);
+        expect(accessibilityScanResults.violations.filter((v) => v.impact === 'critical')).toEqual([]);
     });
 
     test('Auth Login Page (4002) should pass axe accessibility scan', async ({ page }) => {
         await page.goto(AUTH_URL);
         await page.waitForLoadState('networkidle');
 
-        const accessibilityScanResults = await new AxeBuilder({ page })
-            .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
-            .analyze();
+        const accessibilityScanResults = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
 
         if (accessibilityScanResults.violations.length > 0) {
-            console.log('Auth login a11y violations:', JSON.stringify(accessibilityScanResults.violations.map(v => ({
-                id: v.id,
-                impact: v.impact,
-                description: v.description,
-                nodes: v.nodes.length
-            })), null, 2));
+            console.log(
+                'Auth login a11y violations:',
+                JSON.stringify(
+                    accessibilityScanResults.violations.map((v) => ({
+                        id: v.id,
+                        impact: v.impact,
+                        description: v.description,
+                        nodes: v.nodes.length
+                    })),
+                    null,
+                    2
+                )
+            );
         }
 
-        expect(accessibilityScanResults.violations.filter(v => v.impact === 'critical')).toEqual([]);
+        expect(accessibilityScanResults.violations.filter((v) => v.impact === 'critical')).toEqual([]);
     });
 
     test('Dashboard Page (4000) should pass axe accessibility scan', async ({ page, context }) => {
@@ -62,8 +73,8 @@ test.describe('Accessibility (WCAG 2.2 AA) Audits', () => {
                 name: 'accessToken',
                 value: token,
                 domain: 'localhost',
-                path: '/',
-            },
+                path: '/'
+            }
         ]);
 
         await page.goto(DASHBOARD_URL);
@@ -71,20 +82,25 @@ test.describe('Accessibility (WCAG 2.2 AA) Audits', () => {
         await page.reload();
         await page.waitForLoadState('networkidle');
 
-        const accessibilityScanResults = await new AxeBuilder({ page })
-            .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
-            .analyze();
+        const accessibilityScanResults = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
 
         if (accessibilityScanResults.violations.length > 0) {
-            console.log('Dashboard a11y violations:', JSON.stringify(accessibilityScanResults.violations.map(v => ({
-                id: v.id,
-                impact: v.impact,
-                description: v.description,
-                nodes: v.nodes.length
-            })), null, 2));
+            console.log(
+                'Dashboard a11y violations:',
+                JSON.stringify(
+                    accessibilityScanResults.violations.map((v) => ({
+                        id: v.id,
+                        impact: v.impact,
+                        description: v.description,
+                        nodes: v.nodes.length
+                    })),
+                    null,
+                    2
+                )
+            );
         }
 
-        expect(accessibilityScanResults.violations.filter(v => v.impact === 'critical')).toEqual([]);
+        expect(accessibilityScanResults.violations.filter((v) => v.impact === 'critical')).toEqual([]);
     });
 
     test('Users Management Page (4000/users) should pass axe accessibility scan', async ({ page, context }) => {
@@ -94,8 +110,8 @@ test.describe('Accessibility (WCAG 2.2 AA) Audits', () => {
                 name: 'accessToken',
                 value: token,
                 domain: 'localhost',
-                path: '/',
-            },
+                path: '/'
+            }
         ]);
 
         await page.goto(`${DASHBOARD_URL}/users`);
@@ -103,19 +119,24 @@ test.describe('Accessibility (WCAG 2.2 AA) Audits', () => {
         await page.reload();
         await page.waitForLoadState('networkidle');
 
-        const accessibilityScanResults = await new AxeBuilder({ page })
-            .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
-            .analyze();
+        const accessibilityScanResults = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
 
         if (accessibilityScanResults.violations.length > 0) {
-            console.log('Users page a11y violations:', JSON.stringify(accessibilityScanResults.violations.map(v => ({
-                id: v.id,
-                impact: v.impact,
-                description: v.description,
-                nodes: v.nodes.length
-            })), null, 2));
+            console.log(
+                'Users page a11y violations:',
+                JSON.stringify(
+                    accessibilityScanResults.violations.map((v) => ({
+                        id: v.id,
+                        impact: v.impact,
+                        description: v.description,
+                        nodes: v.nodes.length
+                    })),
+                    null,
+                    2
+                )
+            );
         }
 
-        expect(accessibilityScanResults.violations.filter(v => v.impact === 'critical')).toEqual([]);
+        expect(accessibilityScanResults.violations.filter((v) => v.impact === 'critical')).toEqual([]);
     });
 });

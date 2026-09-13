@@ -11,11 +11,16 @@
         <!-- Inject fonts only after critical render to guarantee maximum Lighthouse score -->
         <script>
             function loadFonts() {
-                var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '/fonts/fonts.css';
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = '/fonts/fonts.css';
                 document.head.appendChild(l);
             }
-            if(window.requestIdleCallback) { requestIdleCallback(loadFonts); }
-            else { window.addEventListener('load', loadFonts); }
+            if (window.requestIdleCallback) {
+                requestIdleCallback(loadFonts);
+            } else {
+                window.addEventListener('load', loadFonts);
+            }
         </script>
         <noscript><link rel="stylesheet" href="/fonts/fonts.css" /></noscript>
     </head>
@@ -23,5 +28,3 @@
         <app-root></app-root>
     </body>
 </html>
-
-

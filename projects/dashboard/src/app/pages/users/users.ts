@@ -17,6 +17,7 @@ import { TagModule } from 'primeng/tag';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { User, UserService } from '../service/user.service';
+import { environment } from '../../../environments/environment';
 
 interface Column {
     field: string;
@@ -32,23 +33,7 @@ interface ExportColumn {
 @Component({
     selector: 'app-users',
     standalone: true,
-    imports: [
-        CommonModule,
-        TableModule,
-        FormsModule,
-        ButtonModule,
-        RippleModule,
-        ToastModule,
-        ToolbarModule,
-        InputTextModule,
-        PasswordModule,
-        SelectModule,
-        DialogModule,
-        ConfirmDialogModule,
-        TagModule,
-        InputIconModule,
-        IconFieldModule
-    ],
+    imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, PasswordModule, SelectModule, DialogModule, ConfirmDialogModule, TagModule, InputIconModule, IconFieldModule],
     providers: [MessageService, ConfirmationService],
     template: `
         <p-toast></p-toast>
@@ -237,14 +222,17 @@ export class Users implements OnInit, OnDestroy {
             return;
         }
         this.loading = true;
-        this.userService.getUsers().then((data) => {
-            const list = Array.isArray(data) ? data : ((data as any)?.data && Array.isArray((data as any).data)) ? (data as any).data : [];
-            this.users.set(list);
-            this.loading = false;
-        }).catch((err) => {
-            this.loading = false;
-            console.warn('Could not load remote users:', err);
-        });
+        this.userService
+            .getUsers()
+            .then((data) => {
+                const list = Array.isArray(data) ? data : (data as any)?.data && Array.isArray((data as any).data) ? (data as any).data : [];
+                this.users.set(list);
+                this.loading = false;
+            })
+            .catch((err) => {
+                this.loading = false;
+                console.warn('Could not load remote users:', err);
+            });
     }
 
     openNew() {
@@ -365,9 +353,7 @@ export class Users implements OnInit, OnDestroy {
                     isActive: this.user.isActive
                 });
 
-                this.users.update((current) =>
-                    current.map((u) => (u.id === updated.id ? { ...u, ...updated } : u))
-                );
+                this.users.update((current) => current.map((u) => (u.id === updated.id ? { ...u, ...updated } : u)));
 
                 this.messageService.add({
                     severity: 'success',
@@ -414,7 +400,7 @@ export class Users implements OnInit, OnDestroy {
         if (!isPlatformBrowser(this.platformId)) return;
         const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null;
         try {
-            this.socket = io('http://localhost:3000/notifications', {
+            this.socket = io(`${environment.socketUrl}/notifications`, {
                 transports: ['websocket', 'polling'],
                 auth: { token }
             });
@@ -455,9 +441,7 @@ export class Users implements OnInit, OnDestroy {
                 const userId = data?.userId;
                 const changes = data?.changes;
                 if (userId && changes) {
-                    this.users.update((current) =>
-                        current.map((u) => (u.id === userId || (u as any)._id === userId ? { ...u, ...changes } : u))
-                    );
+                    this.users.update((current) => current.map((u) => (u.id === userId || (u as any)._id === userId ? { ...u, ...changes } : u)));
                 }
             });
         } catch (err) {

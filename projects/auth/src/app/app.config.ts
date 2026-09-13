@@ -7,12 +7,5 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
-    providers: [
-        provideBrowserGlobalErrorListeners(),
-        provideRouter(routes),
-        provideHttpClient(withFetch()),
-        provideClientHydration(),
-        provideAnimationsAsync(),
-        MessageService
-    ]
+    providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes), provideHttpClient(withFetch()), provideClientHydration(), provideAnimationsAsync(), MessageService]
 };

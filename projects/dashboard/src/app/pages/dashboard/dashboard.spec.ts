@@ -21,25 +21,8 @@ import { ProductService } from '../service/product.service';
 describe('Dashboard & Core Components Suite', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [
-                Dashboard,
-                StatsWidget,
-                RecentSalesWidget,
-                BestSellingWidget,
-                RevenueStreamWidget,
-                NotificationsWidget,
-                Notfound,
-                AppComponent
-            ],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-                provideRouter([]),
-                providePrimeNG({ theme: { preset: Aura } }),
-                { provide: PLATFORM_ID, useValue: 'browser' },
-                LayoutService,
-                ProductService
-            ]
+            imports: [Dashboard, StatsWidget, RecentSalesWidget, BestSellingWidget, RevenueStreamWidget, NotificationsWidget, Notfound, AppComponent],
+            providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), providePrimeNG({ theme: { preset: Aura } }), { provide: PLATFORM_ID, useValue: 'browser' }, LayoutService, ProductService]
         }).compileComponents();
     });
 

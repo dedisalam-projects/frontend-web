@@ -1,4 +1,4 @@
-process.env.NG_ALLOWED_HOSTS = 'localhost,localhost:4000,localhost:4001,localhost:4002,127.0.0.1,127.0.0.1:4000,127.0.0.1:4001,127.0.0.1:4002';
+process.env.NG_ALLOWED_HOSTS = 'localhost,localhost:4000,localhost:4001,localhost:4002,127.0.0.1,127.0.0.1:4000,127.0.0.1:4001,127.0.0.1:4002,dedisalam.my.id,auth.dedisalam.my.id,dash.dedisalam.my.id';
 import express from 'express';
 
 const { reqHandler } = await import('./dist/dashboard/server/server.mjs');

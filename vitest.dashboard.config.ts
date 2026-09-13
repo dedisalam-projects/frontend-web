@@ -5,13 +5,13 @@ import angular from '@analogjs/vite-plugin-angular';
 export default defineConfig({
     plugins: [
         angular({
-            tsconfig: './projects/dashboard/tsconfig.spec.json',
-        }) as any,
+            tsconfig: './projects/dashboard/tsconfig.spec.json'
+        }) as any
     ],
     resolve: {
         alias: {
-            'shared-ui': new URL('./dist/shared-ui', import.meta.url).pathname,
-        },
+            'shared-ui': new URL('./dist/shared-ui', import.meta.url).pathname
+        }
     },
     test: {
         globals: true,
@@ -22,16 +22,8 @@ export default defineConfig({
         reporters: ['verbose'],
         coverage: {
             provider: 'v8',
-            include: [
-                'projects/dashboard/src/app/**/*.ts',
-            ],
-            exclude: [
-                '**/*.spec.ts',
-                '**/main*.ts',
-                '**/server.ts',
-                '**/app.routes.ts',
-                '**/archive/**',
-            ],
-        },
-    },
+            include: ['projects/dashboard/src/app/**/*.ts'],
+            exclude: ['**/*.spec.ts', '**/main*.ts', '**/server.ts', '**/app.routes.ts', '**/archive/**']
+        }
+    }
 });

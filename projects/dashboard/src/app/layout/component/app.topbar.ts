@@ -9,6 +9,7 @@ import { AppConfigurator } from 'shared-ui';
 import { LayoutService } from 'shared-ui';
 import { io, Socket } from 'socket.io-client';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-topbar',
@@ -64,7 +65,16 @@ import { HttpClient } from '@angular/common/http';
                 </div>
             </div>
 
-            <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true" aria-label="More Options">
+            <button
+                class="layout-topbar-menu-button layout-topbar-action"
+                pStyleClass="@next"
+                enterFromClass="hidden"
+                enterActiveClass="animate-scalein"
+                leaveToClass="hidden"
+                leaveActiveClass="animate-fadeout"
+                [hideOnOutsideClick]="true"
+                aria-label="More Options"
+            >
                 <i class="pi pi-ellipsis-v"></i>
             </button>
 
@@ -122,7 +132,7 @@ export class AppTopbar implements OnInit, OnDestroy {
 
         if (isPlatformBrowser(this.platformId)) {
             const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null;
-            this.socket = io('http://localhost:3000/notifications', {
+            this.socket = io(`${environment.socketUrl}/notifications`, {
                 transports: ['websocket', 'polling'],
                 auth: { token }
             });
@@ -174,20 +184,26 @@ export class AppTopbar implements OnInit, OnDestroy {
     logout() {
         const token = localStorage.getItem('accessToken');
         if (token) {
-            this.http.post('http://localhost:3000/api/v1/auth/logout', {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }).subscribe({
-                next: () => {
-                    this.performLogout();
-                },
-                error: (err) => {
-                    console.error('Logout API failed', err);
-                    // Force logout on the frontend even if backend fails (e.g., token already expired)
-                    this.performLogout();
-                }
-            });
+            this.http
+                .post(
+                    `${environment.apiUrl}/auth/logout`,
+                    {},
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                )
+                .subscribe({
+                    next: () => {
+                        this.performLogout();
+                    },
+                    error: (err) => {
+                        console.error('Logout API failed', err);
+                        // Force logout on the frontend even if backend fails (e.g., token already expired)
+                        this.performLogout();
+                    }
+                });
         } else {
             this.performLogout();
         }
@@ -198,6 +214,6 @@ export class AppTopbar implements OnInit, OnDestroy {
         if (typeof document !== 'undefined') {
             document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         }
-        window.location.href = 'http://localhost:4002/';
+        window.location.href = `${environment.appUrls.auth}/`;
     }
 }

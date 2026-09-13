@@ -36,15 +36,7 @@ describe('Users CRUD Component', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [Users],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-                providePrimeNG({ theme: { preset: Aura } }),
-                { provide: PLATFORM_ID, useValue: 'browser' },
-                MessageService,
-                ConfirmationService,
-                UserService
-            ]
+            providers: [provideHttpClient(), provideHttpClientTesting(), providePrimeNG({ theme: { preset: Aura } }), { provide: PLATFORM_ID, useValue: 'browser' }, MessageService, ConfirmationService, UserService]
         }).compileComponents();
 
         userService = TestBed.inject(UserService);

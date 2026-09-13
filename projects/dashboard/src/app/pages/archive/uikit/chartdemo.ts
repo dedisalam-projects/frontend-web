@@ -1,8 +1,8 @@
-import {Component, effect, inject, PLATFORM_ID, signal} from '@angular/core';
+import { Component, effect, inject, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import {ChartModule} from 'primeng/chart';
+import { ChartModule } from 'primeng/chart';
 
-import {FluidModule} from 'primeng/fluid';
+import { FluidModule } from 'primeng/fluid';
 import { LayoutService } from 'shared-ui';
 
 @Component({
@@ -14,37 +14,49 @@ import { LayoutService } from 'shared-ui';
             <div class="col-span-12 xl:col-span-6">
                 <div class="card">
                     <div class="font-semibold text-xl mb-6">Linear</div>
-                    @if(lineData()){<p-chart type="line" [data]="lineData()" [options]="lineOptions()"></p-chart>}
+                    @if (lineData()) {
+                        <p-chart type="line" [data]="lineData()" [options]="lineOptions()"></p-chart>
+                    }
                 </div>
             </div>
             <div class="col-span-12 xl:col-span-6">
                 <div class="card">
                     <div class="font-semibold text-xl mb-6">Bar</div>
-                    @if(barData()){<p-chart type="bar" [data]="barData()" [options]="barOptions()"></p-chart>}
+                    @if (barData()) {
+                        <p-chart type="bar" [data]="barData()" [options]="barOptions()"></p-chart>
+                    }
                 </div>
             </div>
             <div class="col-span-12 xl:col-span-6">
                 <div class="card flex flex-col items-center">
                     <div class="font-semibold text-xl mb-6">Pie</div>
-                    @if(pieData()){<p-chart type="pie" [data]="pieData()" [options]="pieOptions()"></p-chart>}
+                    @if (pieData()) {
+                        <p-chart type="pie" [data]="pieData()" [options]="pieOptions()"></p-chart>
+                    }
                 </div>
             </div>
             <div class="col-span-12 xl:col-span-6">
                 <div class="card flex flex-col items-center">
                     <div class="font-semibold text-xl mb-6">Doughnut</div>
-                    @if(pieData()){<p-chart type="doughnut" [data]="pieData()" [options]="pieOptions()"></p-chart>}
+                    @if (pieData()) {
+                        <p-chart type="doughnut" [data]="pieData()" [options]="pieOptions()"></p-chart>
+                    }
                 </div>
             </div>
             <div class="col-span-12 xl:col-span-6">
                 <div class="card flex flex-col items-center">
                     <div class="font-semibold text-xl mb-6">Polar Area</div>
-                    @if(polarData()){<p-chart type="polarArea" [data]="polarData()" [options]="polarOptions()"></p-chart>}
+                    @if (polarData()) {
+                        <p-chart type="polarArea" [data]="polarData()" [options]="polarOptions()"></p-chart>
+                    }
                 </div>
             </div>
             <div class="col-span-12 xl:col-span-6">
                 <div class="card flex flex-col items-center">
                     <div class="font-semibold text-xl mb-6">Radar</div>
-                    @if(radarData()){<p-chart type="radar" [data]="radarData()" [options]="radarOptions()"></p-chart>}
+                    @if (radarData()) {
+                        <p-chart type="radar" [data]="radarData()" [options]="radarOptions()"></p-chart>
+                    }
                 </div>
             </div>
         </p-fluid>
@@ -55,29 +67,29 @@ export class ChartDemo {
     platformId = inject(PLATFORM_ID);
 
     lineData = signal<any>(null);
-    
+
     barData = signal<any>(null);
-    
+
     pieData = signal<any>(null);
-    
+
     polarData = signal<any>(null);
-    
+
     radarData = signal<any>(null);
 
     lineOptions = signal<any>(null);
-    
+
     barOptions = signal<any>(null);
-    
+
     pieOptions = signal<any>(null);
-    
+
     polarOptions = signal<any>(null);
-    
+
     radarOptions = signal<any>(null);
 
     chartEffect = effect(() => {
         this.layoutService.layoutConfig().darkTheme;
         setTimeout(() => this.initCharts(), 150);
-    })
+    });
 
     initCharts() {
         if (!isPlatformBrowser(this.platformId)) {

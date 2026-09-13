@@ -14,12 +14,7 @@ describe('AppFloatingConfigurator', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [AppFloatingConfigurator],
-            providers: [
-                LayoutService,
-                providePrimeNG({ theme: { preset: Aura } }),
-                { provide: Router, useValue: { url: '/' } },
-                { provide: PLATFORM_ID, useValue: 'browser' }
-            ]
+            providers: [LayoutService, providePrimeNG({ theme: { preset: Aura } }), { provide: Router, useValue: { url: '/' } }, { provide: PLATFORM_ID, useValue: 'browser' }]
         }).compileComponents();
 
         fixture = TestBed.createComponent(AppFloatingConfigurator);

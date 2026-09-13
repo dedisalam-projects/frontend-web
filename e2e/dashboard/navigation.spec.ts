@@ -1,10 +1,5 @@
 import { test, expect } from '@playwright/test';
-import {
-    DASHBOARD_URL,
-    AUTH_URL,
-    createMockToken,
-    clearAuthState,
-} from '../fixtures/auth.fixture';
+import { DASHBOARD_URL, AUTH_URL, createMockToken, clearAuthState } from '../fixtures/auth.fixture';
 
 test.describe('Dashboard Auth Guard', () => {
     test.beforeEach(async ({ page }) => {
@@ -24,9 +19,7 @@ test.describe('Dashboard Auth Guard', () => {
     test('should redirect to login when accessing dashboard with expired token', async ({ page, context }) => {
         // Set an expired token
         const expiredToken = createMockToken({ exp: Math.floor(Date.now() / 1000) - 3600 });
-        await context.addCookies([
-            { name: 'accessToken', value: expiredToken, domain: 'localhost', path: '/' },
-        ]);
+        await context.addCookies([{ name: 'accessToken', value: expiredToken, domain: 'localhost', path: '/' }]);
         await page.goto(DASHBOARD_URL);
         await page.evaluate((t) => localStorage.setItem('accessToken', t), expiredToken);
         await page.reload();
@@ -39,9 +32,7 @@ test.describe('Dashboard Auth Guard', () => {
 
     test('should allow access to dashboard with valid token in localStorage', async ({ page, context }) => {
         const validToken = createMockToken();
-        await context.addCookies([
-            { name: 'accessToken', value: validToken, domain: 'localhost', path: '/' },
-        ]);
+        await context.addCookies([{ name: 'accessToken', value: validToken, domain: 'localhost', path: '/' }]);
         await page.goto(DASHBOARD_URL);
         await page.evaluate((t) => localStorage.setItem('accessToken', t), validToken);
         await page.reload();
@@ -56,9 +47,7 @@ test.describe('Dashboard Navigation', () => {
     test.beforeEach(async ({ page, context }) => {
         // Inject valid token for all navigation tests
         const validToken = createMockToken();
-        await context.addCookies([
-            { name: 'accessToken', value: validToken, domain: 'localhost', path: '/' },
-        ]);
+        await context.addCookies([{ name: 'accessToken', value: validToken, domain: 'localhost', path: '/' }]);
         await page.goto(DASHBOARD_URL);
         await page.evaluate((t) => localStorage.setItem('accessToken', t), validToken);
         await page.reload();

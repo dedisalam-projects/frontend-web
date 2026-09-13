@@ -23,10 +23,7 @@ export default defineConfig({
     retries: isCI ? 2 : 0,
     workers: isCI ? 2 : 1,
 
-    reporter: [
-        ['html', { outputFolder: 'playwright-report', open: isCI ? 'never' : 'on-failure' }],
-        ['list'],
-    ],
+    reporter: [['html', { outputFolder: 'playwright-report', open: isCI ? 'never' : 'on-failure' }], ['list']],
 
     use: {
         // Auth app is the entry point for login
@@ -38,8 +35,8 @@ export default defineConfig({
         // Local: headed with visible browser; CI: headless
         headless: isCI,
         launchOptions: {
-            slowMo: isCI ? 0 : 50,
-        },
+            slowMo: isCI ? 0 : 50
+        }
     },
 
     projects: [
@@ -48,15 +45,15 @@ export default defineConfig({
             name: 'chromium-desktop',
             use: {
                 ...devices['Desktop Chrome'],
-                viewport: { width: 1920, height: 1080 },
-            },
+                viewport: { width: 1920, height: 1080 }
+            }
         },
         {
             name: 'chromium-laptop',
             use: {
                 ...devices['Desktop Chrome'],
-                viewport: { width: 1366, height: 768 },
-            },
+                viewport: { width: 1366, height: 768 }
+            }
         },
 
         // ── Tablet ─────────────────────────────────────────────────────────
@@ -64,27 +61,27 @@ export default defineConfig({
             name: 'tablet',
             use: {
                 ...devices['iPad Pro 11'],
-                viewport: { width: 768, height: 1024 },
-            },
+                viewport: { width: 768, height: 1024 }
+            }
         },
 
         // ── Mobile ─────────────────────────────────────────────────────────
         {
             name: 'mobile-chrome',
-            use: { ...devices['Pixel 5'] },
+            use: { ...devices['Pixel 5'] }
         },
         {
             name: 'mobile-safari',
-            use: { ...devices['iPhone 13'] },
+            use: { ...devices['iPhone 13'] }
         },
 
         // ── Firefox & WebKit (CI only) ─────────────────────────────────────
         ...(isCI
             ? [
                   { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-                  { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+                  { name: 'webkit', use: { ...devices['Desktop Safari'] } }
               ]
-            : []),
+            : [])
     ],
 
     // Start apps automatically if PLAYWRIGHT_WEBSERVER=1
@@ -95,21 +92,21 @@ export default defineConfig({
                       command: 'npm run serve:ssr:auth',
                       url: 'http://localhost:4002',
                       reuseExistingServer: true,
-                      timeout: 60000,
+                      timeout: 60000
                   },
                   {
                       command: 'npm run serve:ssr:dashboard',
                       url: 'http://localhost:4000',
                       reuseExistingServer: true,
-                      timeout: 60000,
+                      timeout: 60000
                   },
                   {
                       command: 'npm run serve:ssr:landing',
                       url: 'http://localhost:4001',
                       reuseExistingServer: true,
-                      timeout: 60000,
-                  },
-              ],
+                      timeout: 60000
+                  }
+              ]
           }
-        : {}),
+        : {})
 });

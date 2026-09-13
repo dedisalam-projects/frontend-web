@@ -23,12 +23,7 @@ describe('HTTP Integration — UserService with Auth Headers', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-                provideRouter([]),
-                UserService,
-            ],
+            providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), UserService]
         });
         userService = TestBed.inject(UserService);
         httpMock = TestBed.inject(HttpTestingController);
@@ -68,9 +63,7 @@ describe('HTTP Integration — UserService with Auth Headers', () => {
 
     it('should unwrap { data: User[] } envelope format', async () => {
         localStorage.setItem('accessToken', 'tok');
-        const mockUsers = [
-            { id: '1', name: 'Alice', email: 'alice@x.com', role: 'admin', isActive: true },
-        ];
+        const mockUsers = [{ id: '1', name: 'Alice', email: 'alice@x.com', role: 'admin', isActive: true }];
 
         const promise = userService.getUsers();
         const req = httpMock.expectOne(API_URL);
@@ -127,7 +120,7 @@ describe('HTTP Integration — UserService with Auth Headers', () => {
         expect(req.request.headers.get('Authorization')).toBe('Bearer admin-token');
         expect(req.request.body).toMatchObject({
             email: 'charlie@x.com',
-            name: 'Charlie',
+            name: 'Charlie'
         });
 
         req.flush({ data: { id: 'new-1', ...newUser } });
