@@ -400,9 +400,13 @@ export class Users implements OnInit, OnDestroy {
         if (!isPlatformBrowser(this.platformId)) return;
         const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null;
         try {
-            this.socket = io(`${environment.socketUrl}/notifications`, {
+            this.socket = io(`${environment.socketUrl}/users`, {
                 transports: ['websocket', 'polling'],
                 auth: { token }
+            });
+
+            this.socket.on('connect', () => {
+                this.socket?.emit('admin:join', {});
             });
 
             this.socket.on('user_deleted', (data: { userId: string; timestamp?: string }) => {
@@ -420,7 +424,25 @@ export class Users implements OnInit, OnDestroy {
             });
 
             this.socket.on('user_created', (data: any) => {
-                const newUser = data?.user;
+                const newUser = data?.user || data;
+                if (newUser && (newUser.id || newUser._id)) {
+                    const mapped: User = {
+                        id: newUser.id || newUser._id,
+                        name: newUser.name,
+                        email: newUser.email,
+                        role: newUser.role,
+                        isActive: newUser.isActive !== undefined ? newUser.isActive : true,
+                        createdAt: newUser.createdAt || new Date().toISOString()
+                    };
+                    this.users.update((current) => {
+                        if (current.some((u) => u.id === mapped.id)) return current;
+                        return [mapped, ...current];
+                    });
+                }
+            });
+
+            this.socket.on('user:created', (data: any) => {
+                const newUser = data?.user || data;
                 if (newUser && (newUser.id || newUser._id)) {
                     const mapped: User = {
                         id: newUser.id || newUser._id,
@@ -438,8 +460,18 @@ export class Users implements OnInit, OnDestroy {
             });
 
             this.socket.on('user_updated', (data: any) => {
-                const userId = data?.userId;
-                const changes = data?.changes;
+                const updated = data?.user || data;
+                const userId = updated?.id || updated?._id || data?.userId;
+                const changes = data?.changes || updated;
+                if (userId && changes) {
+                    this.users.update((current) => current.map((u) => (u.id === userId || (u as any)._id === userId ? { ...u, ...changes } : u)));
+                }
+            });
+
+            this.socket.on('user:updated', (data: any) => {
+                const updated = data?.user || data;
+                const userId = updated?.id || updated?._id || data?.userId;
+                const changes = data?.changes || updated;
                 if (userId && changes) {
                     this.users.update((current) => current.map((u) => (u.id === userId || (u as any)._id === userId ? { ...u, ...changes } : u)));
                 }

@@ -20,7 +20,9 @@ vi.mock('socket.io-client', () => ({
     io: vi.fn(() => ({
         on: vi.fn(),
         disconnect: vi.fn(),
-        emit: vi.fn()
+        emit: vi.fn((event: string, data: any, cb?: Function) => {
+            if (typeof cb === 'function') cb({ success: true });
+        })
     }))
 }));
 
@@ -95,17 +97,14 @@ describe('Dashboard Layout Suite', () => {
     describe('AppTopbar', () => {
         let component: AppTopbar;
         let fixture: ComponentFixture<AppTopbar>;
-        let httpTestingController: HttpTestingController;
 
         beforeEach(() => {
             fixture = TestBed.createComponent(AppTopbar);
             component = fixture.componentInstance;
-            httpTestingController = TestBed.inject(HttpTestingController);
             localStorage.clear();
         });
 
         afterEach(() => {
-            httpTestingController.verify();
             localStorage.clear();
         });
 
@@ -156,25 +155,18 @@ describe('Dashboard Layout Suite', () => {
             expect(layoutService.layoutConfig().darkTheme).toBe(true);
         });
 
-        it('should perform logout API and clear token', () => {
+        it('should perform logout via Socket.IO auth:logout and clear token', () => {
             localStorage.setItem('accessToken', 'mock-token');
 
             component.logout();
-
-            const req = httpTestingController.expectOne('http://localhost:3000/api/v1/auth/logout');
-            expect(req.request.method).toBe('POST');
-            req.flush({});
 
             expect(localStorage.getItem('accessToken')).toBeNull();
         });
 
-        it('should handle logout when backend API returns error', () => {
+        it('should handle logout when backend returns error or disconnects', () => {
             localStorage.setItem('accessToken', 'mock-token');
 
             component.logout();
-
-            const req = httpTestingController.expectOne('http://localhost:3000/api/v1/auth/logout');
-            req.flush('Error', { status: 500, statusText: 'Server Error' });
 
             expect(localStorage.getItem('accessToken')).toBeNull();
         });

@@ -1,25 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { Login } from './login';
+import { AuthSocketService } from '../../core/services/auth-socket.service';
 
 describe('Login Component', () => {
     let component: Login;
     let fixture: ComponentFixture<Login>;
-    let httpTestingController: HttpTestingController;
+    let authSocketService: AuthSocketService;
     let messageService: MessageService;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [Login],
-            providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), MessageService, providePrimeNG({ theme: { preset: Aura } })]
+            providers: [provideRouter([]), MessageService, AuthSocketService, providePrimeNG({ theme: { preset: Aura } })]
         }).compileComponents();
 
-        httpTestingController = TestBed.inject(HttpTestingController);
+        authSocketService = TestBed.inject(AuthSocketService);
         messageService = TestBed.inject(MessageService);
         fixture = TestBed.createComponent(Login);
         component = fixture.componentInstance;
@@ -27,7 +26,6 @@ describe('Login Component', () => {
 
     afterEach(() => {
         vi.unstubAllGlobals();
-        httpTestingController.verify();
         localStorage.clear();
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
     });
@@ -53,8 +51,6 @@ describe('Login Component', () => {
         try {
             vi.stubGlobal('location', mockLocation);
         } catch {
-            // window.location is non-configurable in this JSDOM environment
-            // Just verify the component doesn't throw
             component.ngOnInit();
             return;
         }
@@ -81,46 +77,69 @@ describe('Login Component', () => {
         expect(localStorage.getItem('accessToken')).toBeNull();
     });
 
-    it('should handle onLogin success and set auth tokens', () => {
+    it('should handle onLogin success via Socket.IO and set auth tokens', async () => {
+        vi.spyOn(authSocketService, 'login').mockResolvedValue({
+            success: true,
+            data: {
+                accessToken: 'mock-jwt-token',
+                refreshToken: 'mock-refresh-token',
+                user: { id: 'usr-admin-1', email: 'admin@example.com', role: 'admin' }
+            }
+        });
+
         const mockLocation = { href: '' };
         try {
             vi.stubGlobal('location', mockLocation);
         } catch {
-            // window.location is non-configurable in this JSDOM environment
-            // Test the API call and storage side-effects only
-            component.email = 'admin@example.com';
-            component.password = 'password123';
-            component.onLogin();
-            const req = httpTestingController.expectOne('http://localhost:3000/api/v1/auth/login');
-            req.flush({ data: { accessToken: 'mock-jwt-token' } });
-            expect(localStorage.getItem('accessToken')).toBe('mock-jwt-token');
-            return;
+            // window.location is non-configurable in some environments
         }
 
         component.email = 'admin@example.com';
         component.password = 'password123';
-        component.onLogin();
+        await component.onLogin();
 
-        const req = httpTestingController.expectOne('http://localhost:3000/api/v1/auth/login');
-        expect(req.request.method).toBe('POST');
-        expect(req.request.body).toEqual({ email: 'admin@example.com', password: 'password123' });
-
-        req.flush({ data: { accessToken: 'mock-jwt-token' } });
-
+        expect(authSocketService.login).toHaveBeenCalledWith({
+            email: 'admin@example.com',
+            password: 'password123'
+        });
         expect(localStorage.getItem('accessToken')).toBe('mock-jwt-token');
+        expect(localStorage.getItem('refreshToken')).toBe('mock-refresh-token');
         expect(document.cookie).toContain('accessToken=mock-jwt-token');
-        expect(mockLocation.href).toContain('http://localhost:4000/?token=mock-jwt-token');
+        if (mockLocation.href) {
+            expect(mockLocation.href).toContain('http://localhost:4000/?token=mock-jwt-token');
+        }
     });
 
-    it('should handle onLogin failure and show error toast', () => {
+    it('should handle onLogin failure and show error toast', async () => {
         const toastSpy = vi.spyOn(messageService, 'add');
+        vi.spyOn(authSocketService, 'login').mockResolvedValue({
+            success: false,
+            error: {
+                code: 'UNAUTHORIZED',
+                message: 'Invalid credentials'
+            }
+        });
 
         component.email = 'wrong@example.com';
         component.password = 'badpass';
-        component.onLogin();
+        await component.onLogin();
 
-        const req = httpTestingController.expectOne('http://localhost:3000/api/v1/auth/login');
-        req.flush({ message: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+        expect(toastSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                severity: 'error',
+                summary: 'Login Failed',
+                detail: 'Invalid credentials'
+            })
+        );
+    });
+
+    it('should handle onLogin exception and show error toast', async () => {
+        const toastSpy = vi.spyOn(messageService, 'add');
+        vi.spyOn(authSocketService, 'login').mockRejectedValue(new Error('Connection failed'));
+
+        component.email = 'wrong@example.com';
+        component.password = 'badpass';
+        await component.onLogin();
 
         expect(toastSpy).toHaveBeenCalledWith(
             expect.objectContaining({

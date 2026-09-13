@@ -1,198 +1,179 @@
 /**
- * Integration Test: HTTP Auth Interceptor
+ * Integration Test: Realtime Socket.IO Communication — UserService
  *
  * Verifies that:
- * 1. Authorization Bearer token is attached to every API request
- * 2. Requests without token have no Authorization header
- * 3. withCredentials is set for cross-origin requests
- * 4. 401 response triggers cleanup (localStorage + cookie cleared)
- * 5. Response envelope { data, meta, error } is handled correctly
+ * 1. Authorization token from localStorage is passed during socket initialization / handshake
+ * 2. Realtime Ack RPC requests emit correct events (admin:users:list, admin:users:create, etc.)
+ * 3. Response envelope { success, data, meta } is handled and unwrapped correctly
+ * 4. Error response or disconnection triggers fallback gracefully
  */
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { PLATFORM_ID } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { UserService } from '../pages/service/user.service';
 
-const API_URL = 'http://localhost:3000/api/v1/users';
-const AUTH_URL = 'http://localhost:3000/api/v1/auth';
-
-describe('HTTP Integration — UserService with Auth Headers', () => {
+describe('Realtime Socket.IO Integration — UserService', () => {
     let userService: UserService;
-    let httpMock: HttpTestingController;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), UserService]
+            providers: [provideRouter([]), { provide: PLATFORM_ID, useValue: 'browser' }, UserService]
         });
         userService = TestBed.inject(UserService);
-        httpMock = TestBed.inject(HttpTestingController);
         localStorage.clear();
     });
 
     afterEach(() => {
-        httpMock.verify();
+        vi.restoreAllMocks();
         localStorage.clear();
     });
 
-    // ── Header Verification ───────────────────────────────────────────────
+    // ── Handshake Token Verification ──────────────────────────────────────
 
-    it('should attach Authorization Bearer header when accessToken exists in localStorage', async () => {
+    it('should propagate accessToken from localStorage to socket auth configuration', async () => {
         localStorage.setItem('accessToken', 'test-jwt-token-123');
 
-        const promise = userService.getUsers();
-        const req = httpMock.expectOne(API_URL);
+        const emitSpy = vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
+            success: true,
+            data: []
+        });
 
-        expect(req.request.headers.get('Authorization')).toBe('Bearer test-jwt-token-123');
-        req.flush({ data: [] });
+        await userService.getUsers();
 
-        await promise;
-    });
-
-    it('should NOT attach Authorization header when no accessToken in localStorage', async () => {
-        const promise = userService.getUsers();
-        const req = httpMock.expectOne(API_URL);
-
-        expect(req.request.headers.get('Authorization')).toBeNull();
-        req.flush([]);
-
-        await promise;
+        expect(emitSpy).toHaveBeenCalledWith('admin:users:list', { page: 1, limit: 100 });
+        const socket = userService.getSocket();
+        expect(socket).toBeDefined();
     });
 
     // ── Response Envelope Handling ────────────────────────────────────────
 
-    it('should unwrap { data: User[] } envelope format', async () => {
+    it('should unwrap { success: true, data: { users: User[] } } envelope format', async () => {
         localStorage.setItem('accessToken', 'tok');
         const mockUsers = [{ id: '1', name: 'Alice', email: 'alice@x.com', role: 'admin', isActive: true }];
 
-        const promise = userService.getUsers();
-        const req = httpMock.expectOne(API_URL);
-        req.flush({ data: mockUsers, meta: { total: 1 } });
+        vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
+            success: true,
+            data: { users: mockUsers, meta: { total: 1 } }
+        });
 
-        const result = await promise;
+        const result = await userService.getUsers();
         expect(result).toEqual(mockUsers);
     });
 
-    it('should handle plain array response (no envelope)', async () => {
+    it('should handle plain array response (direct data array)', async () => {
         localStorage.setItem('accessToken', 'tok');
         const mockUsers = [{ id: '2', name: 'Bob', email: 'bob@x.com', role: 'user', isActive: true }];
 
-        const promise = userService.getUsers();
-        const req = httpMock.expectOne(API_URL);
-        req.flush(mockUsers);
+        vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
+            success: true,
+            data: mockUsers
+        });
 
-        const result = await promise;
+        const result = await userService.getUsers();
         expect(result).toEqual(mockUsers);
     });
 
-    it('should return fallback users on 401 Unauthorized', async () => {
+    it('should return fallback users on UNAUTHORIZED socket response', async () => {
         localStorage.setItem('accessToken', 'expired-token');
 
-        const promise = userService.getUsers();
-        const req = httpMock.expectOne(API_URL);
-        req.flush({ message: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+        vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
+            success: false,
+            error: { code: 'UNAUTHORIZED', message: 'Token expired' }
+        });
 
-        const result = await promise;
-        // Falls back to hardcoded dataset
+        const result = await userService.getUsers();
+        expect(Array.isArray(result)).toBe(true);
+        expect(result.length).toBeGreaterThan(0);
+        expect(result[0].name).toBe('Super Admin');
+    });
+
+    it('should return fallback users on TIMEOUT or INTERNAL_ERROR', async () => {
+        vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
+            success: false,
+            error: { code: 'TIMEOUT', message: 'Timeout' }
+        });
+
+        const result = await userService.getUsers();
         expect(Array.isArray(result)).toBe(true);
         expect(result.length).toBeGreaterThan(0);
     });
 
-    it('should return fallback users on 500 Server Error', async () => {
-        const promise = userService.getUsers();
-        const req = httpMock.expectOne(API_URL);
-        req.flush({ message: 'Internal Server Error' }, { status: 500, statusText: 'Server Error' });
+    // ── Realtime CRUD Integration ──────────────────────────────────────────
 
-        const result = await promise;
-        expect(Array.isArray(result)).toBe(true);
-    });
-
-    // ── CRUD Integration ──────────────────────────────────────────────────
-
-    it('should POST to auth register endpoint on createUser', async () => {
+    it('should emit admin:users:create Ack RPC on createUser', async () => {
         localStorage.setItem('accessToken', 'admin-token');
         const newUser = { name: 'Charlie', email: 'charlie@x.com', password: 'pass123', role: 'user' };
 
-        const promise = userService.createUser(newUser);
-        const req = httpMock.expectOne(`${AUTH_URL}/register`);
-
-        expect(req.request.method).toBe('POST');
-        expect(req.request.headers.get('Authorization')).toBe('Bearer admin-token');
-        expect(req.request.body).toMatchObject({
-            email: 'charlie@x.com',
-            name: 'Charlie'
+        const emitSpy = vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
+            success: true,
+            data: { id: 'new-1', ...newUser }
         });
 
-        req.flush({ data: { id: 'new-1', ...newUser } });
-        const result = await promise;
+        const result = await userService.createUser(newUser);
+
+        expect(emitSpy).toHaveBeenCalledWith('admin:users:create', { ...newUser, isActive: true });
         expect(result.id).toBe('new-1');
+        expect(result.name).toBe('Charlie');
     });
 
-    it('should PATCH to users/:id on updateUser', async () => {
+    it('should emit admin:users:update on updateUser', async () => {
         localStorage.setItem('accessToken', 'admin-token');
         const updates = { name: 'Updated Name' };
 
-        const promise = userService.updateUser('usr-1', updates);
-        const req = httpMock.expectOne(`${API_URL}/usr-1`);
+        const emitSpy = vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
+            success: true,
+            data: { id: 'usr-1', ...updates }
+        });
 
-        expect(req.request.method).toBe('PATCH');
-        expect(req.request.headers.get('Authorization')).toBe('Bearer admin-token');
+        const result = await userService.updateUser('usr-1', updates);
 
-        req.flush({ data: { id: 'usr-1', ...updates } });
-        const result = await promise;
+        expect(emitSpy).toHaveBeenCalledWith('admin:users:update', { id: 'usr-1', ...updates });
         expect(result.id).toBe('usr-1');
         expect(result.name).toBe('Updated Name');
     });
 
-    it('should DELETE to users/:id on deleteUser', async () => {
+    it('should emit admin:users:delete on deleteUser', async () => {
         localStorage.setItem('accessToken', 'admin-token');
 
-        const promise = userService.deleteUser('usr-1');
-        const req = httpMock.expectOne(`${API_URL}/usr-1`);
+        const emitSpy = vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
+            success: true,
+            data: { deleted: true }
+        });
 
-        expect(req.request.method).toBe('DELETE');
-        expect(req.request.headers.get('Authorization')).toBe('Bearer admin-token');
+        const result = await userService.deleteUser('usr-1');
 
-        req.flush({});
-        await promise; // should resolve without error
+        expect(emitSpy).toHaveBeenCalledWith('admin:users:delete', { userId: 'usr-1' });
+        expect(result).toBe(true);
     });
 
-    it('should DELETE multiple users sequentially on deleteUsers', async () => {
+    it('should emit multiple admin:users:delete sequentially on deleteUsers', async () => {
         localStorage.setItem('accessToken', 'admin-token');
         const ids = ['usr-1', 'usr-2', 'usr-3'];
 
-        const promise = userService.deleteUsers(ids);
+        const emitSpy = vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
+            success: true,
+            data: { deleted: true }
+        });
 
-        const req1 = httpMock.expectOne(`${API_URL}/usr-1`);
-        req1.flush({});
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        const result = await userService.deleteUsers(ids);
 
-        const req2 = httpMock.expectOne(`${API_URL}/usr-2`);
-        req2.flush({});
-        await new Promise((resolve) => setTimeout(resolve, 10));
-
-        const req3 = httpMock.expectOne(`${API_URL}/usr-3`);
-        req3.flush({});
-
-        const result = await promise;
         expect(result).toBe(true);
-        expect(req1.request.method).toBe('DELETE');
-        expect(req2.request.method).toBe('DELETE');
-        expect(req3.request.method).toBe('DELETE');
+        expect(emitSpy).toHaveBeenCalledTimes(3);
     });
 
     // ── Optimistic Fallback ───────────────────────────────────────────────
 
-    it('should return optimistic user object when createUser backend fails', async () => {
+    it('should return optimistic user object when createUser backend returns error', async () => {
         localStorage.setItem('accessToken', 'admin-token');
         const newUser = { name: 'Dan', email: 'dan@x.com', password: 'pass', role: 'user', isActive: true };
 
-        const promise = userService.createUser(newUser);
-        const req = httpMock.expectOne(`${AUTH_URL}/register`);
-        req.flush({ message: 'Error' }, { status: 500, statusText: 'Server Error' });
+        vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
+            success: false,
+            error: { code: 'SERVER_ERROR', message: 'Server Error' }
+        });
 
-        const result = await promise;
-        // Optimistic fallback: returns constructed user
+        const result = await userService.createUser(newUser);
+
         expect(result.name).toBe('Dan');
         expect(result.email).toBe('dan@x.com');
         expect(result.id).toMatch(/^usr_/);

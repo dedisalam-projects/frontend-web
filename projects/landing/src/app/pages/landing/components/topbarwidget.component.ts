@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { Router, RouterModule } from '@angular/router';
 import { AppFloatingConfigurator } from 'shared-ui';
+import { io } from 'socket.io-client';
 import { environment } from '../../../../environments/environment';
 
 export interface UserProfile {
@@ -177,22 +178,42 @@ export class TopbarWidget implements OnInit {
 
     logout(): void {
         const token = this.getCookie('accessToken') || (typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null);
-        if (token) {
-            fetch(`${environment.apiUrl}/auth/logout`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }).catch((err) => console.error('Logout API error', err));
+        const performCleanup = () => {
+            if (typeof document !== 'undefined') {
+                document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+            }
+            if (typeof localStorage !== 'undefined') {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('currentUser');
+            }
+            this.currentUser.set(null);
+            window.location.reload();
+        };
+
+        if (token && typeof window !== 'undefined') {
+            try {
+                const socket = io(`${environment.socketUrl}/auth`, {
+                    transports: ['websocket', 'polling'],
+                    withCredentials: true,
+                    timeout: 3000
+                });
+                const timer = setTimeout(() => {
+                    socket.disconnect();
+                    performCleanup();
+                }, 2000);
+
+                socket.emit('auth:logout', { accessToken: token }, () => {
+                    clearTimeout(timer);
+                    socket.disconnect();
+                    performCleanup();
+                });
+            } catch {
+                performCleanup();
+            }
+        } else {
+            performCleanup();
         }
-        if (typeof document !== 'undefined') {
-            document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-        }
-        if (typeof localStorage !== 'undefined') {
-            localStorage.removeItem('accessToken');
-        }
-        this.currentUser.set(null);
-        window.location.reload();
     }
 
     private getCookie(name: string): string | null {
