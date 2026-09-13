@@ -45,7 +45,7 @@ Thumbs.db
 # Test & Audit artifacts
 lh-report*.json
 smp.json
-*.html
+lh-report*.html
 test_login.mjs
 .playwright-mcp/
 .claude/
