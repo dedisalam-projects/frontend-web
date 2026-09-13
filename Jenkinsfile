@@ -137,12 +137,6 @@ pipeline {
                     docker build -t dedisalam/frontend-dashboard:staging -f docker/dashboard/Dockerfile.prod .
                     docker tag dedisalam/frontend-dashboard:staging dedisalam/frontend-dashboard:${RELEASE_TAG}
                     docker tag dedisalam/frontend-dashboard:staging dedisalam/frontend-dashboard:latest
-
-                    # 4. Monolith Web Container (Backward-Compatible Fallback)
-                    docker build -t dedisalam/frontend-web:staging -f docker/web/Dockerfile.prod .
-                    docker tag dedisalam/frontend-web:staging dedisalam/frontend-web:${RELEASE_TAG}
-                    docker tag dedisalam/frontend-web:staging dedisalam/frontend-web:latest
-
                     echo 'Pushing Docker images to Docker Hub registry...'
                     docker push dedisalam/frontend-landing:${RELEASE_TAG}
                     docker push dedisalam/frontend-landing:latest
@@ -150,8 +144,6 @@ pipeline {
                     docker push dedisalam/frontend-auth:latest
                     docker push dedisalam/frontend-dashboard:${RELEASE_TAG}
                     docker push dedisalam/frontend-dashboard:latest
-                    docker push dedisalam/frontend-web:${RELEASE_TAG}
-                    docker push dedisalam/frontend-web:latest
                 '''
             }
         }
@@ -159,7 +151,7 @@ pipeline {
         stage('Deploy Micro-frontends') {
             steps {
                 echo 'Deploying updated micro-frontend services via fullstack-infrastructure...'
-                build job: 'fullstack-infrastructure', parameters: [string(name: 'SERVICES', value: 'frontend-landing frontend-auth frontend-dashboard nginx')], wait: true
+                build job: 'fullstack-infrastructure', parameters: [string(name: 'SERVICES', value: 'frontend-landing frontend-auth frontend-dashboard')], wait: true
             }
         }
     }
