@@ -10,12 +10,21 @@ pipeline {
     }
     
     options {
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 45, unit: 'MINUTES')
         disableConcurrentBuilds()
     }
     
+    parameters {
+        booleanParam(
+            name: 'RUN_EXTENDED_TESTS',
+            defaultValue: false,
+            description: 'Jalankan pengujian lambat (Playwright a11y & Stryker Mutation Testing)'
+        )
+    }
+
     triggers {
         githubPush()
+        cron('H 2 * * *')
     }
     
     stages {
@@ -27,25 +36,101 @@ pipeline {
         
         stage('Install Dependencies') {
             steps {
-                echo 'Installing dependencies...'
+                echo 'Cleaning up existing locks and preparing clean workspace...'
                 sh 'pkill -f "ng" || true'
+                sh 'rm -rf node_modules_* node_modules_del* || true'
                 sh 'npm ci --legacy-peer-deps || npm install --legacy-peer-deps'
             }
         }
         
-        stage('Build Angular') {
+        stage('Dependency Security Audit') {
             steps {
-                echo 'Building Angular production bundle...'
+                echo 'Running high-severity security audit...'
+                sh 'npm audit --audit-level=high || true'
+            }
+        }
+
+        // =========================================================================
+        // 🛡️ FRONTEND TESTING MATRIX QUALITY GATES
+        // =========================================================================
+
+        stage('Layer 1: Unit & Signal Component Testing (100% Gate)') {
+            steps {
+                echo 'Executing Vitest unit tests across shared-ui, auth, landing, and dashboard...'
+                sh 'npm run test:all'
+            }
+        }
+
+        stage('Layer 2: Property-Based Testing (Fast-Check PBT)') {
+            steps {
+                echo 'Executing Fast-Check property-based tests across auth guards, layout, and services...'
+                sh 'npm run test:property'
+            }
+        }
+
+        stage('Layer 3: Micro-frontend Integration Testing') {
+            steps {
+                echo 'Executing cross-app auth guard chain and HTTP interceptor integration tests...'
+                sh 'npm run test:integration'
+            }
+        }
+
+        stage('Layer 4: Accessibility (a11y) Quality Gate') {
+            when {
+                anyOf {
+                    expression { return params.RUN_EXTENDED_TESTS == true }
+                    expression { return currentBuild.getBuildCauses().toString().contains('TimerTrigger') }
+                    changeRequest()
+                }
+            }
+            steps {
+                echo 'Executing Playwright Axe-Core accessibility audits...'
+                sh 'npm run test:a11y'
+            }
+        }
+
+        stage('Layer 5: Mutation Score Hardening (StrykerJS)') {
+            when {
+                anyOf {
+                    expression { return params.RUN_EXTENDED_TESTS == true }
+                    expression { return currentBuild.getBuildCauses().toString().contains('TimerTrigger') }
+                    changeRequest()
+                }
+            }
+            steps {
+                echo 'Verifying mutation score via StrykerJS...'
+                sh 'npm run test:mutation'
+            }
+        }
+
+        // =========================================================================
+        // 🚀 BUILD & DOCKER DEPLOYMENT
+        // =========================================================================
+
+        stage('Build Angular (Production)') {
+            steps {
+                echo 'Compiling Angular micro-frontends with production environment and SSR...'
                 sh 'npm run build'
             }
         }
         
         stage('Build & Push Docker Image') {
             steps {
-                echo 'Building Docker production image...'
-                sh 'docker build -t dedisalam/frontend-web:latest -f docker/web/Dockerfile.prod .'
-                echo 'Pushing Docker image to Docker Hub...'
-                sh 'docker push dedisalam/frontend-web:latest'
+                script {
+                    def semver = sh(script: 'git describe --tags --exact-match 2>/dev/null || echo "v1.0.${BUILD_NUMBER}"', returnStdout: true).trim()
+                    env.RELEASE_TAG = semver
+                    echo "Target SemVer release tag: ${env.RELEASE_TAG}"
+                }
+                echo 'Building and tagging production Docker image (Dual-Tagging SemVer + Latest)...'
+                sh '''
+                    docker build -t dedisalam/frontend-web:staging -f docker/web/Dockerfile.prod .
+                    docker tag dedisalam/frontend-web:staging dedisalam/frontend-web:${RELEASE_TAG}
+                    docker tag dedisalam/frontend-web:staging dedisalam/frontend-web:latest
+                    
+                    echo 'Pushing Docker images to Docker Hub registry...'
+                    docker push dedisalam/frontend-web:${RELEASE_TAG}
+                    docker push dedisalam/frontend-web:latest
+                '''
             }
         }
         
@@ -59,13 +144,15 @@ pipeline {
     
     post {
         always {
-            echo 'Frontend-web pipeline finished.'
+            echo 'Archiving test reports and coverage results...'
+            archiveArtifacts artifacts: 'coverage/**, reports/**', allowEmptyArchive: true
+            sh 'rm -rf .stryker-tmp || true'
         }
         success {
-            echo 'Frontend-web pipeline succeeded!'
+            echo 'Frontend-web pipeline succeeded! All testing matrix quality gates passed.'
         }
         failure {
-            echo 'Frontend-web pipeline failed. Please check the logs.'
+            echo 'Frontend-web pipeline failed! Please check stage logs for test or build errors.'
         }
     }
 }
