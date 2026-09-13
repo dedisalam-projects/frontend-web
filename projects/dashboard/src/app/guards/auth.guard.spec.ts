@@ -55,7 +55,7 @@ describe('authGuard', () => {
 
         const result = TestBed.runInInjectionContext(() => authGuard(route, {} as any));
         expect(result).toBe(false);
-        expect(mockLocation.href).toBe('http://localhost:4002/');
+        expect(mockLocation.href).toBe('http://localhost:4002/auth/login');
     });
 
     it('should reject expired cookie token and clear storage', () => {

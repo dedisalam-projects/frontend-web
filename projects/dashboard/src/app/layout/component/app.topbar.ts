@@ -214,6 +214,6 @@ export class AppTopbar implements OnInit, OnDestroy {
         if (typeof document !== 'undefined') {
             document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         }
-        window.location.href = `${environment.appUrls.auth}/`;
+        window.location.href = `${environment.appUrls.auth}/auth/login`;
     }
 }
