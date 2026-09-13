@@ -114,20 +114,42 @@ pipeline {
             }
         }
         
-        stage('Build & Push Docker Image') {
+        stage('Build & Push Docker Images') {
             steps {
                 script {
                     def semver = sh(script: 'git describe --tags --exact-match 2>/dev/null || echo "v1.0.${BUILD_NUMBER}"', returnStdout: true).trim()
                     env.RELEASE_TAG = semver
                     echo "Target SemVer release tag: ${env.RELEASE_TAG}"
                 }
-                echo 'Building and tagging production Docker image (Dual-Tagging SemVer + Latest)...'
+                echo 'Building and tagging production Docker images (Dual-Tagging SemVer + Latest)...'
                 sh '''
+                    # 1. Landing Micro-frontend (Port 4200)
+                    docker build -t dedisalam/frontend-landing:staging -f docker/landing/Dockerfile.prod .
+                    docker tag dedisalam/frontend-landing:staging dedisalam/frontend-landing:${RELEASE_TAG}
+                    docker tag dedisalam/frontend-landing:staging dedisalam/frontend-landing:latest
+
+                    # 2. Auth Micro-frontend (Port 4200)
+                    docker build -t dedisalam/frontend-auth:staging -f docker/auth/Dockerfile.prod .
+                    docker tag dedisalam/frontend-auth:staging dedisalam/frontend-auth:${RELEASE_TAG}
+                    docker tag dedisalam/frontend-auth:staging dedisalam/frontend-auth:latest
+
+                    # 3. Dashboard Micro-frontend (Port 4200)
+                    docker build -t dedisalam/frontend-dashboard:staging -f docker/dashboard/Dockerfile.prod .
+                    docker tag dedisalam/frontend-dashboard:staging dedisalam/frontend-dashboard:${RELEASE_TAG}
+                    docker tag dedisalam/frontend-dashboard:staging dedisalam/frontend-dashboard:latest
+
+                    # 4. Monolith Web Container (Backward-Compatible Fallback)
                     docker build -t dedisalam/frontend-web:staging -f docker/web/Dockerfile.prod .
                     docker tag dedisalam/frontend-web:staging dedisalam/frontend-web:${RELEASE_TAG}
                     docker tag dedisalam/frontend-web:staging dedisalam/frontend-web:latest
-                    
+
                     echo 'Pushing Docker images to Docker Hub registry...'
+                    docker push dedisalam/frontend-landing:${RELEASE_TAG}
+                    docker push dedisalam/frontend-landing:latest
+                    docker push dedisalam/frontend-auth:${RELEASE_TAG}
+                    docker push dedisalam/frontend-auth:latest
+                    docker push dedisalam/frontend-dashboard:${RELEASE_TAG}
+                    docker push dedisalam/frontend-dashboard:latest
                     docker push dedisalam/frontend-web:${RELEASE_TAG}
                     docker push dedisalam/frontend-web:latest
                 '''
