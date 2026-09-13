@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { AuthSocketService } from '../../core/services/auth-socket.service';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
@@ -84,7 +84,7 @@ export class Login implements OnInit {
     checked: boolean = false;
 
     constructor(
-        private http: HttpClient,
+        private authSocketService: AuthSocketService,
         private router: Router,
         private messageService: MessageService
     ) {}
@@ -127,33 +127,46 @@ export class Login implements OnInit {
         }
     }
 
-    onLogin() {
-        this.http
-            .post(`${environment.apiUrl}/auth/login`, {
+    async onLogin() {
+        try {
+            const res = await this.authSocketService.login({
                 email: this.email,
                 password: this.password
-            })
-            .subscribe({
-                next: (res: any) => {
-                    const token = res.data?.accessToken || res.accessToken;
-                    if (token) {
-                        localStorage.setItem('accessToken', token);
-                        const refreshToken = res.data?.refreshToken || res.refreshToken;
-                        if (refreshToken) {
-                            localStorage.setItem('refreshToken', refreshToken);
-                        }
-                        const user = res.data?.user || res.user;
-                        if (user) {
-                            localStorage.setItem('currentUser', JSON.stringify(user));
-                        }
-                        document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax`;
-                        window.location.href = `${environment.appUrls.dashboard}/?token=${token}`;
-                    }
-                },
-                error: (err) => {
-                    console.error('Login failed', err);
-                    this.messageService.add({ severity: 'error', summary: 'Login Failed', detail: 'Invalid email or password. Please try again.', life: 3000 });
-                }
             });
+
+            if (res.success && res.data) {
+                const token = res.data.accessToken;
+                if (token) {
+                    localStorage.setItem('accessToken', token);
+                    const refreshToken = res.data.refreshToken;
+                    if (refreshToken) {
+                        localStorage.setItem('refreshToken', refreshToken);
+                    }
+                    const user = res.data.user;
+                    if (user) {
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                    }
+                    document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax`;
+                    window.location.href = `${environment.appUrls.dashboard}/?token=${token}`;
+                    return;
+                }
+            }
+
+            const errorMsg = res.error?.message || 'Invalid email or password. Please try again.';
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Login Failed',
+                detail: errorMsg,
+                life: 3000
+            });
+        } catch (err) {
+            console.error('Login failed', err);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Login Failed',
+                detail: 'Invalid email or password. Please try again.',
+                life: 3000
+            });
+        }
     }
 }

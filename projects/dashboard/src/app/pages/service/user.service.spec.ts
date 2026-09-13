@@ -1,24 +1,21 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { PLATFORM_ID } from '@angular/core';
 import { UserService, User } from './user.service';
 import * as fc from 'fast-check';
 
 describe('UserService', () => {
     let service: UserService;
-    let httpTestingController: HttpTestingController;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [UserService, provideHttpClient(), provideHttpClientTesting()]
+            providers: [UserService, { provide: PLATFORM_ID, useValue: 'browser' }]
         });
         service = TestBed.inject(UserService);
-        httpTestingController = TestBed.inject(HttpTestingController);
         localStorage.clear();
     });
 
     afterEach(() => {
-        httpTestingController.verify();
+        vi.restoreAllMocks();
         localStorage.clear();
     });
 
@@ -26,47 +23,57 @@ describe('UserService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should fetch users successfully from backend', async () => {
+    it('should fetch users successfully from backend via admin:users:list Ack RPC', async () => {
         localStorage.setItem('accessToken', 'test-token');
         const mockUsers: User[] = [{ id: '1', name: 'Alice', email: 'alice@example.com', role: 'admin', isActive: true }];
 
-        const promise = service.getUsers();
+        const emitSpy = vi.spyOn(service as any, 'emitAck').mockResolvedValue({
+            success: true,
+            data: { users: mockUsers }
+        });
 
-        const req = httpTestingController.expectOne('http://localhost:3000/api/v1/users');
-        expect(req.request.method).toBe('GET');
-        expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
-        req.flush({ data: mockUsers });
+        const result = await service.getUsers();
 
-        const result = await promise;
+        expect(emitSpy).toHaveBeenCalledWith('admin:users:list', { page: 1, limit: 100 });
         expect(result).toEqual(mockUsers);
     });
 
-    it('should handle direct array response and non-array response in getUsers', async () => {
-        const directPromise = service.getUsers();
-        const req1 = httpTestingController.expectOne('http://localhost:3000/api/v1/users');
-        req1.flush([{ id: '9', name: 'Direct', email: 'd@d.com', role: 'user', isActive: true }]);
-        const res1 = await directPromise;
+    it('should handle direct array response and empty response in getUsers', async () => {
+        vi.spyOn(service as any, 'emitAck').mockResolvedValueOnce({
+            success: true,
+            data: [{ id: '9', name: 'Direct', email: 'd@d.com', role: 'user', isActive: true }]
+        });
+        const res1 = await service.getUsers();
         expect(res1.length).toBe(1);
 
-        const emptyPromise = service.getUsers();
-        const req2 = httpTestingController.expectOne('http://localhost:3000/api/v1/users');
-        req2.flush({ status: 'unknown_format' });
-        const res2 = await emptyPromise;
-        expect(res2).toEqual([]);
+        vi.spyOn(service as any, 'emitAck').mockResolvedValueOnce({
+            success: true,
+            data: null
+        });
+        const res2 = await service.getUsers();
+        expect(res2.length).toBeGreaterThan(0); // Falls back to default dataset
     });
 
     it('should fallback to mock dataset when getUsers backend fails', async () => {
-        const promise = service.getUsers();
+        vi.spyOn(service as any, 'emitAck').mockResolvedValue({
+            success: false,
+            error: { code: 'UNAUTHORIZED', message: 'Unauthorized' }
+        });
 
-        const req = httpTestingController.expectOne('http://localhost:3000/api/v1/users');
-        req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
-
-        const result = await promise;
+        const result = await service.getUsers();
         expect(result.length).toBeGreaterThan(0);
         expect(result[0].name).toBe('Super Admin');
     });
 
-    it('should createUser via API register and return created user', async () => {
+    it('should fallback to mock dataset when getUsers throws an exception', async () => {
+        vi.spyOn(service as any, 'emitAck').mockRejectedValue(new Error('Network error'));
+
+        const result = await service.getUsers();
+        expect(result.length).toBeGreaterThan(0);
+        expect(result[0].name).toBe('Super Admin');
+    });
+
+    it('should createUser via admin:users:create Ack RPC and return created user', async () => {
         const newUser = {
             name: 'Bob',
             email: 'bob@example.com',
@@ -75,76 +82,80 @@ describe('UserService', () => {
             isActive: true
         };
 
-        const promise = service.createUser(newUser);
+        const emitSpy = vi.spyOn(service as any, 'emitAck').mockResolvedValue({
+            success: true,
+            data: { id: 'usr-999', ...newUser }
+        });
 
-        const req = httpTestingController.expectOne('http://localhost:3000/api/v1/auth/register');
-        expect(req.request.method).toBe('POST');
-        req.flush({ data: { id: 'usr-999', ...newUser } });
+        const result = await service.createUser(newUser);
 
-        const result = await promise;
+        expect(emitSpy).toHaveBeenCalledWith('admin:users:create', newUser);
         expect(result.id).toBe('usr-999');
         expect(result.name).toBe('Bob');
     });
 
-    it('should handle createUser fallback when API register fails', async () => {
+    it('should handle createUser fallback when admin:users:create fails', async () => {
         const newUser = {
             name: 'Charlie',
             email: 'charlie@example.com',
             role: 'user'
         };
 
-        const promise = service.createUser(newUser);
+        vi.spyOn(service as any, 'emitAck').mockResolvedValue({
+            success: false,
+            error: { code: 'SERVICE_UNAVAILABLE', message: 'Service Unavailable' }
+        });
 
-        const req = httpTestingController.expectOne('http://localhost:3000/api/v1/auth/register');
-        req.flush('Service Unavailable', { status: 503, statusText: 'Service Unavailable' });
-
-        const result = await promise;
+        const result = await service.createUser(newUser);
         expect(result.id).toBeDefined();
         expect(result.name).toBe('Charlie');
     });
 
-    it('should updateUser via API and fallback on error', async () => {
+    it('should updateUser via admin:users:update Ack RPC and fallback on error', async () => {
         // Success case
-        const updatePromise1 = service.updateUser('1', { name: 'Updated' });
-        const req1 = httpTestingController.expectOne('http://localhost:3000/api/v1/users/1');
-        expect(req1.request.method).toBe('PATCH');
-        req1.flush({ data: { id: '1', name: 'Updated' } });
-        const result1 = await updatePromise1;
+        const emitSpy1 = vi.spyOn(service as any, 'emitAck').mockResolvedValueOnce({
+            success: true,
+            data: { id: '1', name: 'Updated' }
+        });
+        const result1 = await service.updateUser('1', { name: 'Updated' });
+        expect(emitSpy1).toHaveBeenCalledWith('admin:users:update', { id: '1', name: 'Updated' });
         expect(result1.name).toBe('Updated');
 
         // Error fallback case
-        const updatePromise2 = service.updateUser('2', { name: 'Fallback' });
-        const req2 = httpTestingController.expectOne('http://localhost:3000/api/v1/users/2');
-        req2.flush('Error', { status: 500, statusText: 'Error' });
-        const result2 = await updatePromise2;
+        vi.spyOn(service as any, 'emitAck').mockResolvedValueOnce({
+            success: false,
+            error: { code: 'INTERNAL_ERROR', message: 'Error' }
+        });
+        const result2 = await service.updateUser('2', { name: 'Fallback' });
         expect(result2.name).toBe('Fallback');
     });
 
-    it('should deleteUser via API and fallback on error', async () => {
-        const deletePromise1 = service.deleteUser('1');
-        const req1 = httpTestingController.expectOne('http://localhost:3000/api/v1/users/1');
-        expect(req1.request.method).toBe('DELETE');
-        req1.flush({ success: true });
-        expect(await deletePromise1).toBe(true);
+    it('should deleteUser via admin:users:delete Ack RPC and fallback on error', async () => {
+        const emitSpy1 = vi.spyOn(service as any, 'emitAck').mockResolvedValueOnce({
+            success: true,
+            data: { deleted: true }
+        });
+        const deleteResult1 = await service.deleteUser('1');
+        expect(emitSpy1).toHaveBeenCalledWith('admin:users:delete', { userId: '1' });
+        expect(deleteResult1).toBe(true);
 
-        const deletePromise2 = service.deleteUser('2');
-        const req2 = httpTestingController.expectOne('http://localhost:3000/api/v1/users/2');
-        req2.flush('Error', { status: 500, statusText: 'Error' });
-        expect(await deletePromise2).toBe(true);
+        vi.spyOn(service as any, 'emitAck').mockResolvedValueOnce({
+            success: false,
+            error: { code: 'INTERNAL_ERROR', message: 'Error' }
+        });
+        const deleteResult2 = await service.deleteUser('2');
+        expect(deleteResult2).toBe(true);
     });
 
     it('should delete multiple users with deleteUsers', async () => {
-        const deleteUsersPromise = service.deleteUsers(['1', '2']);
+        const emitSpy = vi.spyOn(service as any, 'emitAck').mockResolvedValue({
+            success: true,
+            data: { deleted: true }
+        });
 
-        const req1 = httpTestingController.expectOne('http://localhost:3000/api/v1/users/1');
-        req1.flush({ success: true });
-
-        await new Promise((resolve) => setTimeout(resolve, 10));
-
-        const req2 = httpTestingController.expectOne('http://localhost:3000/api/v1/users/2');
-        req2.flush({ success: true });
-
-        expect(await deleteUsersPromise).toBe(true);
+        const res = await service.deleteUsers(['1', '2']);
+        expect(res).toBe(true);
+        expect(emitSpy).toHaveBeenCalledTimes(2);
     });
 
     describe('Property-Based Invariants (fast-check)', () => {
@@ -158,10 +169,11 @@ describe('UserService', () => {
                         role: fc.constantFrom('admin', 'user', 'manager')
                     }),
                     async (inputUser) => {
-                        const promise = service.createUser(inputUser);
-                        const req = httpTestingController.expectOne('http://localhost:3000/api/v1/auth/register');
-                        req.flush('Error', { status: 500, statusText: 'Internal Server Error' });
-                        const result = await promise;
+                        vi.spyOn(service as any, 'emitAck').mockResolvedValueOnce({
+                            success: false,
+                            error: { code: 'INTERNAL_ERROR', message: 'Internal Server Error' }
+                        });
+                        const result = await service.createUser(inputUser);
 
                         expect(typeof result.id).toBe('string');
                         expect(result.id!.length).toBeGreaterThan(0);
@@ -183,10 +195,11 @@ describe('UserService', () => {
                         role: fc.constantFrom('admin', 'user', 'manager')
                     }),
                     async (id, updates) => {
-                        const promise = service.updateUser(id, updates);
-                        const req = httpTestingController.expectOne(`http://localhost:3000/api/v1/users/${id}`);
-                        req.flush('Offline', { status: 503, statusText: 'Unavailable' });
-                        const result = await promise;
+                        vi.spyOn(service as any, 'emitAck').mockResolvedValueOnce({
+                            success: false,
+                            error: { code: 'OFFLINE', message: 'Unavailable' }
+                        });
+                        const result = await service.updateUser(id, updates);
 
                         expect(result.id).toBe(id);
                         expect(result.name).toBe(updates.name);

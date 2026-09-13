@@ -8,7 +8,6 @@ import { MenuModule } from 'primeng/menu';
 import { AppConfigurator } from 'shared-ui';
 import { LayoutService } from 'shared-ui';
 import { io, Socket } from 'socket.io-client';
-import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -107,7 +106,6 @@ export class AppTopbar implements OnInit, OnDestroy {
 
     layoutService = inject(LayoutService);
     messageService = inject(MessageService);
-    http = inject(HttpClient);
     private platformId = inject(PLATFORM_ID);
     private socket?: Socket;
 
@@ -149,6 +147,24 @@ export class AppTopbar implements OnInit, OnDestroy {
                     life: 5000
                 });
             });
+
+            this.socket.on('notification:new', (data: any) => {
+                this.messageService.add({
+                    severity: 'info',
+                    summary: data.title || 'New Notification',
+                    detail: data.message || data.content || 'You have received a new notification',
+                    life: 5000
+                });
+            });
+
+            this.socket.on('notification:broadcast', (data: any) => {
+                this.messageService.add({
+                    severity: 'info',
+                    summary: data.title || 'System Broadcast',
+                    detail: data.message || data.content || 'System notification received',
+                    life: 5000
+                });
+            });
         }
     }
 
@@ -182,28 +198,30 @@ export class AppTopbar implements OnInit, OnDestroy {
     }
 
     logout() {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            this.http
-                .post(
-                    `${environment.apiUrl}/auth/logout`,
-                    {},
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                )
-                .subscribe({
-                    next: () => {
-                        this.performLogout();
-                    },
-                    error: (err) => {
-                        console.error('Logout API failed', err);
-                        // Force logout on the frontend even if backend fails (e.g., token already expired)
-                        this.performLogout();
-                    }
+        const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null;
+        const refreshToken = typeof localStorage !== 'undefined' ? localStorage.getItem('refreshToken') || undefined : undefined;
+        if (token && isPlatformBrowser(this.platformId)) {
+            try {
+                const authSocket = io(`${environment.socketUrl}/auth`, {
+                    transports: ['websocket', 'polling'],
+                    withCredentials: true,
+                    timeout: 4000
                 });
+
+                const cleanupAndRedirect = () => {
+                    authSocket.disconnect();
+                    this.performLogout();
+                };
+
+                const timer = setTimeout(cleanupAndRedirect, 3000);
+
+                authSocket.emit('auth:logout', { accessToken: token, refreshToken }, () => {
+                    clearTimeout(timer);
+                    cleanupAndRedirect();
+                });
+            } catch {
+                this.performLogout();
+            }
         } else {
             this.performLogout();
         }
