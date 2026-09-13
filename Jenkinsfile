@@ -123,17 +123,17 @@ pipeline {
                 }
                 echo 'Building and tagging production Docker images (Dual-Tagging SemVer + Latest)...'
                 sh '''
-                    # 1. Landing Micro-frontend (Port 4200)
+                    # 1. Landing Micro-frontend (Port 8080)
                     docker build -t dedisalam/frontend-landing:staging -f docker/landing/Dockerfile.prod .
                     docker tag dedisalam/frontend-landing:staging dedisalam/frontend-landing:${RELEASE_TAG}
                     docker tag dedisalam/frontend-landing:staging dedisalam/frontend-landing:latest
 
-                    # 2. Auth Micro-frontend (Port 4200)
+                    # 2. Auth Micro-frontend (Port 8080)
                     docker build -t dedisalam/frontend-auth:staging -f docker/auth/Dockerfile.prod .
                     docker tag dedisalam/frontend-auth:staging dedisalam/frontend-auth:${RELEASE_TAG}
                     docker tag dedisalam/frontend-auth:staging dedisalam/frontend-auth:latest
 
-                    # 3. Dashboard Micro-frontend (Port 4200)
+                    # 3. Dashboard Micro-frontend (Port 8080)
                     docker build -t dedisalam/frontend-dashboard:staging -f docker/dashboard/Dockerfile.prod .
                     docker tag dedisalam/frontend-dashboard:staging dedisalam/frontend-dashboard:${RELEASE_TAG}
                     docker tag dedisalam/frontend-dashboard:staging dedisalam/frontend-dashboard:latest
@@ -156,10 +156,10 @@ pipeline {
             }
         }
         
-        stage('Deploy Web Container') {
+        stage('Deploy Micro-frontends') {
             steps {
-                echo 'Deploying updated web service via fullstack-infrastructure...'
-                build job: 'fullstack-infrastructure', parameters: [string(name: 'SERVICES', value: 'web')], wait: true
+                echo 'Deploying updated micro-frontend services via fullstack-infrastructure...'
+                build job: 'fullstack-infrastructure', parameters: [string(name: 'SERVICES', value: 'frontend-landing frontend-auth frontend-dashboard nginx')], wait: true
             }
         }
     }
