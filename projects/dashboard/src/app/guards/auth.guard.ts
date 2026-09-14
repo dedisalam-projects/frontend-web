@@ -48,5 +48,5 @@ export const authGuard: CanActivateFn = (route, state) => {
         window.location.href = `${environment.appUrls.auth}/login`;
         return false;
     }
-    return true;
+    return false;
 };

@@ -9,7 +9,7 @@ import { Product, ProductService } from '../../service/product.service';
     standalone: true,
     selector: 'app-recent-sales-widget',
     imports: [CommonModule, TableModule, ButtonModule, RippleModule],
-    template: `<div class="card mb-8!">
+    template: `<div class="card mb-8!" style="min-height: 480px;">
         <div class="font-semibold text-xl mb-4">Recent Sales</div>
         <p-table [value]="products()" [paginator]="true" [rows]="5" responsiveLayout="scroll">
             <ng-template #header>
@@ -23,7 +23,7 @@ import { Product, ProductService } from '../../service/product.service';
             <ng-template #body let-product>
                 <tr>
                     <td style="width: 15%; min-width: 5rem;">
-                        <img src="/demo/images/product/{{ product.image }}" class="shadow-lg" alt="{{ product.name }}" width="50" />
+                        <img src="/demo/images/product/{{ product.image }}" class="shadow-lg rounded" alt="{{ product.name }}" width="50" height="50" style="height: 50px; width: 50px; object-fit: cover;" />
                     </td>
                     <td style="width: 35%; min-width: 7rem;">{{ product.name }}</td>
                     <td style="width: 35%; min-width: 8rem;">{{ product.price | currency: 'USD' }}</td>

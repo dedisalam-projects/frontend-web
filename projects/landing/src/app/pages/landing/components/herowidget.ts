@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
     template: `
         <div
             id="hero"
-            class="flex flex-col pt-6 px-6 lg:px-20 overflow-hidden"
+            class="flex flex-col pt-6 px-6 lg:px-20 pb-20 md:pb-28 lg:pb-36 overflow-hidden"
             style="background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), radial-gradient(77.36% 256.97% at 77.36% 57.52%, rgb(238, 239, 175) 0%, rgb(195, 227, 250) 100%); clip-path: ellipse(150% 87% at 93% 13%)"
         >
             <div class="mx-6 md:mx-20 mt-0 md:mt-6">
@@ -15,7 +15,7 @@ import { Component } from '@angular/core';
                 <a
                     href="#features"
                     class="hero-cta mt-4 inline-flex items-center justify-center rounded-full px-6 py-3 text-base font-semibold cursor-pointer border-none"
-                    style="background:var(--p-primary-color);color:var(--p-primary-contrast-color);"
+                    style="background:var(--p-primary-700, #047857);color:#ffffff;"
                     >Learn More</a
                 >
             </div>

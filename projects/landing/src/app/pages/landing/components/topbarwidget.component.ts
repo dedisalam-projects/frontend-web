@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { Router, RouterModule } from '@angular/router';
 import { AppFloatingConfigurator } from 'shared-ui';
-import { io } from 'socket.io-client';
 import { environment } from '../../../../environments/environment';
 
 export interface UserProfile {
@@ -55,22 +54,22 @@ export interface UserProfile {
         <div class="items-center bg-surface-0 dark:bg-surface-900 grow justify-between hidden lg:flex absolute lg:static w-full left-0 top-full px-12 lg:px-0 z-20 rounded-border">
             <ul class="list-none p-0 m-0 flex lg:items-center select-none flex-col lg:flex-row cursor-pointer gap-8">
                 <li>
-                    <a (click)="router.navigate(['/landing'], { fragment: 'home' })" class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
+                    <a href="#home" (click)="router.navigate(['/landing'], { fragment: 'home' })" class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
                         <span>Home</span>
                     </a>
                 </li>
                 <li>
-                    <a (click)="router.navigate(['/landing'], { fragment: 'features' })" class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
+                    <a href="#features" (click)="router.navigate(['/landing'], { fragment: 'features' })" class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
                         <span>Features</span>
                     </a>
                 </li>
                 <li>
-                    <a (click)="router.navigate(['/landing'], { fragment: 'highlights' })" class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
+                    <a href="#highlights" (click)="router.navigate(['/landing'], { fragment: 'highlights' })" class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
                         <span>Highlights</span>
                     </a>
                 </li>
                 <li>
-                    <a (click)="router.navigate(['/landing'], { fragment: 'pricing' })" class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
+                    <a href="#pricing" (click)="router.navigate(['/landing'], { fragment: 'pricing' })" class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
                         <span>Pricing</span>
                     </a>
                 </li>
@@ -88,7 +87,7 @@ export interface UserProfile {
                     <a
                         [href]="dashboardUrl"
                         class="inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold cursor-pointer no-underline shadow-sm"
-                        style="background:var(--p-primary-color);color:var(--p-primary-contrast-color);border:none;"
+                        style="background:var(--p-primary-700, #047857);color:#ffffff;border:none;"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect width="7" height="9" x="3" y="3" rx="1" />
@@ -121,7 +120,7 @@ export interface UserProfile {
                     <a
                         [href]="registerUrl"
                         class="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold cursor-pointer no-underline shadow-sm"
-                        style="background:var(--p-primary-color);color:var(--p-primary-contrast-color);border:none;"
+                        style="background:var(--p-primary-700, #047857);color:#ffffff;border:none;"
                     >
                         <span>Register</span>
                     </a>
@@ -176,7 +175,7 @@ export class TopbarWidget implements OnInit {
         return name.charAt(0).toUpperCase();
     }
 
-    logout(): void {
+    async logout(): Promise<void> {
         const token = this.getCookie('accessToken') || (typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null);
 
         // 1. Immediately and synchronously clear local authentication storage and state
@@ -199,20 +198,25 @@ export class TopbarWidget implements OnInit {
         // 2. Notify backend Socket.IO (non-blocking) and reload
         if (token && typeof window !== 'undefined') {
             try {
-                const socket = io(`${environment.socketUrl}/auth`, {
-                    transports: ['websocket', 'polling'],
-                    withCredentials: true,
-                    timeout: 3000
-                });
-                const timer = setTimeout(() => {
-                    socket.disconnect();
-                    performReload();
-                }, 2000);
+                const { io } = await import('socket.io-client');
+                await new Promise<void>((resolve) => {
+                    const socket = io(`${environment.socketUrl}/auth`, {
+                        transports: ['websocket', 'polling'],
+                        withCredentials: true,
+                        timeout: 3000
+                    });
+                    const timer = setTimeout(() => {
+                        socket.disconnect();
+                        performReload();
+                        resolve();
+                    }, 2000);
 
-                socket.emit('auth:logout', { accessToken: token }, () => {
-                    clearTimeout(timer);
-                    socket.disconnect();
-                    performReload();
+                    socket.emit('auth:logout', { accessToken: token }, () => {
+                        clearTimeout(timer);
+                        socket.disconnect();
+                        performReload();
+                        resolve();
+                    });
                 });
             } catch {
                 performReload();

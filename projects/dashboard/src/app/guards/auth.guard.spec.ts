@@ -105,4 +105,17 @@ describe('authGuard', () => {
         expect(result).toBe(true);
         expect(localStorage.getItem('accessToken')).toBe(token);
     });
+
+    it('should return false in SSR context when window is undefined', () => {
+        const route = { queryParams: {} } as unknown as ActivatedRouteSnapshot;
+        const originalWindow = globalThis.window;
+        try {
+            delete (globalThis as any).window;
+            const result = TestBed.runInInjectionContext(() => authGuard(route, {} as any));
+            expect(result).toBe(false);
+        } finally {
+            (globalThis as any).window = originalWindow;
+        }
+    });
 });
+

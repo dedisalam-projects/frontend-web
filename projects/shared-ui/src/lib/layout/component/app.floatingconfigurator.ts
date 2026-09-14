@@ -8,8 +8,14 @@ import { CommonModule } from '@angular/common';
 @Component({
     selector: 'app-floating-configurator',
     imports: [CommonModule, ButtonModule, StyleClassModule, AppConfigurator],
+    host: {
+        '[class.fixed]': 'float()',
+        '[class.top-8]': 'float()',
+        '[class.right-8]': 'float()',
+        '[class.z-50]': 'float()'
+    },
     template: `
-        <div class="flex gap-4 top-8 right-8" [ngClass]="{ fixed: float() }">
+        <div class="flex gap-4 items-center" [class.fixed]="float()" [class.top-8]="float()" [class.right-8]="float()" [class.z-50]="float()" style="min-width: 80px; min-height: 36px;">
             <p-button type="button" (onClick)="toggleDarkMode()" [rounded]="true" [icon]="isDarkTheme() ? 'pi pi-moon' : 'pi pi-sun'" severity="secondary" ariaLabel="Toggle Dark Mode" />
             <div class="relative">
                 <p-button

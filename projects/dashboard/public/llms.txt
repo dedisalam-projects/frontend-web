@@ -1,2 +1,12 @@
-# Sakai Dashboard
-This is the internal dashboard for Sakai, providing analytics, UI components, and administrative views.
+# Sakai Enterprise Dashboard
+
+> Administrative analytics, workspace metrics, and user management dashboard for the Sakai enterprise micro-frontend platform.
+
+## Dashboard Navigation
+- [Dashboard Overview](http://localhost:4000/): High-level KPIs, revenue charts, and sales activity.
+- [User Management](http://localhost:4000/pages/users): Role-based access control and user CRUD operations.
+- [UI Components](http://localhost:4000/uikit): Reusable PrimeNG UI kit and component library.
+
+## Platform Micro-Frontends
+- [Landing Page](http://localhost:4001/): Public SaaS portal, product features, and pricing.
+- [Authentication](http://localhost:4002/login): Single sign-on portal and user registration.

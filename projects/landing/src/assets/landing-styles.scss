@@ -1,6 +1,30 @@
-/* Landing page minimal styles - stripped of dashboard-specific CSS */
-/* NO primeicons font - all icons replaced with inline SVG for maximum performance */
-/* Font faces have been moved to /fonts/fonts.css which is loaded asynchronously */
+/* Landing page styles */
+@use 'primeicons/primeicons.css';
+
+@font-face {
+    font-family: 'primeicons';
+    font-display: swap;
+    src: url('primeicons/fonts/primeicons.eot');
+    src: url('primeicons/fonts/primeicons.eot?#iefix') format('embedded-opentype'), url('primeicons/fonts/primeicons.woff2') format('woff2'), url('primeicons/fonts/primeicons.woff') format('woff'), url('primeicons/fonts/primeicons.ttf') format('truetype'), url('primeicons/fonts/primeicons.svg?#primeicons') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Lato';
+    src: url('/fonts/lato-300.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Lato';
+    src: url('/fonts/lato-400.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
 
 /* CSS variable aliases used by PrimeNG components on landing */
 :root {

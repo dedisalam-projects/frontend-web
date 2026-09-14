@@ -7,10 +7,14 @@ import { LayoutService } from 'shared-ui';
     standalone: true,
     selector: 'app-revenue-stream-widget',
     imports: [ChartModule],
-    template: `<div class="card mb-8!">
+    template: `<div class="card mb-8!" style="min-height: 480px;">
         <div class="font-semibold text-xl mb-4">Revenue Stream</div>
         @if (chartData()) {
             <p-chart type="bar" [data]="chartData()" [options]="chartOptions()" class="h-100" />
+        } @else {
+            <div class="h-100 flex items-center justify-center" aria-hidden="true">
+                <i class="pi pi-spin pi-spinner text-2xl text-muted-color"></i>
+            </div>
         }
     </div>`
 })

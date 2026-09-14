@@ -51,7 +51,7 @@ import { Router, RouterModule } from '@angular/router';
                         <div class="col-span-12 md:col-span-3">
                             <h3 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Community</h3>
                             <a href="#" class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Discord</a>
-                            <a href="#" class="leading-normal text-xl flex items-center cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Events<img src="/layout/images/landing/new-badge.svg" alt="badge" class="ml-2" /></a>
+                            <a href="#" class="leading-normal text-xl flex items-center cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Events<img src="/layout/images/landing/new-badge.svg" alt="badge" class="ml-2" loading="lazy" decoding="async" /></a>
                             <a href="#" class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">FAQ</a>
                             <a href="#" class="leading-normal text-xl block cursor-pointer text-surface-700 dark:text-surface-100">Blog</a>
                         </div>

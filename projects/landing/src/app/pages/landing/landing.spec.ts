@@ -157,7 +157,7 @@ describe('Landing Page & Widgets Suite', () => {
             const token = `header.${btoa(JSON.stringify({ email: 'test@test.com', exp }))}.sig`;
             localStorage.setItem('accessToken', token);
 
-            component.logout();
+            await component.logout();
             expect(component.currentUser()).toBeNull();
             expect(localStorage.getItem('accessToken')).toBeNull();
             expect(reloadMock).toHaveBeenCalled();

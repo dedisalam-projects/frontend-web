@@ -17,7 +17,7 @@ import { RippleModule } from 'primeng/ripple';
                 <div class="col-span-12 lg:col-span-4 p-0 md:p-4">
                     <div class="p-4 flex flex-col border-surface-200 dark:border-surface-600 pricing-card cursor-pointer border-2 hover:border-primary duration-300 transition-all" style="border-radius: 10px">
                         <div class="text-surface-900 dark:text-surface-0 text-center my-8 text-3xl">Free</div>
-                        <img src="/layout/images/landing/free.svg" class="w-10/12 mx-auto" alt="free" />
+                        <img src="/layout/images/landing/free.svg" class="w-10/12 mx-auto" alt="free" loading="lazy" decoding="async" />
                         <div class="my-8 flex flex-col items-center gap-4">
                             <div class="flex items-center">
                                 <span class="text-5xl font-bold mr-2 text-surface-900 dark:text-surface-0">$0</span>
@@ -50,7 +50,7 @@ import { RippleModule } from 'primeng/ripple';
                 <div class="col-span-12 lg:col-span-4 p-0 md:p-4 mt-6 md:mt-0">
                     <div class="p-4 flex flex-col border-surface-200 dark:border-surface-600 pricing-card cursor-pointer border-2 hover:border-primary duration-300 transition-all" style="border-radius: 10px">
                         <div class="text-surface-900 dark:text-surface-0 text-center my-8 text-3xl">Startup</div>
-                        <img src="/layout/images/landing/startup.svg" class="w-10/12 mx-auto" alt="startup" />
+                        <img src="/layout/images/landing/startup.svg" class="w-10/12 mx-auto" alt="startup" loading="lazy" decoding="async" />
                         <div class="my-8 flex flex-col items-center gap-4">
                             <div class="flex items-center">
                                 <span class="text-5xl font-bold mr-2 text-surface-900 dark:text-surface-0">$1</span>
@@ -83,7 +83,7 @@ import { RippleModule } from 'primeng/ripple';
                 <div class="col-span-12 lg:col-span-4 p-0 md:p-4 mt-6 md:mt-0">
                     <div class="p-4 flex flex-col border-surface-200 dark:border-surface-600 pricing-card cursor-pointer border-2 hover:border-primary duration-300 transition-all" style="border-radius: 10px">
                         <div class="text-surface-900 dark:text-surface-0 text-center my-8 text-3xl">Enterprise</div>
-                        <img src="/layout/images/landing/enterprise.svg" class="w-10/12 mx-auto" alt="enterprise" />
+                        <img src="/layout/images/landing/enterprise.svg" class="w-10/12 mx-auto" alt="enterprise" loading="lazy" decoding="async" />
                         <div class="my-8 flex flex-col items-center gap-4">
                             <div class="flex items-center">
                                 <span class="text-5xl font-bold mr-2 text-surface-900 dark:text-surface-0">$5</span>

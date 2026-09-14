@@ -1,2 +1,13 @@
-# Sakai Authentication
-Login to your Sakai account.
+# Sakai Authentication Portal
+
+> Secure authentication, identity management, and authorization gateway for the Sakai enterprise micro-frontend platform.
+
+## Authentication Routes
+- [Sign In](http://localhost:4002/login): User authentication and credential verification.
+- [Sign Up](http://localhost:4002/auth/register): New account creation and onboarding.
+- [Access Denied](http://localhost:4002/auth/access): Access control and permission fallback.
+- [Error](http://localhost:4002/auth/error): Authentication error and session troubleshooting.
+
+## Companion Applications
+- [Dashboard](http://localhost:4000/): Administrative management, metrics, and business analytics.
+- [Landing Page](http://localhost:4001/): Public portal, product features, and subscription plans.

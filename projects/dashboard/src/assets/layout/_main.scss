@@ -4,6 +4,9 @@
     min-height: 100vh;
     justify-content: space-between;
     padding: 6rem 2rem 0 2rem;
+    @media (min-width: 992px) {
+        margin-left: 22rem;
+    }
     transition: margin-left var(--layout-section-transition-duration);
 }
 

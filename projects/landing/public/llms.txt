@@ -1,2 +1,13 @@
-# Sakai Landing Page
-Welcome to the Sakai platform. This is the main entry point to learn about our features and access the dashboard.
+# Sakai Platform
+
+> Sakai is a modern fullstack micro-frontend web application built with Angular 22 and PrimeNG, providing real-time analytics, administrative management, and secure cross-domain authentication.
+
+## Core Navigation
+- [Home](http://localhost:4001/#home): Sakai landing page hero, high-level metrics, and platform introduction.
+- [Features](http://localhost:4001/#features): Enterprise features, modular micro-frontends, and cloud integration.
+- [Highlights](http://localhost:4001/#highlights): Technical architecture, real-time performance, and developer experience.
+- [Pricing](http://localhost:4001/#pricing): Flexible subscription tiers including Free, Startup, and Enterprise plans.
+
+## Platform Micro-Frontends
+- [Dashboard](http://localhost:4000/): Interactive data visualization, system analytics, and administrative workspace.
+- [Authentication](http://localhost:4002/login): Secure user login, session management, and self-service registration portal.
