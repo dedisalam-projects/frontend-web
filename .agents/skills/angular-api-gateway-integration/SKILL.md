@@ -119,7 +119,7 @@ Before developing or testing API integrations, verify that the local backend sta
 
 ```bash
 # Verify all backend containers in infrastructure/docker-compose.dev.yml
-curl.exe -s http://localhost:3000/api/v1/health
+curl.exe -s http://localhost:3000/health
 ```
 
 > [!IMPORTANT]
