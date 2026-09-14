@@ -11,6 +11,16 @@ import { PricingWidget } from './components/pricingwidget';
 import { FooterWidget } from './components/footerwidget';
 import { routes } from '../../app.routes';
 
+vi.mock('socket.io-client', () => ({
+    io: vi.fn(() => ({
+        on: vi.fn(),
+        disconnect: vi.fn(),
+        emit: vi.fn((event: string, data: any, cb?: Function) => {
+            if (typeof cb === 'function') cb({ success: true });
+        })
+    }))
+}));
+
 describe('Landing Page & Widgets Suite', () => {
     beforeAll(() => {
         class MockIntersectionObserver {
@@ -147,15 +157,11 @@ describe('Landing Page & Widgets Suite', () => {
             const token = `header.${btoa(JSON.stringify({ email: 'test@test.com', exp }))}.sig`;
             localStorage.setItem('accessToken', token);
 
-            // Mock fetch to reject
-            vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
-
             component.logout();
             expect(component.currentUser()).toBeNull();
             expect(localStorage.getItem('accessToken')).toBeNull();
             expect(reloadMock).toHaveBeenCalled();
 
-            vi.unstubAllGlobals();
             Object.defineProperty(window, 'location', {
                 value: originalLocation,
                 writable: true,

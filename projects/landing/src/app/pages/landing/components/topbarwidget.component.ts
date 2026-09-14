@@ -178,19 +178,25 @@ export class TopbarWidget implements OnInit {
 
     logout(): void {
         const token = this.getCookie('accessToken') || (typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null);
-        const performCleanup = () => {
-            if (typeof document !== 'undefined') {
-                document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+
+        // 1. Immediately and synchronously clear local authentication storage and state
+        if (typeof document !== 'undefined') {
+            document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        }
+        if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('currentUser');
+        }
+        this.currentUser.set(null);
+
+        const performReload = () => {
+            if (typeof window !== 'undefined' && window.location) {
+                window.location.reload();
             }
-            if (typeof localStorage !== 'undefined') {
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                localStorage.removeItem('currentUser');
-            }
-            this.currentUser.set(null);
-            window.location.reload();
         };
 
+        // 2. Notify backend Socket.IO (non-blocking) and reload
         if (token && typeof window !== 'undefined') {
             try {
                 const socket = io(`${environment.socketUrl}/auth`, {
@@ -200,19 +206,19 @@ export class TopbarWidget implements OnInit {
                 });
                 const timer = setTimeout(() => {
                     socket.disconnect();
-                    performCleanup();
+                    performReload();
                 }, 2000);
 
                 socket.emit('auth:logout', { accessToken: token }, () => {
                     clearTimeout(timer);
                     socket.disconnect();
-                    performCleanup();
+                    performReload();
                 });
             } catch {
-                performCleanup();
+                performReload();
             }
         } else {
-            performCleanup();
+            performReload();
         }
     }
 
