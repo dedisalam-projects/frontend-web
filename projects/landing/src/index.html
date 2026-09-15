@@ -10,7 +10,19 @@
         <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="theme-color" content="#10b981" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <link rel="preload" as="image" href="/layout/images/landing/screen-1.png" fetchpriority="high" />
+        <link rel="preload" as="font" type="font/woff2" href="/fonts/lato-300.woff2" crossorigin />
+        <link rel="preload" as="font" type="font/woff2" href="/fonts/lato-400.woff2" crossorigin />
+        <link rel="preload" as="font" type="font/woff2" href="/fonts/lato-700.woff2" crossorigin />
+        <link rel="preload" as="font" type="font/woff2" href="/media/primeicons.woff2" crossorigin />
         <style>
+            @font-face {
+                font-family: 'Lato';
+                src: url('/fonts/lato-300.woff2') format('woff2');
+                font-weight: 300;
+                font-style: normal;
+                font-display: swap;
+            }
             @font-face {
                 font-family: 'Lato';
                 src: url('/fonts/lato-400.woff2') format('woff2');
@@ -22,6 +34,13 @@
                 font-family: 'Lato';
                 src: url('/fonts/lato-700.woff2') format('woff2');
                 font-weight: 700;
+                font-style: normal;
+                font-display: swap;
+            }
+            @font-face {
+                font-family: 'primeicons';
+                src: url('/media/primeicons.woff2') format('woff2');
+                font-weight: normal;
                 font-style: normal;
                 font-display: swap;
             }
@@ -79,9 +98,9 @@
     </head>
     <body>
         <app-root>
-            <div class="app-splash-screen" role="status" aria-live="polite" aria-label="Memuat aplikasi">
+            <div class="app-splash-screen" role="status" aria-live="polite" aria-label="Loading application">
                 <div class="app-splash-spinner"></div>
-                <div class="app-splash-text">Memuat Landing...</div>
+                <div class="app-splash-text">Loading...</div>
             </div>
         </app-root>
         <script>

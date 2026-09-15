@@ -25,6 +25,12 @@ function isTokenValid(token: string | null): boolean {
 
 export const guestGuard: CanActivateFn = (route, state) => {
     if (typeof window !== 'undefined') {
+        const userSession = getCookie('user_session');
+        if (userSession) {
+            window.location.href = `${environment.appUrls.dashboard}/`;
+            return false;
+        }
+
         const cookieToken = getCookie('accessToken');
         if (!cookieToken) {
             localStorage.removeItem('accessToken');
@@ -35,6 +41,8 @@ export const guestGuard: CanActivateFn = (route, state) => {
             return false;
         } else {
             // Expired cookie
+            const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
+            document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
             document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
             localStorage.removeItem('accessToken');
             return true;

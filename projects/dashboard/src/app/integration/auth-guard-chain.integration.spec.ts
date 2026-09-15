@@ -27,14 +27,23 @@ describe('Auth Guard Integration', () => {
         });
         localStorage.clear();
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
     });
 
     afterEach(() => {
         localStorage.clear();
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
     });
 
     // ── Access Control ────────────────────────────────────────────────────
+
+    it('should allow access when valid user_session is in cookie', () => {
+        document.cookie = 'user_session={"email":"admin@dedisalam.my.id","role":"admin"}; path=/;';
+
+        const result = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+        expect(result).toBe(true);
+    });
 
     it('should allow access when valid accessToken is in cookie', () => {
         const token = makeToken(3600);

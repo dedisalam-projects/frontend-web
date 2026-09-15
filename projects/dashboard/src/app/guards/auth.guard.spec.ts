@@ -7,11 +7,13 @@ describe('authGuard', () => {
         TestBed.configureTestingModule({});
         localStorage.clear();
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
     });
 
     afterEach(() => {
         localStorage.clear();
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
     });
 
     it('should accept urlToken from queryParams and store it', () => {
@@ -40,6 +42,14 @@ describe('authGuard', () => {
         const result = TestBed.runInInjectionContext(() => authGuard(route, {} as any));
         expect(result).toBe(true);
         expect(localStorage.getItem('accessToken')).toBe(validToken);
+    });
+
+    it('should accept valid user_session cookie for multi-subdomain SSO', () => {
+        document.cookie = 'user_session={"email":"admin@dedisalam.my.id"}; path=/;';
+
+        const route = { queryParams: {} } as unknown as ActivatedRouteSnapshot;
+        const result = TestBed.runInInjectionContext(() => authGuard(route, {} as any));
+        expect(result).toBe(true);
     });
 
     it('should redirect to auth port 4002 when no valid token exists', () => {

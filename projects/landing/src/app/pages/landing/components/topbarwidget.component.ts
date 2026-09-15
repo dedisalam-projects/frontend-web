@@ -145,7 +145,24 @@ export class TopbarWidget implements OnInit {
     checkAuth(): void {
         if (typeof window === 'undefined') return;
 
-        const token = this.getCookie('accessToken') || localStorage.getItem('accessToken');
+        // 1. Check user_session cookie (shared across multi-subdomain wildcard SSO)
+        const userSessionCookie = this.getCookie('user_session');
+        if (userSessionCookie) {
+            try {
+                const user = JSON.parse(decodeURIComponent(userSessionCookie));
+                this.currentUser.set({
+                    name: user.name || (user.email ? user.email.split('@')[0] : 'User'),
+                    email: user.email,
+                    role: user.role
+                });
+                return;
+            } catch (e) {
+                console.error('Error decoding user_session cookie', e);
+            }
+        }
+
+        // 2. Fallback to direct token (cookie or localStorage)
+        const token = this.getCookie('accessToken') || (typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null);
         if (token && this.isTokenValid(token)) {
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
@@ -154,17 +171,27 @@ export class TopbarWidget implements OnInit {
                     email: payload.email,
                     role: payload.role
                 });
-                localStorage.setItem('accessToken', token);
+                if (typeof localStorage !== 'undefined') {
+                    localStorage.setItem('accessToken', token);
+                }
             } catch (e) {
                 console.error('Error decoding token', e);
                 this.currentUser.set(null);
             }
         } else {
             this.currentUser.set(null);
+            const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
             if (typeof document !== 'undefined') {
+                document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
                 document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+                document.cookie = `user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
+                document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
             }
-            localStorage.removeItem('accessToken');
+            if (typeof localStorage !== 'undefined') {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('currentUser');
+            }
         }
     }
 
@@ -176,11 +203,14 @@ export class TopbarWidget implements OnInit {
     }
 
     async logout(): Promise<void> {
-        const token = this.getCookie('accessToken') || (typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null);
+        const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
 
         // 1. Immediately and synchronously clear local authentication storage and state
         if (typeof document !== 'undefined') {
+            document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
             document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+            document.cookie = `user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
+            document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         }
         if (typeof localStorage !== 'undefined') {
             localStorage.removeItem('accessToken');
@@ -189,40 +219,21 @@ export class TopbarWidget implements OnInit {
         }
         this.currentUser.set(null);
 
-        const performReload = () => {
-            if (typeof window !== 'undefined' && window.location) {
-                window.location.reload();
-            }
-        };
-
-        // 2. Notify backend Socket.IO (non-blocking) and reload
-        if (token && typeof window !== 'undefined') {
+        // 2. Dispatch HTTP logout to clear backend HttpOnly cookies
+        if (typeof window !== 'undefined' && typeof fetch !== 'undefined') {
             try {
-                const { io } = await import('socket.io-client');
-                await new Promise<void>((resolve) => {
-                    const socket = io(`${environment.socketUrl}/auth`, {
-                        transports: ['websocket', 'polling'],
-                        withCredentials: true,
-                        timeout: 3000
-                    });
-                    const timer = setTimeout(() => {
-                        socket.disconnect();
-                        performReload();
-                        resolve();
-                    }, 2000);
-
-                    socket.emit('auth:logout', { accessToken: token }, () => {
-                        clearTimeout(timer);
-                        socket.disconnect();
-                        performReload();
-                        resolve();
-                    });
+                await fetch(`${environment.apiUrl}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
                 });
             } catch {
-                performReload();
+                // Ignore network errors during logout
             }
-        } else {
-            performReload();
+        }
+
+        if (typeof window !== 'undefined' && window.location) {
+            window.location.reload();
         }
     }
 

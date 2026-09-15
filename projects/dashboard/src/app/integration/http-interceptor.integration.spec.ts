@@ -73,7 +73,7 @@ describe('Realtime Socket.IO Integration — UserService', () => {
         expect(result).toEqual(mockUsers);
     });
 
-    it('should return fallback users on UNAUTHORIZED socket response', async () => {
+    it('should throw error on UNAUTHORIZED socket response', async () => {
         localStorage.setItem('accessToken', 'expired-token');
 
         vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
@@ -81,21 +81,16 @@ describe('Realtime Socket.IO Integration — UserService', () => {
             error: { code: 'UNAUTHORIZED', message: 'Token expired' }
         });
 
-        const result = await userService.getUsers();
-        expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBeGreaterThan(0);
-        expect(result[0].name).toBe('Super Admin');
+        await expect(userService.getUsers()).rejects.toThrow('Token expired');
     });
 
-    it('should return fallback users on TIMEOUT or INTERNAL_ERROR', async () => {
+    it('should throw error on TIMEOUT or INTERNAL_ERROR', async () => {
         vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
             success: false,
             error: { code: 'TIMEOUT', message: 'Timeout' }
         });
 
-        const result = await userService.getUsers();
-        expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBeGreaterThan(0);
+        await expect(userService.getUsers()).rejects.toThrow('Timeout');
     });
 
     // ── Realtime CRUD Integration ──────────────────────────────────────────
@@ -161,9 +156,9 @@ describe('Realtime Socket.IO Integration — UserService', () => {
         expect(emitSpy).toHaveBeenCalledTimes(3);
     });
 
-    // ── Optimistic Fallback ───────────────────────────────────────────────
+    // ── Strict Error Propagation ──────────────────────────────────────────
 
-    it('should return optimistic user object when createUser backend returns error', async () => {
+    it('should throw error when createUser backend returns error', async () => {
         localStorage.setItem('accessToken', 'admin-token');
         const newUser = { name: 'Dan', email: 'dan@x.com', password: 'pass', role: 'user', isActive: true };
 
@@ -172,10 +167,6 @@ describe('Realtime Socket.IO Integration — UserService', () => {
             error: { code: 'SERVER_ERROR', message: 'Server Error' }
         });
 
-        const result = await userService.createUser(newUser);
-
-        expect(result.name).toBe('Dan');
-        expect(result.email).toBe('dan@x.com');
-        expect(result.id).toMatch(/^usr_/);
+        await expect(userService.createUser(newUser)).rejects.toThrow('Server Error');
     });
 });

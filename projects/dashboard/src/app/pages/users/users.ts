@@ -231,7 +231,14 @@ export class Users implements OnInit, OnDestroy {
             })
             .catch((err) => {
                 this.loading = false;
+                this.users.set([]);
                 console.warn('Could not load remote users:', err);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Koneksi Backend Gagal',
+                    detail: err?.message || 'Gagal memuat data user dari server gateway.',
+                    life: 5000
+                });
             });
     }
 
@@ -398,11 +405,12 @@ export class Users implements OnInit, OnDestroy {
 
     private initRealtimeSync() {
         if (!isPlatformBrowser(this.platformId)) return;
-        const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null;
+        const token = this.userService.getToken();
         try {
             this.socket = io(`${environment.socketUrl}/users`, {
                 transports: ['websocket', 'polling'],
-                auth: { token }
+                auth: { token },
+                withCredentials: true
             });
 
             this.socket.on('connect', () => {

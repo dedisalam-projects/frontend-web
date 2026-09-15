@@ -113,7 +113,7 @@ In `projects/<app>/src/index.html`, place pure inline CSS and a loading spinner 
     <app-root>
         <div class="app-splash-screen" role="status" aria-live="polite" aria-label="Loading application">
             <div class="app-splash-spinner"></div>
-            <div class="app-splash-text">Loading Dashboard...</div>
+            <div class="app-splash-text">Loading...</div>
         </div>
     </app-root>
 </body>
@@ -122,6 +122,11 @@ In `projects/<app>/src/index.html`, place pure inline CSS and a loading spinner 
 - **0ms Render**: Browser paints the spinner immediately on the first frame.
 - **Unauthenticated Flow**: Spinner displays for ~200–400ms, then smoothly redirects to login without showing the dashboard.
 - **Authenticated Flow**: Spinner displays until Angular bootstraps, then `<app-root>` content is replaced with the active dashboard view without blank flashes.
+
+### 3.1. Universal Brand-Neutral Micro-Frontend Loading Copy
+Across all micro-frontends in the workspace (Dashboard, Landing, Auth):
+- **Standardized Text**: Always use the clean, universal string `<div class="app-splash-text">Loading...</div>` and `aria-label="Loading application"`.
+- **Anti-Jitter Across Cross-Port Navigation**: Never use app-specific names (e.g., `Loading Dashboard...`, `Memuat PrimeLand...`). When a browser redirects or navigates across micro-frontend ports (e.g., Port 4000 -> Port 4002), differing splash copy causes jarring visual text shifts. An identical splash shell creates a seamless single-application experience.
 
 ### 4. Critical Inline Anti-FOUC Splash for Prerendered & SSG Routes
 
