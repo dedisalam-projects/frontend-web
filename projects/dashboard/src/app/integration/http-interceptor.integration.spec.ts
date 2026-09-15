@@ -30,9 +30,7 @@ describe('Realtime Socket.IO Integration — UserService', () => {
 
     // ── Handshake Token Verification ──────────────────────────────────────
 
-    it('should propagate accessToken from localStorage to socket auth configuration', async () => {
-        localStorage.setItem('accessToken', 'test-jwt-token-123');
-
+    it('should initialize socket connection with credentials when calling getUsers', async () => {
         const emitSpy = vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
             success: true,
             data: []
@@ -48,7 +46,6 @@ describe('Realtime Socket.IO Integration — UserService', () => {
     // ── Response Envelope Handling ────────────────────────────────────────
 
     it('should unwrap { success: true, data: { users: User[] } } envelope format', async () => {
-        localStorage.setItem('accessToken', 'tok');
         const mockUsers = [{ id: '1', name: 'Alice', email: 'alice@x.com', role: 'admin', isActive: true }];
 
         vi.spyOn(userService as any, 'emitAck').mockResolvedValue({

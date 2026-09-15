@@ -45,12 +45,23 @@ export async function injectAuthToken(context: BrowserContext, token: string, da
             path: '/',
             httpOnly: false,
             secure: false
+        },
+        {
+            name: 'user_session',
+            value: encodeURIComponent(JSON.stringify({ email: 'admin@company.local', role: 'admin' })),
+            domain: 'localhost',
+            path: '/',
+            httpOnly: false,
+            secure: false
         }
     ]);
     // Also set in localStorage via JS execution
     const page = await context.newPage();
     await page.goto(dashboardUrl);
-    await page.evaluate((t) => localStorage.setItem('accessToken', t), token);
+    await page.evaluate((t) => {
+        localStorage.setItem('accessToken', t);
+        localStorage.setItem('user', JSON.stringify({ email: 'admin@company.local', role: 'admin' }));
+    }, token);
     await page.close();
 }
 

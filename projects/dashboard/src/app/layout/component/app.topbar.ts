@@ -129,10 +129,8 @@ export class AppTopbar implements OnInit, OnDestroy {
         ];
 
         if (isPlatformBrowser(this.platformId)) {
-            const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null;
             this.socket = io(`${environment.socketUrl}/notifications`, {
                 transports: ['websocket', 'polling'],
-                auth: { token },
                 withCredentials: true
             });
 
@@ -196,20 +194,14 @@ export class AppTopbar implements OnInit, OnDestroy {
                 if (user?.email) return user.email;
             }
             if (typeof localStorage !== 'undefined') {
-                const currentUser = localStorage.getItem('currentUser');
-                if (currentUser) {
-                    const user = JSON.parse(currentUser);
+                const userStorage = localStorage.getItem('user') || localStorage.getItem('currentUser');
+                if (userStorage) {
+                    const user = JSON.parse(userStorage);
                     if (user?.email) return user.email;
-                }
-                const token = localStorage.getItem('accessToken');
-                if (token) {
-                    const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-                    const decoded = JSON.parse(atob(payload));
-                    return decoded.email || 'User';
                 }
             }
         } catch (e) {
-            console.error('Error decoding user email', e);
+            console.error('Error reading user email', e);
         }
         return 'User';
     }
@@ -234,6 +226,7 @@ export class AppTopbar implements OnInit, OnDestroy {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('currentUser');
+            localStorage.removeItem('user');
         }
         if (typeof document !== 'undefined') {
             document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;

@@ -19,7 +19,27 @@ test.describe('Login Flow — Auth Application', () => {
         await expect(page.getByRole('button', { name: /sign in|login/i })).toBeVisible();
     });
 
-    test('should login successfully with valid credentials via Socket.IO and redirect to dashboard', async ({ page }) => {
+    test('should login successfully with valid credentials via REST and redirect to dashboard', async ({ page }) => {
+        await page.route('**/api/v1/auth/login', async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                headers: {
+                    'set-cookie': 'accessToken=mock-jwt; Path=/; HttpOnly; SameSite=Lax'
+                },
+                body: JSON.stringify({
+                    success: true,
+                    data: {
+                        user: {
+                            id: 'usr-admin-1',
+                            email: 'superadmin@example.com',
+                            role: 'admin'
+                        }
+                    }
+                })
+            });
+        });
+
         await page.goto(LOGIN_URL);
         await page.waitForLoadState('domcontentloaded');
 
@@ -27,17 +47,32 @@ test.describe('Login Flow — Auth Application', () => {
         await page.locator('#password1').fill('Admin123!');
         await page.getByRole('button', { name: /sign in|login/i }).click();
 
-        // Verify redirect to dashboard with token
+        // Verify redirect to dashboard without token in query param
         await page.waitForURL(/localhost:4000/, { timeout: 15000 });
         expect(page.url()).toContain('localhost:4000');
+        expect(page.url()).not.toContain('token=');
 
-        // Token should be preserved in cookie
+        // User session should be preserved in cookie
         const cookies = await page.context().cookies();
-        const tokenCookie = cookies.find((c) => c.name === 'accessToken');
-        expect(tokenCookie?.value).toBeTruthy();
+        const userSession = cookies.find((c) => c.name === 'user_session');
+        expect(userSession?.value).toBeTruthy();
     });
 
     test('should show error toast on invalid credentials', async ({ page }) => {
+        await page.route('**/api/v1/auth/login', async (route) => {
+            await route.fulfill({
+                status: 401,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    success: false,
+                    error: {
+                        code: 'UNAUTHORIZED',
+                        message: 'Invalid email or password'
+                    }
+                })
+            });
+        });
+
         await page.goto(LOGIN_URL);
         await page.waitForLoadState('domcontentloaded');
 
@@ -52,6 +87,20 @@ test.describe('Login Flow — Auth Application', () => {
     });
 
     test('should not redirect when login fails', async ({ page }) => {
+        await page.route('**/api/v1/auth/login', async (route) => {
+            await route.fulfill({
+                status: 401,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    success: false,
+                    error: {
+                        code: 'UNAUTHORIZED',
+                        message: 'Invalid email or password'
+                    }
+                })
+            });
+        });
+
         await page.goto(LOGIN_URL);
         await page.waitForLoadState('domcontentloaded');
 

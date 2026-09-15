@@ -405,11 +405,9 @@ export class Users implements OnInit, OnDestroy {
 
     private initRealtimeSync() {
         if (!isPlatformBrowser(this.platformId)) return;
-        const token = this.userService.getToken();
         try {
             this.socket = io(`${environment.socketUrl}/users`, {
                 transports: ['websocket', 'polling'],
-                auth: { token },
                 withCredentials: true
             });
 

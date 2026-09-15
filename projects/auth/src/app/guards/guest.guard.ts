@@ -34,8 +34,11 @@ export const guestGuard: CanActivateFn = (route, state) => {
         const cookieToken = getCookie('accessToken');
         if (!cookieToken) {
             localStorage.removeItem('accessToken');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('user');
             return true;
         }
+
         if (isTokenValid(cookieToken)) {
             window.location.href = `${environment.appUrls.dashboard}/`;
             return false;
@@ -45,6 +48,8 @@ export const guestGuard: CanActivateFn = (route, state) => {
             document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
             document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
             localStorage.removeItem('accessToken');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('user');
             return true;
         }
     }

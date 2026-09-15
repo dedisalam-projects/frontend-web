@@ -24,7 +24,6 @@ describe('UserService', () => {
     });
 
     it('should fetch users successfully from backend via admin:users:list Ack RPC', async () => {
-        localStorage.setItem('accessToken', 'test-token');
         const mockUsers: User[] = [{ id: '1', name: 'Alice', email: 'alice@example.com', role: 'admin', isActive: true }];
 
         const emitSpy = vi.spyOn(service as any, 'emitAck').mockResolvedValue({

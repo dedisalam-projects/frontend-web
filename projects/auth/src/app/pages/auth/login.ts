@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { AuthSocketService } from '../../core/services/auth-socket.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -84,10 +83,9 @@ export class Login implements OnInit {
     password: string = '';
     checked: boolean = false;
 
-    private authService = inject(AuthService, { optional: true });
+    private authService = inject(AuthService);
 
     constructor(
-        private authSocketService: AuthSocketService,
         private router: Router,
         private messageService: MessageService
     ) {}
@@ -95,25 +93,19 @@ export class Login implements OnInit {
     ngOnInit() {
         if (typeof window !== 'undefined') {
             const userSession = this.getCookie('user_session');
-            const cookieToken = this.getCookie('accessToken');
-
             if (userSession) {
                 window.location.href = `${environment.appUrls.dashboard}/`;
                 return;
             }
 
-            if (!cookieToken) {
+            const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
+            document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
+            document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+            if (typeof localStorage !== 'undefined') {
                 localStorage.removeItem('accessToken');
-                return;
-            }
-
-            if (this.isTokenValid(cookieToken)) {
-                window.location.href = `${environment.appUrls.dashboard}/`;
-            } else {
-                const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
-                document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
-                document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('user');
             }
         }
     }
@@ -124,61 +116,32 @@ export class Login implements OnInit {
         return match ? decodeURIComponent(match[3]) : null;
     }
 
-    private isTokenValid(token: string | null): boolean {
-        if (!token) return false;
-        try {
-            const parts = token.split('.');
-            if (parts.length < 2) return false;
-            const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-            const payload = JSON.parse(atob(base64));
-            if (payload.exp && payload.exp * 1000 < Date.now()) {
-                return false;
-            }
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
     async onLogin() {
         try {
-            let res: any;
-            if (this.authService) {
-                res = await this.authService.login({
-                    email: this.email,
-                    password: this.password
-                });
-            } else {
-                res = await this.authSocketService.login({
-                    email: this.email,
-                    password: this.password
-                });
-            }
+            const res = await this.authService.login({
+                email: this.email,
+                password: this.password
+            });
 
             if (res.success && res.data) {
-                const token = res.data.accessToken;
-                const refreshToken = res.data.refreshToken;
                 const user = res.data.user;
-
                 const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
                 const secureAttr = environment.production ? '; Secure' : '';
 
                 if (user) {
-                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    localStorage.setItem('user', JSON.stringify(user));
                     const userStr = encodeURIComponent(JSON.stringify(user));
                     document.cookie = `user_session=${userStr}; path=/; max-age=604800; SameSite=Lax${domainAttr}${secureAttr}`;
                 }
 
-                if (token) {
-                    localStorage.setItem('accessToken', token);
-                    document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax${domainAttr}${secureAttr}`;
+                // Clean up any legacy token artifacts from client storage
+                if (typeof localStorage !== 'undefined') {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    localStorage.removeItem('currentUser');
                 }
 
-                if (refreshToken) {
-                    localStorage.setItem('refreshToken', refreshToken);
-                }
-
-                // Clean redirect without URL token query parameter (Issue #51 & CWE-598 resolution)
+                // Redirect cleanly to dashboard (Backend has already issued HttpOnly accessToken & refreshToken cookies)
                 window.location.href = `${environment.appUrls.dashboard}/`;
                 return;
             }

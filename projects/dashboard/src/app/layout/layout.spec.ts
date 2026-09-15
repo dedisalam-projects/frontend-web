@@ -114,23 +114,21 @@ describe('Dashboard Layout Suite', () => {
             expect(component.profileMenuItems.length).toBe(3);
         });
 
-        it('should decode user email from token in getUserEmail', () => {
-            const payload = btoa(JSON.stringify({ email: 'admin@system.local' }));
-            localStorage.setItem('accessToken', `header.${payload}.sig`);
+        it('should read user email from user_session cookie or localStorage user in getUserEmail', () => {
+            localStorage.setItem('user', JSON.stringify({ email: 'admin@system.local' }));
 
             expect(component.getUserEmail()).toBe('admin@system.local');
         });
 
-        it('should return User fallback when decoding corrupted token fails in getUserEmail', () => {
-            localStorage.setItem('accessToken', 'bad.jwt.token');
+        it('should return User fallback when reading invalid user json fails in getUserEmail', () => {
+            localStorage.setItem('user', 'bad.json');
             expect(component.getUserEmail()).toBe('User');
         });
 
-        it('property-based: should reliably decode valid emails from JWT across arbitrary email strings', () => {
+        it('property-based: should reliably read valid emails across arbitrary email strings', () => {
             fc.assert(
                 fc.property(fc.emailAddress(), (email) => {
-                    const payload = btoa(JSON.stringify({ email }));
-                    localStorage.setItem('accessToken', `hdr.${payload}.sig`);
+                    localStorage.setItem('user', JSON.stringify({ email }));
                     const result = component.getUserEmail();
                     return result === email;
                 }),
@@ -138,10 +136,10 @@ describe('Dashboard Layout Suite', () => {
             );
         });
 
-        it('property-based: should never throw on arbitrary random token strings', () => {
+        it('property-based: should never throw on arbitrary random user storage strings', () => {
             fc.assert(
-                fc.property(fc.string(), (randomToken) => {
-                    localStorage.setItem('accessToken', randomToken);
+                fc.property(fc.string(), (randomStr) => {
+                    localStorage.setItem('user', randomStr);
                     const result = component.getUserEmail();
                     return typeof result === 'string';
                 }),
@@ -155,20 +153,24 @@ describe('Dashboard Layout Suite', () => {
             expect(layoutService.layoutConfig().darkTheme).toBe(true);
         });
 
-        it('should perform logout via Socket.IO auth:logout and clear token', () => {
+        it('should perform logout and clear tokens and user storage', () => {
             localStorage.setItem('accessToken', 'mock-token');
+            localStorage.setItem('user', JSON.stringify({ email: 'mock@example.com' }));
 
             component.logout();
 
             expect(localStorage.getItem('accessToken')).toBeNull();
+            expect(localStorage.getItem('user')).toBeNull();
         });
 
         it('should handle logout when backend returns error or disconnects', () => {
             localStorage.setItem('accessToken', 'mock-token');
+            localStorage.setItem('user', JSON.stringify({ email: 'mock@example.com' }));
 
             component.logout();
 
             expect(localStorage.getItem('accessToken')).toBeNull();
+            expect(localStorage.getItem('user')).toBeNull();
         });
 
         it('should logout directly when no token is in storage', () => {

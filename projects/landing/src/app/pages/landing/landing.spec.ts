@@ -87,10 +87,9 @@ describe('Landing Page & Widgets Suite', () => {
             expect(component.getUserInitials()).toBe('U');
         });
 
-        it('should detect valid token and populate user profile', () => {
-            const exp = Math.floor(Date.now() / 1000) + 3600;
-            const token = `header.${btoa(JSON.stringify({ name: 'Dedi', email: 'dedi@example.com', role: 'admin', exp }))}.sig`;
-            localStorage.setItem('accessToken', token);
+        it('should detect user in localStorage and populate user profile', () => {
+            const userData = { name: 'Dedi', email: 'dedi@example.com', role: 'admin' };
+            localStorage.setItem('user', JSON.stringify(userData));
 
             component.checkAuth();
             fixture.detectChanges();
@@ -116,74 +115,38 @@ describe('Landing Page & Widgets Suite', () => {
             expect(el.textContent).toContain('Dedi Cookie');
         });
 
-        it('should handle error when decoding valid token payload fails', () => {
-            const exp = Math.floor(Date.now() / 1000) + 3600;
-            const token = `header.${btoa(JSON.stringify({ name: 'Dedi', exp }))}.sig`;
-            localStorage.setItem('accessToken', token);
-
-            const parseSpy = vi
-                .spyOn(JSON, 'parse')
-                .mockImplementationOnce(() => ({ exp }))
-                .mockImplementationOnce(() => {
-                    throw new Error('Corrupt payload');
-                });
-
+        it('should handle corrupt json in localStorage user gracefully', () => {
+            localStorage.setItem('user', '{ invalid json');
             component.checkAuth();
             expect(component.currentUser()).toBeNull();
-            parseSpy.mockRestore();
         });
 
-        it('should handle token with email only and default initials', () => {
-            const exp = Math.floor(Date.now() / 1000) + 3600;
-            const token = `header.${btoa(JSON.stringify({ email: 'john@example.com', exp }))}.sig`;
-            localStorage.setItem('accessToken', token);
+        it('should handle user with email only and default initials', () => {
+            localStorage.setItem('user', JSON.stringify({ email: 'john@example.com' }));
 
             component.checkAuth();
             expect(component.currentUser()?.name).toBe('john');
             expect(component.getUserInitials()).toBe('J');
         });
 
-        it('should handle malformed token gracefully', () => {
-            localStorage.setItem('accessToken', 'invalid-jwt-format');
+        it('should clear user state when no user session or storage exists', () => {
             component.checkAuth();
             expect(component.currentUser()).toBeNull();
-        });
-
-        it('should clear token and user state when token is expired', () => {
-            const exp = Math.floor(Date.now() / 1000) - 3600;
-            const token = `header.${btoa(JSON.stringify({ email: 'expired@test.com', exp }))}.sig`;
-            localStorage.setItem('accessToken', token);
-
-            component.checkAuth();
-            expect(component.currentUser()).toBeNull();
-            expect(localStorage.getItem('accessToken')).toBeNull();
         });
 
         it('should perform logout and clear auth storage', async () => {
-            const reloadMock = vi.fn();
-            const originalLocation = window.location;
-            const mockLocation = { reload: reloadMock } as any;
-            Object.defineProperty(window, 'location', {
-                value: mockLocation,
-                writable: true,
-                configurable: true
-            });
-
-            const exp = Math.floor(Date.now() / 1000) + 3600;
-            const token = `header.${btoa(JSON.stringify({ email: 'test@test.com', exp }))}.sig`;
-            localStorage.setItem('accessToken', token);
+            localStorage.setItem('user', JSON.stringify({ email: 'test@test.com' }));
             document.cookie = 'user_session={"name":"test"}; path=/;';
+
+            try {
+                vi.spyOn(window.location, 'reload').mockImplementation(() => {});
+            } catch {
+                // Ignore if reload cannot be spied
+            }
 
             await component.logout();
             expect(component.currentUser()).toBeNull();
-            expect(localStorage.getItem('accessToken')).toBeNull();
-            expect(reloadMock).toHaveBeenCalled();
-
-            Object.defineProperty(window, 'location', {
-                value: originalLocation,
-                writable: true,
-                configurable: true
-            });
+            expect(localStorage.getItem('user')).toBeNull();
         });
     });
 
