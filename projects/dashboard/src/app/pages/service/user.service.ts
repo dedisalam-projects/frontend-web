@@ -39,56 +39,11 @@ export class UserService {
         }
     }
 
-    getToken(): string | null {
-        if (typeof window === 'undefined') return null;
-
-        // 1. Check localStorage first
-        const localToken = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null;
-        if (localToken && this.isTokenValid(localToken)) {
-            return localToken;
-        }
-
-        // 2. Fallback to cookie (crucial for cross-port login from :4002 to :4000)
-        const cookieToken = this.getCookie('accessToken');
-        if (cookieToken && this.isTokenValid(cookieToken)) {
-            if (typeof localStorage !== 'undefined') {
-                localStorage.setItem('accessToken', cookieToken);
-            }
-            return cookieToken;
-        }
-
-        return null;
-    }
-
-    private getCookie(name: string): string | null {
-        if (typeof document === 'undefined') return null;
-        const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
-        return match ? decodeURIComponent(match[3]) : null;
-    }
-
-    private isTokenValid(token: string | null): boolean {
-        if (!token) return false;
-        try {
-            const parts = token.split('.');
-            if (parts.length < 2) return false;
-            const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-            const payload = JSON.parse(atob(base64));
-            if (payload.exp && payload.exp * 1000 < Date.now()) {
-                return false;
-            }
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
     private initSocket(): Socket | null {
         if (!isPlatformBrowser(this.platformId)) return null;
         if (!this.socket) {
-            const token = this.getToken();
             this.socket = io(`${environment.socketUrl}/users`, {
                 transports: ['websocket', 'polling'],
-                auth: { token },
                 withCredentials: true,
                 autoConnect: true
             });
@@ -110,12 +65,6 @@ export class UserService {
 
     private async ensureConnected(socket: Socket, timeoutMs = 4000): Promise<void> {
         if (socket.connected) return;
-
-        // Ensure fresh token is attached before connecting
-        const token = this.getToken();
-        if (socket.auth && typeof socket.auth === 'object') {
-            (socket.auth as any).token = token;
-        }
 
         return new Promise((resolve, reject) => {
             const timer = setTimeout(() => {
@@ -143,11 +92,6 @@ export class UserService {
                 success: false,
                 error: { code: 'SSR_GUARD', message: 'Socket is unavailable in non-browser platform' }
             };
-        }
-
-        const currentToken = this.getToken();
-        if (socket.auth && typeof socket.auth === 'object') {
-            (socket.auth as any).token = currentToken;
         }
 
         try {

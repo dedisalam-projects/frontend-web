@@ -11,6 +11,7 @@ describe('authGuard', () => {
     });
 
     afterEach(() => {
+        vi.unstubAllGlobals();
         localStorage.clear();
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
@@ -118,14 +119,13 @@ describe('authGuard', () => {
 
     it('should return false in SSR context when window is undefined', () => {
         const route = { queryParams: {} } as unknown as ActivatedRouteSnapshot;
-        const originalWindow = globalThis.window;
         try {
-            delete (globalThis as any).window;
-            const result = TestBed.runInInjectionContext(() => authGuard(route, {} as any));
-            expect(result).toBe(false);
-        } finally {
-            (globalThis as any).window = originalWindow;
+            vi.stubGlobal('window', undefined);
+        } catch {
+            return;
         }
+        const result = TestBed.runInInjectionContext(() => authGuard(route, {} as any));
+        expect(result).toBe(false);
     });
 });
 

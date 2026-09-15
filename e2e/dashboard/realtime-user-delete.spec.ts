@@ -13,24 +13,39 @@ async function emitSocketAck<T = any>(socket: Socket, event: string, data: any):
 
 test.describe('Realtime User Deletion Flow', () => {
     test('should instantly remove deleted user from table in realtime via WebSocket without page refresh', async ({ page }) => {
-        // 1. Authenticate as superadmin via Socket.IO /auth to get accessToken
-        const authSocket = io('http://localhost:3000/auth', {
-            transports: ['websocket', 'polling']
+        // 1. Authenticate as superadmin via REST /api/v1/auth/login
+        const loginResponse = await fetch('http://localhost:3000/api/v1/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: 'superadmin@example.com',
+                password: 'Admin123!'
+            })
         });
-        await new Promise((resolve) => authSocket.on('connect', resolve));
-
-        const loginRes = await emitSocketAck(authSocket, 'auth:login', {
-            email: 'superadmin@example.com',
-            password: 'Admin123!'
-        });
+        const loginRes = await loginResponse.json();
         expect(loginRes?.success).toBe(true);
         const token = loginRes?.data?.accessToken;
         expect(token).toBeTruthy();
-        authSocket.disconnect();
 
-        // 2. Open dashboard on localhost:4000 with the superadmin token
-        await page.goto(`http://localhost:4000/?token=${token}`);
-        await page.waitForURL(/localhost:4000/, { timeout: 15000 });
+        // 2. Setup cookies and open dashboard on localhost:4000
+        await page.context().addCookies([
+            {
+                name: 'accessToken',
+                value: token,
+                domain: 'localhost',
+                path: '/',
+                httpOnly: false,
+                secure: false
+            },
+            {
+                name: 'user_session',
+                value: encodeURIComponent(JSON.stringify(loginRes.data?.user || { email: 'superadmin@example.com', role: 'admin' })),
+                domain: 'localhost',
+                path: '/',
+                httpOnly: false,
+                secure: false
+            }
+        ]);
 
         // Navigate to users management page
         await page.goto('http://localhost:4000/users');

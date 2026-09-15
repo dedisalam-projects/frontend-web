@@ -161,38 +161,25 @@ export class TopbarWidget implements OnInit {
             }
         }
 
-        // 2. Fallback to direct token (cookie or localStorage)
-        const token = this.getCookie('accessToken') || (typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null);
-        if (token && this.isTokenValid(token)) {
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                this.currentUser.set({
-                    name: payload.name || payload.username || (payload.email ? payload.email.split('@')[0] : 'User'),
-                    email: payload.email,
-                    role: payload.role
-                });
-                if (typeof localStorage !== 'undefined') {
-                    localStorage.setItem('accessToken', token);
+        // 2. Check localStorage user profile
+        if (typeof localStorage !== 'undefined') {
+            const userStorage = localStorage.getItem('user') || localStorage.getItem('currentUser');
+            if (userStorage) {
+                try {
+                    const user = JSON.parse(userStorage);
+                    this.currentUser.set({
+                        name: user.name || (user.email ? user.email.split('@')[0] : 'User'),
+                        email: user.email,
+                        role: user.role
+                    });
+                    return;
+                } catch (e) {
+                    console.error('Error decoding user profile from localStorage', e);
                 }
-            } catch (e) {
-                console.error('Error decoding token', e);
-                this.currentUser.set(null);
-            }
-        } else {
-            this.currentUser.set(null);
-            const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
-            if (typeof document !== 'undefined') {
-                document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
-                document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-                document.cookie = `user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
-                document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-            }
-            if (typeof localStorage !== 'undefined') {
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                localStorage.removeItem('currentUser');
             }
         }
+
+        this.currentUser.set(null);
     }
 
     getUserInitials(): string {
@@ -216,6 +203,7 @@ export class TopbarWidget implements OnInit {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('currentUser');
+            localStorage.removeItem('user');
         }
         this.currentUser.set(null);
 
@@ -241,18 +229,5 @@ export class TopbarWidget implements OnInit {
         if (typeof document === 'undefined') return null;
         const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
         return match ? decodeURIComponent(match[3]) : null;
-    }
-
-    private isTokenValid(token: string | null): boolean {
-        if (!token) return false;
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            if (payload.exp && payload.exp * 1000 < Date.now()) {
-                return false;
-            }
-            return true;
-        } catch {
-            return false;
-        }
     }
 }

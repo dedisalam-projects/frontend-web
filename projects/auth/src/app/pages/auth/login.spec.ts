@@ -5,14 +5,12 @@ import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { Login } from './login';
-import { AuthSocketService } from '../../core/services/auth-socket.service';
 import { AuthService } from '../../core/services/auth.service';
 
 describe('Login Component', () => {
     let component: Login;
     let fixture: ComponentFixture<Login>;
     let authService: AuthService;
-    let authSocketService: AuthSocketService;
     let messageService: MessageService;
 
     beforeEach(async () => {
@@ -22,14 +20,12 @@ describe('Login Component', () => {
                 provideHttpClient(),
                 provideRouter([]),
                 MessageService,
-                AuthSocketService,
                 AuthService,
                 providePrimeNG({ theme: { preset: Aura } })
             ]
         }).compileComponents();
 
         authService = TestBed.inject(AuthService);
-        authSocketService = TestBed.inject(AuthSocketService);
         messageService = TestBed.inject(MessageService);
         fixture = TestBed.createComponent(Login);
         component = fixture.componentInstance;
@@ -39,6 +35,7 @@ describe('Login Component', () => {
         vi.unstubAllGlobals();
         localStorage.clear();
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
     });
 
     it('should create Login component', () => {
@@ -47,17 +44,16 @@ describe('Login Component', () => {
         expect(component.password).toBe('');
     });
 
-    it('should handle ngOnInit when no cookie token exists', () => {
+    it('should handle ngOnInit when no user_session exists', () => {
         localStorage.setItem('accessToken', 'stale');
+        localStorage.setItem('user', JSON.stringify({ name: 'Old User' }));
         component.ngOnInit();
         expect(localStorage.getItem('accessToken')).toBeNull();
+        expect(localStorage.getItem('user')).toBeNull();
     });
 
-    it('should handle ngOnInit when valid cookie exists and redirect', () => {
-        const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 }));
-        const token = `header.${payload}.sig`;
-        document.cookie = `accessToken=${token}; path=/;`;
-
+    it('should redirect to dashboard during ngOnInit when user_session exists', () => {
+        document.cookie = 'user_session={"email":"admin@example.com"}; path=/;';
         const mockLocation = { href: '' };
         try {
             vi.stubGlobal('location', mockLocation);
@@ -70,31 +66,14 @@ describe('Login Component', () => {
         expect(mockLocation.href).toBe('http://localhost:4000/');
     });
 
-    it('should clean up expired cookie token during ngOnInit', () => {
-        const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) - 3600 }));
-        const token = `header.${payload}.sig`;
-        document.cookie = `accessToken=${token}; path=/;`;
-        localStorage.setItem('accessToken', token);
-
-        component.ngOnInit();
-        expect(localStorage.getItem('accessToken')).toBeNull();
-    });
-
-    it('should clean up malformed cookie token during ngOnInit', () => {
-        document.cookie = `accessToken=invalid-token; path=/;`;
-        localStorage.setItem('accessToken', 'invalid-token');
-
-        component.ngOnInit();
-        expect(localStorage.getItem('accessToken')).toBeNull();
-    });
-
-    it('should handle onLogin success and set auth tokens with clean redirect', async () => {
+    it('should handle onLogin success and set user profile with clean redirect', async () => {
+        const mockUser = { id: 'usr-admin-1', email: 'admin@example.com', role: 'admin' };
         vi.spyOn(authService, 'login').mockResolvedValue({
             success: true,
             data: {
                 accessToken: 'mock-jwt-token',
                 refreshToken: 'mock-refresh-token',
-                user: { id: 'usr-admin-1', email: 'admin@example.com', role: 'admin' }
+                user: mockUser
             }
         });
 
@@ -113,27 +92,13 @@ describe('Login Component', () => {
             email: 'admin@example.com',
             password: 'password123'
         });
-        expect(localStorage.getItem('accessToken')).toBe('mock-jwt-token');
-        expect(localStorage.getItem('refreshToken')).toBe('mock-refresh-token');
-        expect(document.cookie).toContain('accessToken=mock-jwt-token');
+        expect(localStorage.getItem('user')).toBe(JSON.stringify(mockUser));
+        expect(localStorage.getItem('accessToken')).toBeNull();
+        expect(localStorage.getItem('refreshToken')).toBeNull();
         expect(document.cookie).toContain('user_session=');
         if (mockLocation.href) {
             expect(mockLocation.href).toBe('http://localhost:4000/');
         }
-    });
-
-    it('should redirect to dashboard during ngOnInit when user_session exists', () => {
-        document.cookie = 'user_session={"email":"admin@example.com"}; path=/;';
-        const mockLocation = { href: '' };
-        try {
-            vi.stubGlobal('location', mockLocation);
-        } catch {
-            component.ngOnInit();
-            return;
-        }
-
-        component.ngOnInit();
-        expect(mockLocation.href).toBe('http://localhost:4000/');
     });
 
     it('should handle onLogin failure and show error toast', async () => {
