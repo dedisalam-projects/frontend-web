@@ -132,7 +132,8 @@ export class AppTopbar implements OnInit, OnDestroy {
             const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null;
             this.socket = io(`${environment.socketUrl}/notifications`, {
                 transports: ['websocket', 'polling'],
-                auth: { token }
+                auth: { token },
+                withCredentials: true
             });
 
             this.socket.on('connect', () => {
@@ -181,9 +182,25 @@ export class AppTopbar implements OnInit, OnDestroy {
         }));
     }
 
+    private getCookie(name: string): string | null {
+        if (typeof document === 'undefined') return null;
+        const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+        return match ? decodeURIComponent(match[3]) : null;
+    }
+
     getUserEmail(): string {
         try {
+            const userSessionCookie = this.getCookie('user_session');
+            if (userSessionCookie) {
+                const user = JSON.parse(userSessionCookie);
+                if (user?.email) return user.email;
+            }
             if (typeof localStorage !== 'undefined') {
+                const currentUser = localStorage.getItem('currentUser');
+                if (currentUser) {
+                    const user = JSON.parse(currentUser);
+                    if (user?.email) return user.email;
+                }
                 const token = localStorage.getItem('accessToken');
                 if (token) {
                     const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -192,45 +209,37 @@ export class AppTopbar implements OnInit, OnDestroy {
                 }
             }
         } catch (e) {
-            console.error('Error decoding token', e);
+            console.error('Error decoding user email', e);
         }
         return 'User';
     }
 
     logout() {
-        const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null;
-        const refreshToken = typeof localStorage !== 'undefined' ? localStorage.getItem('refreshToken') || undefined : undefined;
-        if (token && isPlatformBrowser(this.platformId)) {
-            try {
-                const authSocket = io(`${environment.socketUrl}/auth`, {
-                    transports: ['websocket', 'polling'],
-                    withCredentials: true,
-                    timeout: 4000
-                });
-
-                const cleanupAndRedirect = () => {
-                    authSocket.disconnect();
-                    this.performLogout();
-                };
-
-                const timer = setTimeout(cleanupAndRedirect, 3000);
-
-                authSocket.emit('auth:logout', { accessToken: token, refreshToken }, () => {
-                    clearTimeout(timer);
-                    cleanupAndRedirect();
-                });
-            } catch {
-                this.performLogout();
+        if (isPlatformBrowser(this.platformId)) {
+            // Fire HTTP logout to clear backend HttpOnly cookies with credentials
+            if (typeof fetch !== 'undefined') {
+                fetch(`${environment.apiUrl}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                }).catch(() => {});
             }
-        } else {
-            this.performLogout();
         }
+        this.performLogout();
     }
 
     private performLogout() {
-        localStorage.removeItem('accessToken');
+        const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
+        if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('currentUser');
+        }
         if (typeof document !== 'undefined') {
+            document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
             document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+            document.cookie = `user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
+            document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         }
         window.location.href = `${environment.appUrls.auth}/login`;
     }

@@ -14,12 +14,30 @@ describe('guestGuard', () => {
         TestBed.configureTestingModule({});
         localStorage.clear();
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
     });
 
     afterEach(() => {
         vi.unstubAllGlobals();
         localStorage.clear();
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+    });
+
+    it('should return false and redirect when user_session cookie exists', () => {
+        document.cookie = 'user_session={"email":"test@example.com"}; path=/;';
+        const mockLocation = { href: '' };
+        try {
+            vi.stubGlobal('location', mockLocation);
+        } catch {
+            const result = TestBed.runInInjectionContext(() => guestGuard({} as any, {} as any));
+            expect(result).toBe(false);
+            return;
+        }
+
+        const result = TestBed.runInInjectionContext(() => guestGuard({} as any, {} as any));
+        expect(result).toBe(false);
+        expect(mockLocation.href).toBe('http://localhost:4000/');
     });
 
     it('should return true when no accessToken cookie exists', () => {
@@ -81,12 +99,14 @@ describe('guestGuard — property-based (fast-check)', () => {
         TestBed.configureTestingModule({});
         localStorage.clear();
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
     });
 
     afterEach(() => {
         vi.unstubAllGlobals();
         localStorage.clear();
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
     });
 
     it('PROPERTY: any expired token (exp in the past) should always allow access (return true)', () => {

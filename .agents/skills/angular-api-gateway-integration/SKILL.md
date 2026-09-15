@@ -125,9 +125,62 @@ curl.exe -s http://localhost:3000/health
 > [!IMPORTANT]
 > **Strict Local-Only Development Policy:** All development occurs against local Docker Compose (`docker-compose.dev.yml`). Remote servers (ThinkCentre `172.16.254.2`) are strictly reserved for Staging and Production CI pipelines.
 
+### 6. Strict Backend-First Contract: Zero-Silent-Mock Policy & Handshake Readiness
+
+Frontend data services must **never** mask backend connection issues, auth token expiration, or incomplete handshakes by silently returning hardcoded dummy records (e.g. mock "John Doe" datasets).
+
+#### The Silent Fallback Anti-Pattern
+```typescript
+// ❌ WRONG: Masquerades API/network failure as valid data
+async getUsers(): Promise<User[]> {
+  try {
+    const res = await this.emitAck('admin:users:list');
+    if (res.success) return res.data;
+    return [...this.fallbackUsers]; // Silent dummy fallback!
+  } catch {
+    return [...this.fallbackUsers];
+  }
+}
+```
+
+#### The Strict Backend Contract
+```typescript
+// ✅ CORRECT: Guarantees connection readiness and transparent error propagation
+private async ensureConnected(socket: Socket, timeoutMs = 4000): Promise<void> {
+  if (socket.connected) return;
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Backend socket connection timeout')), timeoutMs);
+    socket.once('connect', () => {
+      clearTimeout(timer);
+      resolve();
+    });
+    socket.connect();
+  });
+}
+
+async getUsers(): Promise<User[]> {
+  const socket = this.getSocket();
+  if (socket) {
+    await this.ensureConnected(socket);
+  }
+  const res = await this.emitAck<User[]>('admin:users:list', { page: 1, limit: 100 });
+  if (res.success && res.data) {
+    return Array.isArray(res.data) ? res.data : [];
+  }
+  throw new Error(res.error?.message || 'Failed to fetch users from backend gateway');
+}
+```
+
+#### UI Principles Under Strict Backend Mode
+1. **Zero Phantom Data**: If the backend is unreachable or returns an error, the UI must display an empty state (`[]`), not fake mock data.
+2. **Actionable Feedback**: Present a Toast error notification or retry prompt so developers and users immediately recognize connection issues.
+3. **Guaranteed Handshake**: Always await socket connection and valid token attachment before dispatching RPC events.
+
 ## When to Use
 - Connecting an Angular component or service to backend endpoints via the API Gateway.
 - Configuring Angular environments for multi-app micro-frontends (`auth`, `dashboard`, `landing`).
 - Implementing `HttpClient` calls requiring session cookies or cross-port JWT sharing.
 - Consuming backend REST endpoints that wrap payloads in `{ statusCode, message, data, meta }`.
 - Establishing real-time Socket.IO connections with the notification gateway.
+- Enforcing strict backend data contracts and eliminating silent dummy/mock fallback anti-patterns.
+

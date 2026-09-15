@@ -28,8 +28,9 @@ export const authGuard: CanActivateFn = (route, state) => {
         const urlToken = route.queryParams['token'];
 
         if (urlToken && isTokenValid(urlToken)) {
+            const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
             localStorage.setItem('accessToken', urlToken);
-            document.cookie = `accessToken=${urlToken}; path=/; max-age=604800; SameSite=Lax`;
+            document.cookie = `accessToken=${urlToken}; path=/; max-age=604800; SameSite=Lax${domainAttr}`;
             window.history.replaceState({}, document.title, window.location.pathname);
             return true;
         }
@@ -40,9 +41,19 @@ export const authGuard: CanActivateFn = (route, state) => {
             return true;
         }
 
-        // No valid cookie -> Clean up and redirect to auth
+        const userSession = getCookie('user_session');
+        if (userSession) {
+            return true;
+        }
+
+        // No valid session/cookie -> Clean up and redirect to auth
+        const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('currentUser');
+        document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
         document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = `user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
+        document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
 
         // Redirect to auth app login
         window.location.href = `${environment.appUrls.auth}/login`;

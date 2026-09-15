@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { AuthSocketService } from '../../core/services/auth-socket.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
@@ -83,6 +84,8 @@ export class Login implements OnInit {
     password: string = '';
     checked: boolean = false;
 
+    private authService = inject(AuthService, { optional: true });
+
     constructor(
         private authSocketService: AuthSocketService,
         private router: Router,
@@ -91,14 +94,24 @@ export class Login implements OnInit {
 
     ngOnInit() {
         if (typeof window !== 'undefined') {
+            const userSession = this.getCookie('user_session');
             const cookieToken = this.getCookie('accessToken');
+
+            if (userSession) {
+                window.location.href = `${environment.appUrls.dashboard}/`;
+                return;
+            }
+
             if (!cookieToken) {
                 localStorage.removeItem('accessToken');
                 return;
             }
+
             if (this.isTokenValid(cookieToken)) {
                 window.location.href = `${environment.appUrls.dashboard}/`;
             } else {
+                const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
+                document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
                 document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
                 localStorage.removeItem('accessToken');
             }
@@ -129,27 +142,45 @@ export class Login implements OnInit {
 
     async onLogin() {
         try {
-            const res = await this.authSocketService.login({
-                email: this.email,
-                password: this.password
-            });
+            let res: any;
+            if (this.authService) {
+                res = await this.authService.login({
+                    email: this.email,
+                    password: this.password
+                });
+            } else {
+                res = await this.authSocketService.login({
+                    email: this.email,
+                    password: this.password
+                });
+            }
 
             if (res.success && res.data) {
                 const token = res.data.accessToken;
+                const refreshToken = res.data.refreshToken;
+                const user = res.data.user;
+
+                const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
+                const secureAttr = environment.production ? '; Secure' : '';
+
+                if (user) {
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    const userStr = encodeURIComponent(JSON.stringify(user));
+                    document.cookie = `user_session=${userStr}; path=/; max-age=604800; SameSite=Lax${domainAttr}${secureAttr}`;
+                }
+
                 if (token) {
                     localStorage.setItem('accessToken', token);
-                    const refreshToken = res.data.refreshToken;
-                    if (refreshToken) {
-                        localStorage.setItem('refreshToken', refreshToken);
-                    }
-                    const user = res.data.user;
-                    if (user) {
-                        localStorage.setItem('currentUser', JSON.stringify(user));
-                    }
-                    document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax`;
-                    window.location.href = `${environment.appUrls.dashboard}/?token=${token}`;
-                    return;
+                    document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax${domainAttr}${secureAttr}`;
                 }
+
+                if (refreshToken) {
+                    localStorage.setItem('refreshToken', refreshToken);
+                }
+
+                // Clean redirect without URL token query parameter (Issue #51 & CWE-598 resolution)
+                window.location.href = `${environment.appUrls.dashboard}/`;
+                return;
             }
 
             const errorMsg = res.error?.message || 'Invalid email or password. Please try again.';

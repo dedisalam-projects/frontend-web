@@ -71,11 +71,13 @@ describe('Landing Page & Widgets Suite', () => {
             router = TestBed.inject(Router);
             localStorage.clear();
             document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+            document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         });
 
         afterEach(() => {
             localStorage.clear();
             document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+            document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         });
 
         it('should create TopbarWidget and handle guest state', () => {
@@ -98,6 +100,20 @@ describe('Landing Page & Widgets Suite', () => {
             expect(component.getUserInitials()).toBe('D');
             const el = fixture.nativeElement as HTMLElement;
             expect(el.textContent).toContain('Dedi');
+        });
+
+        it('should detect user_session cookie and populate user profile', () => {
+            const sessionData = { name: 'Dedi Cookie', email: 'cookie@example.com', role: 'admin' };
+            document.cookie = `user_session=${encodeURIComponent(JSON.stringify(sessionData))}; path=/;`;
+
+            component.checkAuth();
+            fixture.detectChanges();
+
+            expect(component.currentUser()?.name).toBe('Dedi Cookie');
+            expect(component.currentUser()?.email).toBe('cookie@example.com');
+            expect(component.getUserInitials()).toBe('D');
+            const el = fixture.nativeElement as HTMLElement;
+            expect(el.textContent).toContain('Dedi Cookie');
         });
 
         it('should handle error when decoding valid token payload fails', () => {
@@ -156,6 +172,7 @@ describe('Landing Page & Widgets Suite', () => {
             const exp = Math.floor(Date.now() / 1000) + 3600;
             const token = `header.${btoa(JSON.stringify({ email: 'test@test.com', exp }))}.sig`;
             localStorage.setItem('accessToken', token);
+            document.cookie = 'user_session={"name":"test"}; path=/;';
 
             await component.logout();
             expect(component.currentUser()).toBeNull();
