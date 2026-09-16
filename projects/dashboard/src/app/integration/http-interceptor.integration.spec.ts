@@ -120,7 +120,7 @@ describe('Realtime Socket.IO & REST Integration — UserService', () => {
 
         const result = await userService.updateUser('usr-1', updates);
 
-        expect(emitSpy).toHaveBeenCalledWith('admin:users:update', { id: 'usr-1', ...updates });
+        expect(emitSpy).toHaveBeenCalledWith('admin:users:update', { id: 'usr-1', userId: 'usr-1', ...updates });
         expect(result.id).toBe('usr-1');
         expect(result.name).toBe('Updated Name');
     });

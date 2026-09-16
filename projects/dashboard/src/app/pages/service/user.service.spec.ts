@@ -119,7 +119,7 @@ describe('UserService', () => {
             data: { id: '1', name: 'Updated' }
         });
         const result1 = await service.updateUser('1', { name: 'Updated' });
-        expect(emitSpy1).toHaveBeenCalledWith('admin:users:update', { id: '1', name: 'Updated' });
+        expect(emitSpy1).toHaveBeenCalledWith('admin:users:update', { id: '1', userId: '1', name: 'Updated' });
         expect(result1.name).toBe('Updated');
 
         // Error case
