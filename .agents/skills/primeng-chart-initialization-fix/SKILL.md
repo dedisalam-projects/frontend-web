@@ -46,3 +46,7 @@ Delay the rendering of the `<p-chart>` component until the data is actually avai
 - When PrimeNG `<p-chart>` is completely missing from the screen.
 - When chart data is initialized using `setTimeout`, API calls, or Angular Signals that start with `null`/`undefined`.
 - When encountering "Chart is not defined" errors during PrimeNG initialization.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `primeng-chart-initialization-fix` conventions outlined above to ensure workspace consistency and prevent regressions.

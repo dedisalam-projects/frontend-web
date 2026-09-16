@@ -86,3 +86,7 @@ export class AppComponent implements OnInit {
 - Use when headings or text visibly shift size or weight 100–300ms after the splash screen disappears.
 - Use when icon buttons initially render as empty or blank glyphs upon first display.
 - Use when auditing Core Web Vitals to achieve 0.00 CLS and zero FOUT.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `font-readiness-splash-gate` conventions outlined above to ensure workspace consistency and prevent regressions.

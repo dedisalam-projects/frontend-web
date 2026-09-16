@@ -297,6 +297,35 @@ describe('Users CRUD Component', () => {
         expect(updated?.role).toBe('super_admin');
     });
 
+    it('should remove user when user:deleted realtime event is received with { event, data } envelope', () => {
+        expect(component.users().length).toBe(2);
+        socketEventHandlers['user:deleted']?.({
+            event: 'USER_DELETED',
+            data: { userId: 'usr-2' }
+        });
+        expect(component.users().length).toBe(1);
+        expect(component.users()[0].id).toBe('usr-1');
+    });
+
+    it('should append user when user:created realtime event is received with { event, data } envelope', () => {
+        expect(component.users().length).toBe(2);
+        socketEventHandlers['user:created']?.({
+            event: 'USER_CREATED',
+            data: { id: 'usr-envelope', name: 'Envelope User', email: 'env@test.com', role: 'user', isActive: true }
+        });
+        expect(component.users().length).toBe(3);
+        expect(component.users()[0].id).toBe('usr-envelope');
+    });
+
+    it('should update user when user:updated realtime event is received with { event, data } envelope', () => {
+        socketEventHandlers['user:updated']?.({
+            event: 'USER_UPDATED',
+            data: { id: 'usr-1', name: 'Envelope Updated Name' }
+        });
+        const updated = component.users().find((u) => u.id === 'usr-1');
+        expect(updated?.name).toBe('Envelope Updated Name');
+    });
+
     it('should disconnect socket on ngOnDestroy', () => {
         component.ngOnDestroy();
         expect(mockSocketDisconnect).toHaveBeenCalled();

@@ -37,3 +37,7 @@ export const appConfig: ApplicationConfig = {
 - When configuring a new PrimeNG or Sakai-ng project.
 - When migrating to PrimeNG version 22 or later.
 - When you see a "PrimeUI license missing" or similar console warning.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `primeui-license-setup` conventions outlined above to ensure workspace consistency and prevent regressions.

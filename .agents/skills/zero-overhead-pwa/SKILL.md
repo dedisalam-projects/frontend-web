@@ -143,3 +143,7 @@ Register the Service Worker after the window load event to prevent competing for
 - When making an Angular, React, Vue, or Vanilla web app installable as a PWA.
 - When passing Lighthouse PWA and offline audits without adding bundle overhead.
 - When containerizing or serving micro-frontends with independent offline caching strategies.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `zero-overhead-pwa` conventions outlined above to ensure workspace consistency and prevent regressions.

@@ -138,29 +138,32 @@ export class AppTopbar implements OnInit, OnDestroy {
                 console.log('Connected to WebSocket server');
             });
 
-            this.socket.on('login_event', (data: any) => {
+            this.socket.on('login_event', (payload: any) => {
+                const data = payload?.data || payload;
                 this.messageService.add({
                     severity: 'info',
                     summary: 'User Logged In',
-                    detail: `User ${data.email} has logged in at ${data.timestamp}`,
+                    detail: `User ${data?.email} has logged in at ${data?.timestamp}`,
                     life: 5000
                 });
             });
 
-            this.socket.on('notification:new', (data: any) => {
+            this.socket.on('notification:new', (payload: any) => {
+                const data = payload?.data || payload;
                 this.messageService.add({
                     severity: 'info',
-                    summary: data.title || 'New Notification',
-                    detail: data.message || data.content || 'You have received a new notification',
+                    summary: data?.title || 'New Notification',
+                    detail: data?.message || data?.content || 'You have received a new notification',
                     life: 5000
                 });
             });
 
-            this.socket.on('notification:broadcast', (data: any) => {
+            this.socket.on('notification:broadcast', (payload: any) => {
+                const data = payload?.data || payload;
                 this.messageService.add({
                     severity: 'info',
-                    summary: data.title || 'System Broadcast',
-                    detail: data.message || data.content || 'System notification received',
+                    summary: data?.title || 'System Broadcast',
+                    detail: data?.message || data?.content || 'System notification received',
                     life: 5000
                 });
             });
@@ -223,14 +226,10 @@ export class AppTopbar implements OnInit, OnDestroy {
     private performLogout() {
         const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
         if (typeof localStorage !== 'undefined') {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
             localStorage.removeItem('currentUser');
             localStorage.removeItem('user');
         }
         if (typeof document !== 'undefined') {
-            document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
-            document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
             document.cookie = `user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
             document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         }

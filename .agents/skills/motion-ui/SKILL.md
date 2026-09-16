@@ -574,3 +574,7 @@ export function Shared() {
   return <motion.div layoutId="shared" />
 }
 ```
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `motion-ui` conventions outlined above to ensure workspace consistency and prevent regressions.

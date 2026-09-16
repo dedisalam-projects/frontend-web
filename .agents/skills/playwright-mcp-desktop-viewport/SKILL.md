@@ -70,3 +70,7 @@ await page.getByRole('link', { name: 'Login' }).click();
 - When using Playwright MCP to test or audit landing pages, dashboards, or public sites where action buttons disappear under responsive CSS rules.
 - When `browser_snapshot` shows `button "Menu"` instead of topbar links like `Home`, `Features`, `Login`, or `Register`.
 - When configuring workspace `.agents/mcp_config.json` for frontend projects built with Tailwind CSS, PrimeNG, or Bootstrap.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `playwright-mcp-desktop-viewport` conventions outlined above to ensure workspace consistency and prevent regressions.

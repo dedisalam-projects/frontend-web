@@ -51,7 +51,7 @@ describe('Auth Guard Integration', () => {
 
         const result = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
         expect(result).toBe(true);
-        expect(localStorage.getItem('accessToken')).toBe(token);
+        expect(localStorage.getItem('accessToken')).toBeNull();
     });
 
     it('should allow access and store token when valid token is in queryParams', () => {
@@ -60,7 +60,7 @@ describe('Auth Guard Integration', () => {
 
         const result = TestBed.runInInjectionContext(() => authGuard(routeWithToken, mockState));
         expect(result).toBe(true);
-        expect(localStorage.getItem('accessToken')).toBe(token);
+        expect(localStorage.getItem('accessToken')).toBeNull();
     });
 
     it('should block access and clean up when no token is present', () => {

@@ -50,3 +50,7 @@ When a micro-frontend consumes shared components from `shared-ui`:
 - Use when PrimeNG buttons (`<p-button>`) or feature cards render blank circular or rectangular buttons with no visible icons.
 - Use when configuring SCSS styles for an Angular micro-frontend consuming a shared component library with PrimeNG.
 - Use when balancing Lighthouse font optimization with icon display correctness.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `primeng-icon-font-parity` conventions outlined above to ensure workspace consistency and prevent regressions.

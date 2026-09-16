@@ -80,3 +80,7 @@ Ensure data table images in widgets (e.g. `RecentSalesWidget`) specify both `wid
 - When auditing performance or Core Web Vitals on Angular + PrimeNG (Sakai-ng) applications.
 - When Lighthouse reports `cumulative-layout-shift` failures centered on `.layout-main-container`.
 - When Chrome DevTools Performance Trace highlights `non-composited animation: margin-left`.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `primeng-sakai-layout-cls` conventions outlined above to ensure workspace consistency and prevent regressions.

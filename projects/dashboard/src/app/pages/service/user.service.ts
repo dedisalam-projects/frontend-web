@@ -1,5 +1,7 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 
@@ -31,6 +33,8 @@ export interface ApiResponse<T> {
 })
 export class UserService {
     private platformId = inject(PLATFORM_ID);
+    private http = inject(HttpClient);
+    private apiUrl = `${environment.apiUrl}/users`;
     private socket: Socket | null = null;
 
     constructor() {
@@ -126,26 +130,32 @@ export class UserService {
     }
 
     async getUsers(): Promise<User[]> {
-        const res = await this.emitAck<any>('admin:users:list', { page: 1, limit: 100 });
-        if (res.success) {
-            if (!res.data) {
-                return [];
+        try {
+            const res = await firstValueFrom(
+                this.http.get<any>(this.apiUrl, {
+                    withCredentials: true
+                })
+            );
+            if (Array.isArray(res)) {
+                return res;
             }
-            if (Array.isArray(res.data)) {
+            if (res && res.success && res.data) {
+                if (Array.isArray(res.data)) return res.data;
+                if (Array.isArray(res.data.users)) return res.data.users;
+                if (Array.isArray(res.data.items)) return res.data.items;
+                if (Array.isArray(res.data.data)) return res.data.data;
+            }
+            if (res && Array.isArray(res.data)) {
                 return res.data;
             }
-            if (Array.isArray(res.data.users)) {
-                return res.data.users;
-            }
-            if (Array.isArray(res.data.items)) {
-                return res.data.items;
-            }
-            if (Array.isArray(res.data.data)) {
-                return res.data.data;
+            if (res && Array.isArray(res.users)) {
+                return res.users;
             }
             return [];
+        } catch (err: any) {
+            const message = err?.error?.message || err?.error?.error?.message || err?.message || 'Gagal memuat data user dari server';
+            throw new Error(message);
         }
-        throw new Error(res.error?.message || 'Gagal memuat data user dari server');
     }
 
     async createUser(user: { name: string; email: string; password?: string; role: string; isActive?: boolean }): Promise<User> {

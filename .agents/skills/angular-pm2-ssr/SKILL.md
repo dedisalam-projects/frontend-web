@@ -72,3 +72,7 @@ module.exports = {
 - When PM2 deployment of an Angular 17+ SSR app exits silently without starting the HTTP server.
 - When you receive `ERROR: Bad Request ("http://..."). Header "host" with value "..." is not allowed.`
 - When you need to securely inject environment variables into an Angular SSR Node process before the engine initializes.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `angular-pm2-ssr` conventions outlined above to ensure workspace consistency and prevent regressions.

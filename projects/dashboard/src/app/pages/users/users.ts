@@ -415,21 +415,24 @@ export class Users implements OnInit, OnDestroy {
                 this.socket?.emit('admin:join', {});
             });
 
-            this.socket.on('user_deleted', (data: { userId: string; timestamp?: string }) => {
-                const deletedId = data?.userId;
+            this.socket.on('user_deleted', (payload: any) => {
+                const data = payload?.data || payload;
+                const deletedId = data?.userId || data?.id || (typeof data === 'string' ? data : null);
                 if (deletedId) {
                     this.users.update((list) => list.filter((u) => u.id !== deletedId && (u as any)._id !== deletedId));
                 }
             });
 
-            this.socket.on('user:deleted', (data: { userId: string }) => {
-                const deletedId = data?.userId;
+            this.socket.on('user:deleted', (payload: any) => {
+                const data = payload?.data || payload;
+                const deletedId = data?.userId || data?.id || (typeof data === 'string' ? data : null);
                 if (deletedId) {
                     this.users.update((list) => list.filter((u) => u.id !== deletedId && (u as any)._id !== deletedId));
                 }
             });
 
-            this.socket.on('user_created', (data: any) => {
+            this.socket.on('user_created', (payload: any) => {
+                const data = payload?.data || payload;
                 const newUser = data?.user || data;
                 if (newUser && (newUser.id || newUser._id)) {
                     const mapped: User = {
@@ -447,7 +450,8 @@ export class Users implements OnInit, OnDestroy {
                 }
             });
 
-            this.socket.on('user:created', (data: any) => {
+            this.socket.on('user:created', (payload: any) => {
+                const data = payload?.data || payload;
                 const newUser = data?.user || data;
                 if (newUser && (newUser.id || newUser._id)) {
                     const mapped: User = {
@@ -465,7 +469,8 @@ export class Users implements OnInit, OnDestroy {
                 }
             });
 
-            this.socket.on('user_updated', (data: any) => {
+            this.socket.on('user_updated', (payload: any) => {
+                const data = payload?.data || payload;
                 const updated = data?.user || data;
                 const userId = updated?.id || updated?._id || data?.userId;
                 const changes = data?.changes || updated;
@@ -474,7 +479,8 @@ export class Users implements OnInit, OnDestroy {
                 }
             });
 
-            this.socket.on('user:updated', (data: any) => {
+            this.socket.on('user:updated', (payload: any) => {
+                const data = payload?.data || payload;
                 const updated = data?.user || data;
                 const userId = updated?.id || updated?._id || data?.userId;
                 const changes = data?.changes || updated;

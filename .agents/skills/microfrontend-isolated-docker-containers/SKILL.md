@@ -179,3 +179,7 @@ stage('Build & Push Docker Images') {
 1. When deploying an Angular multi-project workspace where each sub-project maps to a distinct subdomain (`dedisalam.my.id`, `auth.dedisalam.my.id`, `dash.dedisalam.my.id`).
 2. When configuring Cloudflare Zero Trust tunnels (`cloudflared`) to forward hostnames cleanly to internal Docker services using uniform standard port `8080`.
 3. When avoiding asset collisions and preventing monolith container failure across micro-frontends.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `microfrontend-isolated-docker-containers` conventions outlined above to ensure workspace consistency and prevent regressions.

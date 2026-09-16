@@ -51,3 +51,7 @@ $$\text{Score} = \frac{\text{A11y Tree (weight 1)} + \text{llms-txt (weight 1)} 
 ## When to Use
 - When auditing pages with Lighthouse and `agentic-browsing` score is 95–99 despite a green `llms-txt` audit.
 - When stabilizing autonomous agent navigation and automated browser testing workflows.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `lighthouse-agentic-browsing-cls` conventions outlined above to ensure workspace consistency and prevent regressions.

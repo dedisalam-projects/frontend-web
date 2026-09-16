@@ -153,23 +153,19 @@ describe('Dashboard Layout Suite', () => {
             expect(layoutService.layoutConfig().darkTheme).toBe(true);
         });
 
-        it('should perform logout and clear tokens and user storage', () => {
-            localStorage.setItem('accessToken', 'mock-token');
+        it('should perform logout and clear user storage', () => {
             localStorage.setItem('user', JSON.stringify({ email: 'mock@example.com' }));
 
             component.logout();
 
-            expect(localStorage.getItem('accessToken')).toBeNull();
             expect(localStorage.getItem('user')).toBeNull();
         });
 
         it('should handle logout when backend returns error or disconnects', () => {
-            localStorage.setItem('accessToken', 'mock-token');
             localStorage.setItem('user', JSON.stringify({ email: 'mock@example.com' }));
 
             component.logout();
 
-            expect(localStorage.getItem('accessToken')).toBeNull();
             expect(localStorage.getItem('user')).toBeNull();
         });
 

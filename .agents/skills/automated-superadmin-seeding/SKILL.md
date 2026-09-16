@@ -93,3 +93,7 @@ if (!adminExists) {
 - When configuring user/identity services in multi-container development or staging setups.
 - When E2E test suites report missing superadmin credentials following database resets.
 - When moving database seeding from manual scripts into production-ready resilient service lifecycles.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `automated-superadmin-seeding` conventions outlined above to ensure workspace consistency and prevent regressions.

@@ -42,3 +42,7 @@ If the code causing the error resides inside a shared library (`projects/shared-
 - When debugging `ReferenceError: window is not defined` during an Angular build.
 - When you make changes to a shared library in a monorepo but the changes don't seem to take effect in the consuming application.
 - When working on SSR (Server-Side Rendering) setup for multiple Angular applications sharing UI components.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `angular-workspace-ssr-shared-lib` conventions outlined above to ensure workspace consistency and prevent regressions.
