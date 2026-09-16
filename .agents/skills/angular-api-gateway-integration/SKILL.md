@@ -95,7 +95,20 @@ export class UserService {
 }
 ```
 
-### 3. Cross-Origin Credentials (`withCredentials: true`)
+### 3. WebSocket `{ event, data }` Envelope Standardization
+When migrating WebSocket listeners to consume wrapped payloads from standard backend gateways, ensure strict backward compatibility for in-flight migrations or legacy events.
+Use the robust payload unpack fallback:
+```typescript
+// ✅ CORRECT: Resilient unpack of { event, data } envelope with raw payload fallback
+this.socket.on('entity_updated', (payload: any) => {
+  const data = payload?.data || payload;
+  
+  // Handle unwrapped data safely
+  this.processData(data);
+});
+```
+
+### 4. Cross-Origin Credentials (`withCredentials: true`)
 Because micro-frontends run on different ports (`:4000`, `:4001`, `:4002`), browser requests to the Gateway (`:3000`) are cross-origin.
 - The Gateway provides `Access-Control-Allow-Credentials: true`.
 - Every HTTP request carrying JWT cookies or refresh tokens must include `{ withCredentials: true }`.
@@ -175,6 +188,11 @@ async getUsers(): Promise<User[]> {
 1. **Zero Phantom Data**: If the backend is unreachable or returns an error, the UI must display an empty state (`[]`), not fake mock data.
 2. **Actionable Feedback**: Present a Toast error notification or retry prompt so developers and users immediately recognize connection issues.
 3. **Guaranteed Handshake**: Always await socket connection and valid token attachment before dispatching RPC events.
+
+#### Strict Transport Alignment in Testing
+When migrating a hybrid service method (e.g., adding HTTP fallback to a socket method), strictly align each method's transport with existing test contracts to avoid test harness mismatches. If an Angular test exclusively uses `HttpClientTestingModule` with no HTTP mock supplied for a socket-mocked test, `firstValueFrom` will hang the test suite. 
+- Do not mix HTTP fallback inside a socket-only mock test environment without updating the test to expect flushed HTTP requests.
+- Keep socket-only RPCs pure if unit tests are not migrated to handle both protocols.
 
 ## When to Use
 - Connecting an Angular component or service to backend endpoints via the API Gateway.
