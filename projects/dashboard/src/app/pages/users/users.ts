@@ -433,6 +433,11 @@ export class Users implements OnInit, OnDestroy {
         }
     }
 
+    isValidEmail(email: string): boolean {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
     private initRealtimeSync() {
         if (!isPlatformBrowser(this.platformId)) return;
         try {
