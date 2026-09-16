@@ -158,3 +158,7 @@ This guide defines mandatory testing layers, quantitative parameter thresholds, 
 - When configuring CI/CD verification pipelines and pre-push quality gates.
 - When evaluating test coverage or diagnosing flaky tests.
 - When preparing an application for production deployment or security audits.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `software-testing-matrix` conventions outlined above to ensure workspace consistency and prevent regressions.

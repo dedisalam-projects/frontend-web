@@ -655,3 +655,7 @@ export function Modal({ isOpen, onClose, children }: ModalProps) {
 ```
 
 **Remember**: Modern frontend patterns enable maintainable, performant user interfaces. Choose patterns that fit your project complexity.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `frontend-patterns` conventions outlined above to ensure workspace consistency and prevent regressions.

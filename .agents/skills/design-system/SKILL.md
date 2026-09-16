@@ -81,3 +81,7 @@ Identifies generic AI-generated design patterns:
 ```
 /design-system slop-check
 ```
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `design-system` conventions outlined above to ensure workspace consistency and prevent regressions.

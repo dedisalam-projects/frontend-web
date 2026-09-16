@@ -114,3 +114,7 @@ When auditing network requests via `list_network_requests`, actively identify an
 - **Remedy**: Keep `fetchpriority="high"` strictly on above-the-fold hero images (LCP candidates), and apply `loading="lazy" decoding="async"` to all below-the-fold images and SVG vectors.
 
 
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `chromedev-network-analysis` conventions outlined above to ensure workspace consistency and prevent regressions.

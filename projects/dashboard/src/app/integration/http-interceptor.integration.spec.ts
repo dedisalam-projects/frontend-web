@@ -1,23 +1,26 @@
 /**
- * Integration Test: Realtime Socket.IO Communication — UserService
+ * Integration Test: Realtime Socket.IO & REST Integration — UserService
  *
  * Verifies that:
- * 1. Authorization token from localStorage is passed during socket initialization / handshake
- * 2. Realtime Ack RPC requests emit correct events (admin:users:list, admin:users:create, etc.)
- * 3. Response envelope { success, data, meta } is handled and unwrapped correctly
+ * 1. REST GET /api/v1/users is called with credentials for users list
+ * 2. Socket client connects with withCredentials: true without auth token
+ * 3. Response envelope is handled and unwrapped correctly
  * 4. Error response or disconnection triggers fallback gracefully
  */
 import { TestBed } from '@angular/core/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { of, throwError } from 'rxjs';
 import { UserService } from '../pages/service/user.service';
 
-describe('Realtime Socket.IO Integration — UserService', () => {
+describe('Realtime Socket.IO & REST Integration — UserService', () => {
     let userService: UserService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [provideRouter([]), { provide: PLATFORM_ID, useValue: 'browser' }, UserService]
+            providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: PLATFORM_ID, useValue: 'browser' }, UserService]
         });
         userService = TestBed.inject(UserService);
         localStorage.clear();
@@ -28,17 +31,16 @@ describe('Realtime Socket.IO Integration — UserService', () => {
         localStorage.clear();
     });
 
-    // ── Handshake Token Verification ──────────────────────────────────────
+    // ── REST GET Users ───────────────────────────────────────────────────
 
-    it('should initialize socket connection with credentials when calling getUsers', async () => {
-        const emitSpy = vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
-            success: true,
-            data: []
-        });
+    it('should call REST GET /api/v1/users with credentials when calling getUsers', async () => {
+        const httpSpy = vi.spyOn((userService as any).http, 'get').mockReturnValue(
+            of({ success: true, data: [] })
+        );
 
         await userService.getUsers();
 
-        expect(emitSpy).toHaveBeenCalledWith('admin:users:list', { page: 1, limit: 100 });
+        expect(httpSpy).toHaveBeenCalledWith('http://localhost:3000/api/v1/users', { withCredentials: true });
         const socket = userService.getSocket();
         expect(socket).toBeDefined();
     });
@@ -48,53 +50,49 @@ describe('Realtime Socket.IO Integration — UserService', () => {
     it('should unwrap { success: true, data: { users: User[] } } envelope format', async () => {
         const mockUsers = [{ id: '1', name: 'Alice', email: 'alice@x.com', role: 'admin', isActive: true }];
 
-        vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
-            success: true,
-            data: { users: mockUsers, meta: { total: 1 } }
-        });
+        vi.spyOn((userService as any).http, 'get').mockReturnValue(
+            of({ success: true, data: { users: mockUsers } })
+        );
 
         const result = await userService.getUsers();
         expect(result).toEqual(mockUsers);
     });
 
     it('should handle plain array response (direct data array)', async () => {
-        localStorage.setItem('accessToken', 'tok');
         const mockUsers = [{ id: '2', name: 'Bob', email: 'bob@x.com', role: 'user', isActive: true }];
 
-        vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
-            success: true,
-            data: mockUsers
-        });
+        vi.spyOn((userService as any).http, 'get').mockReturnValue(
+            of(mockUsers)
+        );
 
         const result = await userService.getUsers();
         expect(result).toEqual(mockUsers);
     });
 
-    it('should throw error on UNAUTHORIZED socket response', async () => {
-        localStorage.setItem('accessToken', 'expired-token');
-
-        vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
-            success: false,
-            error: { code: 'UNAUTHORIZED', message: 'Token expired' }
-        });
+    it('should throw error on error response', async () => {
+        vi.spyOn((userService as any).http, 'get').mockReturnValue(
+            throwError(() => ({ error: { message: 'Token expired' } }))
+        );
 
         await expect(userService.getUsers()).rejects.toThrow('Token expired');
     });
 
-    it('should throw error on TIMEOUT or INTERNAL_ERROR', async () => {
-        vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
-            success: false,
-            error: { code: 'TIMEOUT', message: 'Timeout' }
-        });
+    it('should throw error on Network error', async () => {
+        vi.spyOn((userService as any).http, 'get').mockReturnValue(
+            throwError(() => new Error('Network error'))
+        );
 
-        await expect(userService.getUsers()).rejects.toThrow('Timeout');
+        await expect(userService.getUsers()).rejects.toThrow('Network error');
     });
 
     // ── Realtime CRUD Integration ──────────────────────────────────────────
 
-    it('should emit admin:users:create Ack RPC on createUser', async () => {
-        localStorage.setItem('accessToken', 'admin-token');
+    it('should emit admin:users:create Ack RPC on createUser when fallback', async () => {
         const newUser = { name: 'Charlie', email: 'charlie@x.com', password: 'pass123', role: 'user' };
+
+        vi.spyOn((userService as any).http, 'post').mockReturnValue(
+            throwError(() => new Error('HTTP 404'))
+        );
 
         const emitSpy = vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
             success: true,
@@ -108,9 +106,12 @@ describe('Realtime Socket.IO Integration — UserService', () => {
         expect(result.name).toBe('Charlie');
     });
 
-    it('should emit admin:users:update on updateUser', async () => {
-        localStorage.setItem('accessToken', 'admin-token');
+    it('should emit admin:users:update on updateUser when fallback', async () => {
         const updates = { name: 'Updated Name' };
+
+        vi.spyOn((userService as any).http, 'patch').mockReturnValue(
+            throwError(() => new Error('HTTP 404'))
+        );
 
         const emitSpy = vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
             success: true,
@@ -124,8 +125,10 @@ describe('Realtime Socket.IO Integration — UserService', () => {
         expect(result.name).toBe('Updated Name');
     });
 
-    it('should emit admin:users:delete on deleteUser', async () => {
-        localStorage.setItem('accessToken', 'admin-token');
+    it('should emit admin:users:delete on deleteUser when fallback', async () => {
+        vi.spyOn((userService as any).http, 'delete').mockReturnValue(
+            throwError(() => new Error('HTTP 404'))
+        );
 
         const emitSpy = vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
             success: true,
@@ -139,7 +142,10 @@ describe('Realtime Socket.IO Integration — UserService', () => {
     });
 
     it('should emit multiple admin:users:delete sequentially on deleteUsers', async () => {
-        localStorage.setItem('accessToken', 'admin-token');
+        vi.spyOn((userService as any).http, 'delete').mockReturnValue(
+            throwError(() => new Error('HTTP 404'))
+        );
+
         const ids = ['usr-1', 'usr-2', 'usr-3'];
 
         const emitSpy = vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
@@ -156,8 +162,11 @@ describe('Realtime Socket.IO Integration — UserService', () => {
     // ── Strict Error Propagation ──────────────────────────────────────────
 
     it('should throw error when createUser backend returns error', async () => {
-        localStorage.setItem('accessToken', 'admin-token');
         const newUser = { name: 'Dan', email: 'dan@x.com', password: 'pass', role: 'user', isActive: true };
+
+        vi.spyOn((userService as any).http, 'post').mockReturnValue(
+            throwError(() => new Error('HTTP 404'))
+        );
 
         vi.spyOn(userService as any, 'emitAck').mockResolvedValue({
             success: false,

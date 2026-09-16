@@ -29,7 +29,7 @@ describe('authGuard', () => {
 
         const result = TestBed.runInInjectionContext(() => authGuard(route, {} as any));
         expect(result).toBe(true);
-        expect(localStorage.getItem('accessToken')).toBe(validToken);
+        expect(localStorage.getItem('accessToken')).toBeNull();
         expect(document.cookie).toContain(`accessToken=${validToken}`);
         expect(replaceStateSpy).toHaveBeenCalled();
     });
@@ -42,7 +42,7 @@ describe('authGuard', () => {
         const route = { queryParams: {} } as unknown as ActivatedRouteSnapshot;
         const result = TestBed.runInInjectionContext(() => authGuard(route, {} as any));
         expect(result).toBe(true);
-        expect(localStorage.getItem('accessToken')).toBe(validToken);
+        expect(localStorage.getItem('accessToken')).toBeNull();
     });
 
     it('should accept valid user_session cookie for multi-subdomain SSO', () => {
@@ -114,7 +114,7 @@ describe('authGuard', () => {
         const route = { queryParams: { token } } as unknown as ActivatedRouteSnapshot;
         const result = TestBed.runInInjectionContext(() => authGuard(route, {} as any));
         expect(result).toBe(true);
-        expect(localStorage.getItem('accessToken')).toBe(token);
+        expect(localStorage.getItem('accessToken')).toBeNull();
     });
 
     it('should return false in SSR context when window is undefined', () => {

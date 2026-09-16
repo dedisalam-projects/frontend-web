@@ -192,16 +192,12 @@ export class TopbarWidget implements OnInit {
     async logout(): Promise<void> {
         const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
 
-        // 1. Immediately and synchronously clear local authentication storage and state
+        // 1. Immediately and synchronously clear public user profile and state
         if (typeof document !== 'undefined') {
-            document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
-            document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
             document.cookie = `user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
             document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         }
         if (typeof localStorage !== 'undefined') {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
             localStorage.removeItem('currentUser');
             localStorage.removeItem('user');
         }

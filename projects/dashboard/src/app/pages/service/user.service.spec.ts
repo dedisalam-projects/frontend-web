@@ -1,5 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { PLATFORM_ID } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { of, throwError } from 'rxjs';
 import { UserService, User } from './user.service';
 import * as fc from 'fast-check';
 
@@ -8,7 +11,7 @@ describe('UserService', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [UserService, { provide: PLATFORM_ID, useValue: 'browser' }]
+            providers: [UserService, provideHttpClient(), provideHttpClientTesting(), { provide: PLATFORM_ID, useValue: 'browser' }]
         });
         service = TestBed.inject(UserService);
         localStorage.clear();
@@ -23,47 +26,52 @@ describe('UserService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should fetch users successfully from backend via admin:users:list Ack RPC', async () => {
+    it('should initialize socket with withCredentials: true and without auth.token', () => {
+        const socket = service.getSocket();
+        expect(socket).toBeTruthy();
+        expect((socket as any).io?.opts?.withCredentials).toBe(true);
+        expect((socket as any).auth).toBeUndefined();
+    });
+
+    it('should fetch users successfully from backend via REST GET /api/v1/users', async () => {
         const mockUsers: User[] = [{ id: '1', name: 'Alice', email: 'alice@example.com', role: 'admin', isActive: true }];
 
-        const emitSpy = vi.spyOn(service as any, 'emitAck').mockResolvedValue({
-            success: true,
-            data: { users: mockUsers }
-        });
+        const httpGetSpy = vi.spyOn((service as any).http, 'get').mockReturnValue(
+            of({ success: true, data: { users: mockUsers } })
+        );
 
         const result = await service.getUsers();
 
-        expect(emitSpy).toHaveBeenCalledWith('admin:users:list', { page: 1, limit: 100 });
+        expect(httpGetSpy).toHaveBeenCalledWith('http://localhost:3000/api/v1/users', { withCredentials: true });
         expect(result).toEqual(mockUsers);
     });
 
     it('should handle direct array response and empty response in getUsers', async () => {
-        vi.spyOn(service as any, 'emitAck').mockResolvedValueOnce({
-            success: true,
-            data: [{ id: '9', name: 'Direct', email: 'd@d.com', role: 'user', isActive: true }]
-        });
+        vi.spyOn((service as any).http, 'get').mockReturnValueOnce(
+            of([{ id: '9', name: 'Direct', email: 'd@d.com', role: 'user', isActive: true }])
+        );
         const res1 = await service.getUsers();
         expect(res1.length).toBe(1);
 
-        vi.spyOn(service as any, 'emitAck').mockResolvedValueOnce({
-            success: true,
-            data: null
-        });
+        vi.spyOn((service as any).http, 'get').mockReturnValueOnce(
+            of({ success: true, data: null })
+        );
         const res2 = await service.getUsers();
         expect(res2.length).toBe(0);
     });
 
     it('should throw an error when getUsers backend returns failure', async () => {
-        vi.spyOn(service as any, 'emitAck').mockResolvedValue({
-            success: false,
-            error: { code: 'UNAUTHORIZED', message: 'Unauthorized' }
-        });
+        vi.spyOn((service as any).http, 'get').mockReturnValue(
+            throwError(() => ({ error: { message: 'Unauthorized' } }))
+        );
 
         await expect(service.getUsers()).rejects.toThrow('Unauthorized');
     });
 
     it('should propagate error when getUsers throws an exception', async () => {
-        vi.spyOn(service as any, 'emitAck').mockRejectedValue(new Error('Network error'));
+        vi.spyOn((service as any).http, 'get').mockReturnValue(
+            throwError(() => new Error('Network error'))
+        );
 
         await expect(service.getUsers()).rejects.toThrow('Network error');
     });

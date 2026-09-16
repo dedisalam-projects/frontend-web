@@ -283,3 +283,7 @@ index.html parsed
 - When configuring Angular 17+ / 19+ / 22+ multi-project workspaces with hybrid public (SSR/SSG) and private (CSR) micro-frontends.
 - When optimizing First Contentful Paint (FCP), Cumulative Layout Shift (CLS: 0.000), and eliminating white-screen flashes.
 
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `angular-ssr-protected-routes` conventions outlined above to ensure workspace consistency and prevent regressions.

@@ -29,7 +29,6 @@ export const authGuard: CanActivateFn = (route, state) => {
 
         if (urlToken && isTokenValid(urlToken)) {
             const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
-            localStorage.setItem('accessToken', urlToken);
             document.cookie = `accessToken=${urlToken}; path=/; max-age=604800; SameSite=Lax${domainAttr}`;
             window.history.replaceState({}, document.title, window.location.pathname);
             return true;
@@ -37,7 +36,6 @@ export const authGuard: CanActivateFn = (route, state) => {
 
         const cookieToken = getCookie('accessToken');
         if (cookieToken && isTokenValid(cookieToken)) {
-            localStorage.setItem('accessToken', cookieToken);
             return true;
         }
 

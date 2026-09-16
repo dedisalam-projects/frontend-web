@@ -124,3 +124,7 @@ def sendDiscordNotification(String buildStatus) {
 - When configuring build status alerts to a team Discord server.
 - When you need zero-dependency, lightweight webhook notifications without installing or upgrading Jenkins plugins.
 - When pipelines run on locked-down Jenkins masters where admin rights for plugin installations are restricted.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `jenkins-discord-notification` conventions outlined above to ensure workspace consistency and prevent regressions.

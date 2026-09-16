@@ -1,4 +1,4 @@
-﻿---
+---
 name: chromedev-first-load-html-inspection
 description: "Use when detecting scrambled HTML, FOUC, or SSR hydration mismatch on first page load — use Chrome DevTools MCP take_screenshot, take_snapshot, and evaluate_script to capture and inspect raw DOM state before Angular hydration."
 tier: local
@@ -118,3 +118,7 @@ Look for `NG0500` (hydration mismatch) or `NG0502` errors that indicate server/c
 - `angular-ssr-protected-routes` — for flash before auth redirect
 - `primeng-sakai-layout-cls` — for CLS caused by Sakai sidebar animation
 - `lighthouse-agentic-browsing-cls` — for CLS in Lighthouse scores
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `chromedev-first-load-html-inspection` conventions outlined above to ensure workspace consistency and prevent regressions.

@@ -21,8 +21,6 @@ test.describe('Dashboard Auth Guard', () => {
         const expiredToken = createMockToken({ exp: Math.floor(Date.now() / 1000) - 3600 });
         await context.addCookies([{ name: 'accessToken', value: expiredToken, domain: 'localhost', path: '/' }]);
         await page.goto(DASHBOARD_URL);
-        await page.evaluate((t) => localStorage.setItem('accessToken', t), expiredToken);
-        await page.reload();
         await page.waitForTimeout(2000);
 
         expect(page.url()).toMatch(/login|localhost:4002/);
@@ -30,12 +28,10 @@ test.describe('Dashboard Auth Guard', () => {
 
     // ── Authenticated Access ───────────────────────────────────────────────
 
-    test('should allow access to dashboard with valid token in localStorage', async ({ page, context }) => {
+    test('should allow access to dashboard with valid token in cookie', async ({ page, context }) => {
         const validToken = createMockToken();
         await context.addCookies([{ name: 'accessToken', value: validToken, domain: 'localhost', path: '/' }]);
         await page.goto(DASHBOARD_URL);
-        await page.evaluate((t) => localStorage.setItem('accessToken', t), validToken);
-        await page.reload();
         await page.waitForLoadState('networkidle');
 
         // Should stay on dashboard
@@ -49,8 +45,6 @@ test.describe('Dashboard Navigation', () => {
         const validToken = createMockToken();
         await context.addCookies([{ name: 'accessToken', value: validToken, domain: 'localhost', path: '/' }]);
         await page.goto(DASHBOARD_URL);
-        await page.evaluate((t) => localStorage.setItem('accessToken', t), validToken);
-        await page.reload();
         await page.waitForLoadState('networkidle');
     });
 

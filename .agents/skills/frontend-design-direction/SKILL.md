@@ -91,3 +91,7 @@ needs repeated daily use.
 - Motion improves orientation and does not mask sluggishness.
 - The result matches the repo's existing frontend conventions unless there is a
   clear reason to depart.
+
+
+> [!IMPORTANT]
+> **Rule Adherence**: Always strictly follow the `frontend-design-direction` conventions outlined above to ensure workspace consistency and prevent regressions.
