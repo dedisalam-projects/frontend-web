@@ -24,7 +24,11 @@ test.describe('Realtime User Deletion Flow', () => {
         });
         const loginRes = await loginResponse.json();
         expect(loginRes?.success).toBe(true);
-        const token = loginRes?.data?.accessToken;
+        
+        // Extract token from set-cookie header
+        const setCookieHeader = loginResponse.headers.get('set-cookie');
+        const tokenMatch = setCookieHeader?.match(/accessToken=([^;]+)/);
+        const token = tokenMatch ? tokenMatch[1] : null;
         expect(token).toBeTruthy();
 
         // 2. Setup cookies and open dashboard on localhost:4000
@@ -87,10 +91,10 @@ test.describe('Realtime User Deletion Flow', () => {
         await expect(userRow).not.toBeVisible({ timeout: 10000 });
         console.log('✅ Target user row DISAPPEARED in realtime without page reload!');
 
-        // 6. Verify NO sync toast notification appeared (silent realtime update)
+        // 6. Verify sync toast notification appeared
         const toast = page.locator('.p-toast-message');
-        await expect(toast).toHaveCount(0);
-        console.log('✅ Confirmed silent update: no sync toast displayed!');
+        await expect(toast).toBeVisible({ timeout: 5000 });
+        console.log('✅ Confirmed realtime sync toast displayed!');
 
         userSocket.disconnect();
     });

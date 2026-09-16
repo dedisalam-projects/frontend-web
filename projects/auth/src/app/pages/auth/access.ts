@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
-import { AppFloatingConfigurator } from 'shared-ui';
+import { AppFloatingConfigurator } from 'shared-ui'; // HMR refresh
 
 @Component({
     selector: 'app-access',

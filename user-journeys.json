@@ -1,0 +1,806 @@
+{
+  "generatedAt": "2026-09-16T01:30:54.229Z",
+  "summary": {
+    "totalPages": 18,
+    "totalJourneys": 21,
+    "consoleErrorsCount": 2
+  },
+  "pages": [
+    {
+      "url": "http://localhost:4001/",
+      "title": "Landing",
+      "category": "Landing",
+      "linksCount": 8,
+      "buttonsCount": 35,
+      "inputsCount": 0,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Button",
+          "Toggle Dark Mode",
+          "Button",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": []
+      }
+    },
+    {
+      "url": "http://localhost:4002/auth/login",
+      "title": "Auth",
+      "category": "Auth",
+      "linksCount": 0,
+      "buttonsCount": 34,
+      "inputsCount": 3,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Button",
+          "Toggle Dark Mode",
+          "Button",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": [
+          "email1",
+          "password1",
+          "rememberme1"
+        ]
+      }
+    },
+    {
+      "url": "http://localhost:4002/auth/access",
+      "title": "Auth",
+      "category": "Auth",
+      "linksCount": 0,
+      "buttonsCount": 34,
+      "inputsCount": 0,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Button",
+          "Toggle Dark Mode",
+          "Button",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": []
+      }
+    },
+    {
+      "url": "http://localhost:4002/auth/error",
+      "title": "Auth",
+      "category": "Auth",
+      "linksCount": 0,
+      "buttonsCount": 34,
+      "inputsCount": 0,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Button",
+          "Toggle Dark Mode",
+          "Button",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": []
+      }
+    },
+    {
+      "url": "http://localhost:4000/",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 57,
+      "inputsCount": 0,
+      "tablesCount": 2,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": []
+      }
+    },
+    {
+      "url": "http://localhost:4000/users",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 77,
+      "inputsCount": 9,
+      "tablesCount": 2,
+      "dialogsCount": 2,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": [
+          "text",
+          "checkbox",
+          "checkbox",
+          "checkbox",
+          "checkbox",
+          "checkbox",
+          "checkbox",
+          "checkbox",
+          "checkbox"
+        ]
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/documentation",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 37,
+      "inputsCount": 0,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": []
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/crud",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 91,
+      "inputsCount": 62,
+      "tablesCount": 2,
+      "dialogsCount": 2,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": [
+          "text",
+          "checkbox",
+          "checkbox",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "checkbox",
+          "pn_id_11_name",
+          "pn_id_11_name",
+          "pn_id_11_name",
+          "pn_id_11_name",
+          "pn_id_11_name",
+          "checkbox",
+          "pn_id_12_name",
+          "pn_id_12_name",
+          "pn_id_12_name",
+          "pn_id_12_name",
+          "pn_id_12_name",
+          "checkbox",
+          "pn_id_13_name",
+          "pn_id_13_name",
+          "pn_id_13_name",
+          "pn_id_13_name",
+          "pn_id_13_name",
+          "checkbox",
+          "pn_id_14_name",
+          "pn_id_14_name",
+          "pn_id_14_name",
+          "pn_id_14_name",
+          "pn_id_14_name",
+          "checkbox",
+          "pn_id_15_name",
+          "pn_id_15_name",
+          "pn_id_15_name",
+          "pn_id_15_name",
+          "pn_id_15_name",
+          "checkbox",
+          "pn_id_16_name",
+          "pn_id_16_name",
+          "pn_id_16_name",
+          "pn_id_16_name",
+          "pn_id_16_name",
+          "checkbox",
+          "pn_id_17_name",
+          "pn_id_17_name",
+          "pn_id_17_name",
+          "pn_id_17_name",
+          "pn_id_17_name",
+          "checkbox",
+          "pn_id_18_name",
+          "pn_id_18_name",
+          "pn_id_18_name",
+          "pn_id_18_name",
+          "pn_id_18_name",
+          "checkbox",
+          "pn_id_19_name",
+          "pn_id_19_name",
+          "pn_id_19_name",
+          "pn_id_19_name",
+          "pn_id_19_name"
+        ]
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/empty",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 37,
+      "inputsCount": 0,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": []
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/uikit/button",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 205,
+      "inputsCount": 0,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": []
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/uikit/charts",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 37,
+      "inputsCount": 0,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": []
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/uikit/table",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 79,
+      "inputsCount": 51,
+      "tablesCount": 8,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": [
+          "text",
+          "pn_id_3_name",
+          "pn_id_3_name",
+          "pn_id_3_name",
+          "pn_id_3_name",
+          "pn_id_3_name",
+          "pn_id_4_name",
+          "pn_id_4_name",
+          "pn_id_4_name",
+          "pn_id_4_name",
+          "pn_id_4_name",
+          "pn_id_5_name",
+          "pn_id_5_name",
+          "pn_id_5_name",
+          "pn_id_5_name",
+          "pn_id_5_name",
+          "pn_id_6_name",
+          "pn_id_6_name",
+          "pn_id_6_name",
+          "pn_id_6_name",
+          "pn_id_6_name",
+          "pn_id_7_name",
+          "pn_id_7_name",
+          "pn_id_7_name",
+          "pn_id_7_name",
+          "pn_id_7_name",
+          "pn_id_8_name",
+          "pn_id_8_name",
+          "pn_id_8_name",
+          "pn_id_8_name",
+          "pn_id_8_name",
+          "pn_id_9_name",
+          "pn_id_9_name",
+          "pn_id_9_name",
+          "pn_id_9_name",
+          "pn_id_9_name",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "pn_id_11_name",
+          "pn_id_11_name",
+          "pn_id_11_name",
+          "pn_id_11_name",
+          "pn_id_11_name",
+          "pn_id_12_name",
+          "pn_id_12_name",
+          "pn_id_12_name",
+          "pn_id_12_name",
+          "pn_id_12_name"
+        ]
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/uikit/formlayout",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 40,
+      "inputsCount": 14,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": [
+          "name1",
+          "email1",
+          "age1",
+          "name2",
+          "email2",
+          "name3",
+          "email3",
+          "firstname1",
+          "lastname1",
+          "username",
+          "firstname2",
+          "lastname2",
+          "address",
+          "zip"
+        ]
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/uikit/input",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 49,
+      "inputsCount": 33,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": [
+          "text",
+          "text",
+          "text",
+          "text",
+          "text",
+          "username",
+          "textarea",
+          "text",
+          "text",
+          "input",
+          "number",
+          "range",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "pn_id_10_name",
+          "text",
+          "option",
+          "option",
+          "option",
+          "option",
+          "option",
+          "option",
+          "checkbox",
+          "text",
+          "input",
+          "text",
+          "input",
+          "input",
+          "input",
+          "checkbox",
+          "input"
+        ]
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/uikit/list",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 79,
+      "inputsCount": 0,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": []
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/uikit/message",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 45,
+      "inputsCount": 2,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": [
+          "input",
+          "input"
+        ]
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/uikit/panel",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 54,
+      "inputsCount": 3,
+      "tablesCount": 0,
+      "dialogsCount": 0,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": [
+          "input",
+          "username",
+          "password"
+        ]
+      }
+    },
+    {
+      "url": "http://localhost:4000/archive/uikit/overlay",
+      "title": "Dashboard",
+      "category": "Dashboard",
+      "linksCount": 5,
+      "buttonsCount": 57,
+      "inputsCount": 1,
+      "tablesCount": 0,
+      "dialogsCount": 2,
+      "interactiveSummary": {
+        "buttons": [
+          "Menu",
+          "Toggle Dark Mode",
+          "Color Scheme",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button",
+          "Button"
+        ],
+        "inputs": [
+          "text"
+        ]
+      }
+    }
+  ],
+  "journeys": [
+    {
+      "id": "journey-landing-entry",
+      "from": "Entry",
+      "action": "Visit Landing Page",
+      "to": "http://localhost:4001",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-landing-cta-auth",
+      "from": "http://localhost:4001",
+      "action": "Click \"Get Started / Sign In\" CTA",
+      "to": "http://localhost:4002/login",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-auth-login-view",
+      "from": "Entry",
+      "action": "Visit Auth Login Page",
+      "to": "http://localhost:4002/auth/login",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-auth-access-view",
+      "from": "http://localhost:4002/auth/login",
+      "action": "Navigate to Auth /access",
+      "to": "http://localhost:4002/auth/access",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-auth-error-view",
+      "from": "http://localhost:4002/auth/login",
+      "action": "Navigate to Auth /error",
+      "to": "http://localhost:4002/auth/error",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-auth-superadmin-login",
+      "from": "http://localhost:4002/auth/login",
+      "action": "SuperAdmin Submit Valid Credentials",
+      "to": "http://localhost:4000/",
+      "type": "auth-transition"
+    },
+    {
+      "id": "journey-dashboard-nav-users",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to Manajemen User",
+      "to": "http://localhost:4000/users",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-users-filter-search",
+      "from": "http://localhost:4000/users",
+      "action": "Filter/Search users in datatable",
+      "to": "http://localhost:4000/users#filtered",
+      "type": "data-filter"
+    },
+    {
+      "id": "journey-users-sort-columns",
+      "from": "http://localhost:4000/users",
+      "action": "Sort columns in datatable (4 columns available)",
+      "to": "http://localhost:4000/users#sorted",
+      "type": "data-sort"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-documentation",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to Documentation",
+      "to": "http://localhost:4000/archive/documentation",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-crud",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to CRUD Archive",
+      "to": "http://localhost:4000/archive/crud",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-empty",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to Empty Page",
+      "to": "http://localhost:4000/archive/empty",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-uikit-button",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to Buttons UI",
+      "to": "http://localhost:4000/archive/uikit/button",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-uikit-charts",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to Charts UI",
+      "to": "http://localhost:4000/archive/uikit/charts",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-uikit-table",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to Table UI",
+      "to": "http://localhost:4000/archive/uikit/table",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-uikit-formlayout",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to Form Layout UI",
+      "to": "http://localhost:4000/archive/uikit/formlayout",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-uikit-input",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to Input UI",
+      "to": "http://localhost:4000/archive/uikit/input",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-uikit-list",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to List UI",
+      "to": "http://localhost:4000/archive/uikit/list",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-uikit-message",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to Messages UI",
+      "to": "http://localhost:4000/archive/uikit/message",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-uikit-panel",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to Panels UI",
+      "to": "http://localhost:4000/archive/uikit/panel",
+      "type": "navigation"
+    },
+    {
+      "id": "journey-dashboard-nav-archive-uikit-overlay",
+      "from": "http://localhost:4000/",
+      "action": "Navigate to Overlay UI",
+      "to": "http://localhost:4000/archive/uikit/overlay",
+      "type": "navigation"
+    }
+  ],
+  "consoleErrors": [
+    {
+      "url": "http://localhost:4002/auth/access",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:4002/auth/error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+  ]
+}

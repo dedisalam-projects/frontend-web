@@ -135,6 +135,7 @@ interface ExportColumn {
                         <label for="email" class="block font-bold mb-3">Email</label>
                         <input type="email" pInputText id="email" [(ngModel)]="user.email" required fluid />
                         <small class="text-red-500" *ngIf="submitted && !user.email">Email is required.</small>
+                        <small class="text-red-500" *ngIf="submitted && user.email && !isValidEmail(user.email)">Format email tidak valid (contoh: user@example.com).</small>
                     </div>
                     <div *ngIf="isNewUser">
                         <label for="password" class="block font-bold mb-3">Password</label>
@@ -153,8 +154,8 @@ interface ExportColumn {
             </ng-template>
 
             <ng-template #footer>
-                <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
-                <p-button label="Save" icon="pi pi-check" (click)="saveUser()" [loading]="saving" />
+                <p-button label="Cancel" icon="pi pi-times" text (onClick)="hideDialog()" (click)="hideDialog()" />
+                <p-button label="Save" icon="pi pi-check" (onClick)="saveUser()" (click)="saveUser()" [loading]="saving" />
             </ng-template>
         </p-dialog>
 
@@ -312,11 +313,20 @@ export class Users implements OnInit, OnDestroy {
     async saveUser() {
         this.submitted = true;
 
+        console.log('[saveUser called]', {
+            name: this.user.name,
+            email: this.user.email,
+            userPasswordLength: this.userPassword?.length,
+            isNewUser: this.isNewUser
+        });
+
         if (!this.user.name?.trim() || !this.user.email?.trim()) {
+            console.warn('[saveUser] Name or email missing');
             return;
         }
 
         if (this.isNewUser && (!this.userPassword || this.userPassword.length < 8)) {
+            console.warn('[saveUser] Password missing or < 8 chars:', this.userPassword?.length);
             return;
         }
 
@@ -349,12 +359,14 @@ export class Users implements OnInit, OnDestroy {
                     life: 3000
                 });
                 this.userDialog = false;
-            } catch (err) {
+            } catch (err: any) {
+                console.error('[saveUser catch error]', err);
+                const detailMsg = err?.message || err?.error?.message || (typeof err === 'string' ? err : null) || 'Failed to create user.';
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Failed to create user.',
-                    life: 4000
+                    detail: detailMsg,
+                    life: 5000
                 });
             } finally {
                 this.saving = false;
@@ -362,14 +374,23 @@ export class Users implements OnInit, OnDestroy {
         } else {
             // Update existing user
             try {
-                const updated = await this.userService.updateUser(this.user.id || '', {
+                const userId = this.user.id || (this.user as any)._id || '';
+                const updated = await this.userService.updateUser(userId, {
                     name: this.user.name.trim(),
                     email: this.user.email.trim(),
                     role: this.user.role,
                     isActive: this.user.isActive
                 });
 
-                this.users.update((current) => current.map((u) => (u.id === updated.id ? { ...u, ...updated } : u)));
+                this.users.update((current) =>
+                    current.map((u) => {
+                        const match =
+                            (u.id && (u.id === updated.id || (updated as any)._id === u.id)) ||
+                            ((u as any)._id && ((u as any)._id === updated.id || (u as any)._id === (updated as any)._id)) ||
+                            (u.email && u.email.toLowerCase() === updated.email?.toLowerCase());
+                        return match ? { ...u, ...updated } : u;
+                    })
+                );
 
                 this.messageService.add({
                     severity: 'success',
@@ -378,12 +399,12 @@ export class Users implements OnInit, OnDestroy {
                     life: 3000
                 });
                 this.userDialog = false;
-            } catch (err) {
+            } catch (err: any) {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Failed to update user.',
-                    life: 4000
+                    detail: err?.message || 'Failed to update user.',
+                    life: 5000
                 });
             } finally {
                 this.saving = false;

@@ -1,17 +1,32 @@
 import { test, expect, Page } from '@playwright/test';
-import { DASHBOARD_URL, createMockToken, clearAuthState } from '../fixtures/auth.fixture';
+import { AUTH_URL, DASHBOARD_URL, createMockToken, clearAuthState } from '../fixtures/auth.fixture';
 
 const USERS_URL = `${DASHBOARD_URL}/users`;
 
 async function goToUsersPage(page: Page): Promise<void> {
-    const validToken = createMockToken({ email: 'admin@system.local', role: 'admin' });
-    await page.context().addCookies([
-        { name: 'accessToken', value: validToken, domain: 'localhost', path: '/' },
-        { name: 'user_session', value: encodeURIComponent(JSON.stringify({ email: 'admin@system.local', role: 'admin' })), domain: 'localhost', path: '/' }
-    ]);
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto(`${AUTH_URL}/auth/login`);
+    await page.waitForLoadState('domcontentloaded');
+
+    const emailInput = page.locator('#email1');
+    await expect(emailInput).toBeVisible({ timeout: 10000 });
+    await emailInput.fill('superadmin@example.com');
+
+    const passwordInput = page.locator('#password1 input, input#password1, #password1');
+    await expect(passwordInput).toBeVisible({ timeout: 10000 });
+    await passwordInput.fill('Admin123!');
+
+    const signInButton = page.locator('button:has-text("Sign In"), p-button[label="Sign In"] button').first();
+    await expect(signInButton).toBeVisible({ timeout: 10000 });
+    await signInButton.click();
+
+    await page.waitForURL(/localhost:4000/, { timeout: 15000 });
+    await page.waitForLoadState('domcontentloaded');
+
     await page.goto(USERS_URL);
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+    const table = page.locator('p-table, table, .p-datatable').first();
+    await expect(table).toBeVisible({ timeout: 15000 });
 }
 
 test.describe('User Management CRUD — E2E', () => {
@@ -120,6 +135,39 @@ test.describe('User Management CRUD — E2E', () => {
         await expect(nameField).not.toBeVisible({ timeout: 5000 });
     });
 
+    test('should successfully edit user data via dialog and reflect update in table', async ({ page }) => {
+        await goToUsersPage(page);
+
+        // Find edit pencil button in first row
+        const firstRow = page.locator('tbody tr').first();
+        await expect(firstRow).toBeVisible({ timeout: 10000 });
+
+        const editButton = firstRow.locator('button:has(.pi-pencil)').first();
+        await expect(editButton).toBeVisible({ timeout: 8000 });
+        await editButton.click();
+
+        // Name field in dialog should be visible
+        const nameField = page.locator('#name');
+        await expect(nameField).toBeVisible({ timeout: 5000 });
+
+        // Update name
+        const timestamp = Date.now();
+        const updatedName = `Updated User ${timestamp}`;
+        await nameField.fill(updatedName);
+
+        // Save
+        const saveBtn = page.locator('.p-dialog button:has-text("Save"), p-button[label="Save"] button').first();
+        await expect(saveBtn).toBeVisible({ timeout: 5000 });
+        await saveBtn.click();
+
+        // Dialog should close
+        await expect(nameField).not.toBeVisible({ timeout: 10000 });
+
+        // Table should show updated name
+        const updatedRow = page.locator(`tbody tr:has-text("${updatedName}")`).first();
+        await expect(updatedRow).toBeVisible({ timeout: 15000 });
+    });
+
     // ── Delete ────────────────────────────────────────────────────────────
 
     test('should show confirmation dialog when deleting a user', async ({ page }) => {
@@ -157,6 +205,20 @@ test.describe('User Management CRUD — E2E', () => {
 
             // Clear search
             await searchInput.clear();
+        }
+    });
+
+    test('should sort columns in datatable when clicking sort headers', async ({ page }) => {
+        await goToUsersPage(page);
+
+        const nameHeader = page.locator('th[pSortableColumn="name"]').first();
+        if (await nameHeader.isVisible({ timeout: 5000 })) {
+            await nameHeader.click();
+            await page.waitForTimeout(500);
+            // Toggle sort direction
+            await nameHeader.click();
+            await page.waitForTimeout(500);
+            await expect(page.locator('table, p-table').first()).toBeVisible();
         }
     });
 

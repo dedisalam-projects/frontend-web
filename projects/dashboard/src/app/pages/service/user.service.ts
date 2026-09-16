@@ -168,6 +168,7 @@ export class UserService {
         };
 
         const res = await this.emitAck<any>('admin:users:create', payload);
+        console.warn('[UserService.createUser response]:', JSON.stringify(res));
         if (res.success && res.data) {
             const created = res.data.user || res.data;
             return {
@@ -179,16 +180,22 @@ export class UserService {
                 createdAt: created.createdAt || new Date().toISOString()
             };
         }
-        throw new Error(res.error?.message || 'Gagal membuat user baru di server');
+        const errorMsg =
+            res.error?.message ||
+            (typeof res.error === 'string' ? res.error : null) ||
+            (res as any)?.message ||
+            'Gagal membuat user baru di server';
+        throw new Error(errorMsg);
     }
 
     async updateUser(id: string, data: Partial<User>): Promise<User> {
-        const res = await this.emitAck<any>('admin:users:update', { id, ...data });
+        const effectiveId = id || (data as any)?._id || (data as any)?.id || '';
+        const res = await this.emitAck<any>('admin:users:update', { id: effectiveId, userId: effectiveId, ...data });
         if (res.success && res.data) {
             const updated = res.data.user || res.data;
-            return { id, ...data, ...updated };
+            return { id: effectiveId, ...data, ...updated };
         }
-        throw new Error(res.error?.message || `Gagal memperbarui user ${id} di server`);
+        throw new Error(res.error?.message || `Gagal memperbarui user ${effectiveId} di server`);
     }
 
     async deleteUser(id: string): Promise<boolean> {

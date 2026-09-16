@@ -30,14 +30,14 @@ test.describe('Superadmin Live Login Flow', () => {
         await page.waitForURL(/localhost:4000/, { timeout: 15000 });
         expect(page.url()).toContain('localhost:4000');
 
-        // Verify token in localStorage and cookies on dashboard origin
-        const token = await page.evaluate(() => localStorage.getItem('accessToken'));
-        expect(token).toBeTruthy();
-        expect(typeof token).toBe('string');
-        expect(token!.length).toBeGreaterThan(20);
+        // Verify token in cookies
+        const cookies = await page.context().cookies();
+        const accessTokenCookie = cookies.find(c => c.name === 'accessToken');
+        expect(accessTokenCookie).toBeDefined();
+        expect(accessTokenCookie!.value.length).toBeGreaterThan(20);
 
         // Verify decoded JWT claims for superadmin
-        const payload = JSON.parse(Buffer.from(token!.split('.')[1], 'base64').toString());
+        const payload = JSON.parse(Buffer.from(accessTokenCookie!.value.split('.')[1], 'base64').toString());
         expect(payload.email).toBe('superadmin@example.com');
         expect(payload.role).toBe('super_admin');
 

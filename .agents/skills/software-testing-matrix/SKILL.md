@@ -81,8 +81,28 @@ This guide defines mandatory testing layers, quantitative parameter thresholds, 
     - Tablet: $768 \times 1024$
     - Mobile: $375 \times 667$ and $390 \times 844$
   - **Form Validation & Modals:** Accessible dialog lifecycle, focus trapping, and real-time field error messaging.
+  - **Full-Cycle Mutation Requirement (Reject Shallow Smoke Tests):**
+    - **Prohibited Antipattern:** Writing E2E tests that only open an edit/delete modal, check input presence, and click "Cancel". This produces a false sense of coverage while leaving mutation APIs, payload serializations, socket broadcast deduplications, and DOM reconciliation completely untested.
+    - **Mandatory Mutation Roundtrip:** Every CRUD capability must execute a complete cycle:
+      1. Target a dedicated or freshly created sandbox record (`user-${Date.now()}`) to avoid polluting seed state.
+      2. Modify field values with timestamped data.
+      3. Submit the modal via Save/Submit button and assert modal dismissal.
+      4. Assert that the updated values are immediately reflected in the datatable row and underlying Signal state.
+    - **Autonomous User Journey Crawling & Test Generation:**
+      - All micro-frontend navigation routes, modal dialogs, and interactive tables must be discoverable by autonomous crawling (`npm run test:crawl`).
+      - Test gap analyzers (`npm run test:gaps`) must maintain a $\ge 100\%$ journey coverage score.
+      - Dynamic test generation (`npm run test:generate`) scaffolds dedicated E2E specs for all newly crawled endpoints.
+    - **Automated Generator Mutation Depth Gate (Reject Shallow Route Generation):**
+      - **Prohibited Generator Antipattern:** Generating automated test specs that only navigate to crawled URLs (`page.goto`) and check basic root visibility (`expect(body).toBeVisible()`). This produces a deceptive 100% journey coverage metric that masks form validation flaws, payload formatting bugs, WebSocket race conditions, and modal submission crashes.
+      - **Mandatory Mutation Synthesis:** Whenever an automated crawler discovers an interactive form, modal, or mutation trigger:
+        1. The generator MUST synthesize form input actions targeting all required fields with realistic mock data.
+        2. The generator MUST trigger the submission action (`Save`, `Submit`, `Create`).
+        3. The generator MUST assert that the dialog successfully dismisses and that the created/modified record appears in the DOM or datatable with hard assertions (never soft conditional checks).
+    - **Chaos Monkey & "Drunk User" Testing (`npm run test:chaos`):**
+      - Fuzz testing against live UI simulating unpredictable, non-linear actions: rapid button clicks, input fuzzing with boundary/script/SQL payloads, modal spamming, and non-linear route jumps.
+      - **Invariants:** 0 uncaught runtime exceptions (`pageerror`), 0 backend HTTP 500 responses, and 0 White Screen of Death (WSOD) or orphaned backdrop freezes.
 - **Tools:**
-  - **Runner:** Playwright (`@playwright/test`).
+  - **Runner:** Playwright (`@playwright/test`), custom chaos fuzzer, autonomous crawler.
 
 ### Layer 6: SSR, Hydration & Prerender Testing
 - **Core Parameters & Thresholds:**

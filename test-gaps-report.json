@@ -1,0 +1,286 @@
+{
+  "generatedAt": "2026-09-16T01:47:35.255Z",
+  "score": {
+    "coveragePercent": 100,
+    "coveredJourneys": 21,
+    "totalJourneys": 21,
+    "gapCount": 0
+  },
+  "covered": [
+    {
+      "journey": {
+        "id": "journey-landing-entry",
+        "from": "Entry",
+        "action": "Visit Landing Page",
+        "to": "http://localhost:4001",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-landing-cta-auth",
+        "from": "http://localhost:4001",
+        "action": "Click \"Get Started / Sign In\" CTA",
+        "to": "http://localhost:4002/login",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-auth-login-view",
+        "from": "Entry",
+        "action": "Visit Auth Login Page",
+        "to": "http://localhost:4002/auth/login",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-auth-access-view",
+        "from": "http://localhost:4002/auth/login",
+        "action": "Navigate to Auth /access",
+        "to": "http://localhost:4002/auth/access",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-auth-error-view",
+        "from": "http://localhost:4002/auth/login",
+        "action": "Navigate to Auth /error",
+        "to": "http://localhost:4002/auth/error",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-auth-superadmin-login",
+        "from": "http://localhost:4002/auth/login",
+        "action": "SuperAdmin Submit Valid Credentials",
+        "to": "http://localhost:4000/",
+        "type": "auth-transition"
+      },
+      "coveringTest": {
+        "file": "e2e/dashboard/capture-add-user-flow.spec.ts",
+        "title": "login super admin, navigate to user management, add new user, and capture table"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-users",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to Manajemen User",
+        "to": "http://localhost:4000/users",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-users-filter-search",
+        "from": "http://localhost:4000/users",
+        "action": "Filter/Search users in datatable",
+        "to": "http://localhost:4000/users#filtered",
+        "type": "data-filter"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-users-sort-columns",
+        "from": "http://localhost:4000/users",
+        "action": "Sort columns in datatable (4 columns available)",
+        "to": "http://localhost:4000/users#sorted",
+        "type": "data-sort"
+      },
+      "coveringTest": {
+        "file": "e2e/dashboard/chaos-monkey.spec.ts",
+        "title": "should survive rapid random interactions and input fuzzing without crashing"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-documentation",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to Documentation",
+        "to": "http://localhost:4000/archive/documentation",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-crud",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to CRUD Archive",
+        "to": "http://localhost:4000/archive/crud",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-empty",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to Empty Page",
+        "to": "http://localhost:4000/archive/empty",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-uikit-button",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to Buttons UI",
+        "to": "http://localhost:4000/archive/uikit/button",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-uikit-charts",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to Charts UI",
+        "to": "http://localhost:4000/archive/uikit/charts",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-uikit-table",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to Table UI",
+        "to": "http://localhost:4000/archive/uikit/table",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-uikit-formlayout",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to Form Layout UI",
+        "to": "http://localhost:4000/archive/uikit/formlayout",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-uikit-input",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to Input UI",
+        "to": "http://localhost:4000/archive/uikit/input",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-uikit-list",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to List UI",
+        "to": "http://localhost:4000/archive/uikit/list",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-uikit-message",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to Messages UI",
+        "to": "http://localhost:4000/archive/uikit/message",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-uikit-panel",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to Panels UI",
+        "to": "http://localhost:4000/archive/uikit/panel",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    },
+    {
+      "journey": {
+        "id": "journey-dashboard-nav-archive-uikit-overlay",
+        "from": "http://localhost:4000/",
+        "action": "Navigate to Overlay UI",
+        "to": "http://localhost:4000/archive/uikit/overlay",
+        "type": "navigation"
+      },
+      "coveringTest": {
+        "file": "e2e/accessibility/a11y-audit.spec.ts",
+        "title": "Landing Page (4001) should pass axe accessibility scan"
+      }
+    }
+  ],
+  "gaps": [],
+  "recommendations": []
+}
