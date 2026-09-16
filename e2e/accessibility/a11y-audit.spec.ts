@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { AUTH_URL, DASHBOARD_URL, LANDING_URL, createMockToken, clearAuthState } from '../fixtures/auth.fixture';
+import { AUTH_URL, DASHBOARD_URL, LANDING_URL, createMockToken, clearAuthState, injectAuthToken } from '../fixtures/auth.fixture';
 
 /**
  * Accessibility (a11y) Audits — WCAG 2.2 Level AA Compliance
@@ -67,20 +67,11 @@ test.describe('Accessibility (WCAG 2.2 AA) Audits', () => {
     });
 
     test('Dashboard Page (4000) should pass axe accessibility scan', async ({ page, context }) => {
-        const token = createMockToken('admin@system.local');
-        await context.addCookies([
-            {
-                name: 'accessToken',
-                value: token,
-                domain: 'localhost',
-                path: '/'
-            }
-        ]);
+        const token = createMockToken({ sub: 'admin@system.local' });
+        await injectAuthToken(context, token, DASHBOARD_URL);
 
-        await page.goto(DASHBOARD_URL);
-        await page.evaluate((t) => localStorage.setItem('accessToken', t), token);
-        await page.reload();
-        await page.waitForLoadState('networkidle');
+        await page.goto(DASHBOARD_URL, { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(1500); // give SPA time to render
 
         const accessibilityScanResults = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
 
@@ -104,20 +95,11 @@ test.describe('Accessibility (WCAG 2.2 AA) Audits', () => {
     });
 
     test('Users Management Page (4000/users) should pass axe accessibility scan', async ({ page, context }) => {
-        const token = createMockToken('admin@system.local');
-        await context.addCookies([
-            {
-                name: 'accessToken',
-                value: token,
-                domain: 'localhost',
-                path: '/'
-            }
-        ]);
+        const token = createMockToken({ sub: 'admin@system.local' });
+        await injectAuthToken(context, token, `${DASHBOARD_URL}/users`);
 
-        await page.goto(`${DASHBOARD_URL}/users`);
-        await page.evaluate((t) => localStorage.setItem('accessToken', t), token);
-        await page.reload();
-        await page.waitForLoadState('networkidle');
+        await page.goto(`${DASHBOARD_URL}/users`, { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(1500); // give SPA time to render
 
         const accessibilityScanResults = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
 

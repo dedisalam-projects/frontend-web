@@ -90,16 +90,20 @@ test.describe('Capture Add User Flow — E2E', () => {
         // Wait for animations and toast to settle
         await page.waitForTimeout(1500);
 
-        const screenshotPathRoot = path.resolve(process.cwd(), 'capture-table-after-submit.png');
-        await page.screenshot({ path: screenshotPathRoot, fullPage: true });
-        console.log(`Screenshot saved to root: ${screenshotPathRoot}`);
+        try {
+            const screenshotPathRoot = path.resolve(process.cwd(), 'capture-table-after-submit.png');
+            await page.screenshot({ path: screenshotPathRoot, fullPage: true });
+            console.log(`Screenshot saved to root: ${screenshotPathRoot}`);
 
-        // Also save a copy to the brain artifact directory for Walkthrough embed
-        const artifactDir = 'C:\\Users\\dedis\\.gemini\\antigravity-ide\\brain\\c4b46940-f7bb-42e4-bc5a-410698524fb5';
-        if (fs.existsSync(artifactDir)) {
-            const artifactScreenshotPath = path.join(artifactDir, 'capture-table-after-submit.png');
-            fs.copyFileSync(screenshotPathRoot, artifactScreenshotPath);
-            console.log(`Screenshot copied to artifact directory: ${artifactScreenshotPath}`);
+            // Also save a copy to the brain artifact directory for Walkthrough embed
+            const artifactDir = 'C:\\Users\\dedis\\.gemini\\antigravity-ide\\brain\\c4b46940-f7bb-42e4-bc5a-410698524fb5';
+            if (fs.existsSync(artifactDir)) {
+                const artifactScreenshotPath = path.join(artifactDir, 'capture-table-after-submit.png');
+                fs.copyFileSync(screenshotPathRoot, artifactScreenshotPath);
+                console.log(`Screenshot copied to artifact directory: ${artifactScreenshotPath}`);
+            }
+        } catch (err) {
+            console.warn('Failed to capture screenshot (often happens on mobile headless browsers due to memory limits):', err);
         }
 
         // Final assertion: verify table contains the added user row EXACTLY ONCE (no duplicates)
