@@ -43,6 +43,7 @@ testem.log
 Thumbs.db
 
 # Test & Audit artifacts
+capture-*.png
 lh-report*.json
 smp.json
 lh-report*.html
