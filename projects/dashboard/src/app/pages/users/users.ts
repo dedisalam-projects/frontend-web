@@ -332,7 +332,16 @@ export class Users implements OnInit, OnDestroy {
                     isActive: this.user.isActive !== undefined ? this.user.isActive : true
                 });
 
-                this.users.update((current) => [created, ...current]);
+                this.users.update((current) => {
+                    const exists = current.some(
+                        (u) => (created.id && (u.id === created.id || (u as any)._id === created.id)) ||
+                               (created.email && u.email?.toLowerCase() === created.email?.toLowerCase())
+                    );
+                    if (exists) {
+                        return current;
+                    }
+                    return [created, ...current];
+                });
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Successful',
@@ -444,7 +453,11 @@ export class Users implements OnInit, OnDestroy {
                         createdAt: newUser.createdAt || new Date().toISOString()
                     };
                     this.users.update((current) => {
-                        if (current.some((u) => u.id === mapped.id)) return current;
+                        const exists = current.some(
+                            (u) => (mapped.id && (u.id === mapped.id || (u as any)._id === mapped.id)) ||
+                                   (mapped.email && u.email?.toLowerCase() === mapped.email?.toLowerCase())
+                        );
+                        if (exists) return current;
                         return [mapped, ...current];
                     });
                 }
@@ -463,7 +476,11 @@ export class Users implements OnInit, OnDestroy {
                         createdAt: newUser.createdAt || new Date().toISOString()
                     };
                     this.users.update((current) => {
-                        if (current.some((u) => u.id === mapped.id)) return current;
+                        const exists = current.some(
+                            (u) => (mapped.id && (u.id === mapped.id || (u as any)._id === mapped.id)) ||
+                                   (mapped.email && u.email?.toLowerCase() === mapped.email?.toLowerCase())
+                        );
+                        if (exists) return current;
                         return [mapped, ...current];
                     });
                 }

@@ -117,6 +117,24 @@ describe('Users CRUD Component', () => {
         expect(component.saving).toBe(false);
     });
 
+    it('should not add duplicate user in saveUser if user was already added by realtime socket event', async () => {
+        const createdUser: User = { id: 'usr-dup', name: 'Dup User', email: 'dup@test.com', role: 'user', isActive: true };
+        vi.spyOn(userService, 'createUser').mockResolvedValue(createdUser);
+
+        // Pre-populate with user as if socket event arrived earlier
+        component.users.set([createdUser, ...mockUsers]);
+        const initialCount = component.users().length;
+
+        component.openNew();
+        component.user = { name: 'Dup User', email: 'dup@test.com', role: 'user', isActive: true };
+        component.userPassword = 'ValidPassword123!';
+
+        await component.saveUser();
+
+        expect(component.users().length).toBe(initialCount);
+        expect(component.users().filter((u) => u.email === 'dup@test.com').length).toBe(1);
+    });
+
     it('should save an edited user and update users signal', async () => {
         component.users.set([...mockUsers]);
         const updatedUser: User = { id: 'usr-1', name: 'Updated Admin', email: 'admin@test.com', role: 'admin', isActive: true };

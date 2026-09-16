@@ -102,7 +102,9 @@ test.describe('Capture Add User Flow — E2E', () => {
             console.log(`Screenshot copied to artifact directory: ${artifactScreenshotPath}`);
         }
 
-        // Final assertion: verify table contains the added user row
-        await expect(userRow).toBeVisible();
+        // Final assertion: verify table contains the added user row EXACTLY ONCE (no duplicates)
+        const userRows = page.locator(`tbody tr:has-text("${testName}")`);
+        await expect(userRows).toHaveCount(1);
+        await expect(userRows.first()).toBeVisible();
     });
 });
