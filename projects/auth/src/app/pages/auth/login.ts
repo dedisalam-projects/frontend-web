@@ -45,13 +45,14 @@ import { environment } from '../../../environments/environment';
                             <span class="text-surface-700 dark:text-surface-200 font-medium">Sign in to continue</span>
                         </div>
 
-                        <div>
+                        <form (ngSubmit)="onLogin()">
                             <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                            <input pInputText id="email1" type="text" placeholder="Email address" class="w-full md:w-120 mb-8" [(ngModel)]="email" />
+                            <input pInputText id="email1" name="email" type="text" placeholder="Email address" class="w-full md:w-120 mb-8" [(ngModel)]="email" />
 
                             <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
                             <p-password
                                 inputId="password1"
+                                name="password"
                                 [(ngModel)]="password"
                                 placeholder="Password"
                                 [toggleMask]="true"
@@ -65,13 +66,13 @@ import { environment } from '../../../environments/environment';
 
                             <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                                 <div class="flex items-center">
-                                    <p-checkbox [(ngModel)]="checked" inputId="rememberme1" binary class="mr-2"></p-checkbox>
+                                    <p-checkbox [(ngModel)]="checked" name="checked" inputId="rememberme1" binary class="mr-2"></p-checkbox>
                                     <label for="rememberme1">Remember me</label>
                                 </div>
                                 <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary-700 dark:text-primary-300">Forgot password?</span>
                             </div>
-                            <p-button label="Sign In" styleClass="w-full" severity="contrast" (onClick)="onLogin()"></p-button>
-                        </div>
+                            <p-button type="submit" label="Sign In" styleClass="w-full" severity="contrast"></p-button>
+                        </form>
                     </div>
                 </div>
             </div>
