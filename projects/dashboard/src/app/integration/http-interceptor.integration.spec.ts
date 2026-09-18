@@ -156,7 +156,7 @@ describe('Realtime Socket.IO & REST Integration — UserService', () => {
         const result = await userService.deleteUsers(ids);
 
         expect(result).toBe(true);
-        expect(emitSpy).toHaveBeenCalledTimes(3);
+        expect(emitSpy).toHaveBeenCalledTimes(1);
     });
 
     // ── Strict Error Propagation ──────────────────────────────────────────

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, NavigationEnd } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { PLATFORM_ID } from '@angular/core';
@@ -90,6 +90,14 @@ describe('Dashboard Layout Suite', () => {
             component.platformId = 'server';
             expect((component as any).isOutsideClicked(outsideClickEvent)).toBe(false);
 
+            // Coverage for SSR listener binding
+            (component as any).outsideClickListener = null;
+            (component as any).bindOutsideClickListener(); // sets listener but doesn't attach to document
+            expect((component as any).outsideClickListener).toBeTruthy();
+            
+            (component as any).unbindOutsideClickListener(); // unsets listener but doesn't remove from document
+            expect((component as any).outsideClickListener).toBeNull();
+
             component.ngOnDestroy();
         });
     });
@@ -176,6 +184,38 @@ describe('Dashboard Layout Suite', () => {
         it('should disconnect socket on destroy', () => {
             component.ngOnInit();
             expect(() => component.ngOnDestroy()).not.toThrow();
+        });
+
+        it('should handle websocket events and show toast notifications', async () => {
+            const socketOnHandlers: Record<string, Function> = {};
+            const mockSocket = {
+                on: (event: string, cb: Function) => { socketOnHandlers[event] = cb; },
+                disconnect: vi.fn(),
+            };
+            
+            // Override the io mock just for this test
+            const ioSpy = (await import('socket.io-client')).io as unknown as import('vitest').Mock;
+            ioSpy.mockReturnValueOnce(mockSocket);
+
+            const messageService = fixture.debugElement.injector.get(MessageService);
+            const toastSpy = vi.spyOn(messageService, 'add');
+
+            component.ngOnInit();
+
+            // connect
+            expect(() => socketOnHandlers['connect']?.()).not.toThrow();
+
+            // login_event
+            socketOnHandlers['login_event']?.({ data: { email: 'test@example.com', timestamp: '2023-01-01' } });
+            expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ summary: 'User Logged In' }));
+
+            // notification:new
+            socketOnHandlers['notification:new']?.({ data: { title: 'New Alert', message: 'Hello' } });
+            expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ summary: 'New Alert' }));
+
+            // notification:broadcast
+            socketOnHandlers['notification:broadcast']?.({ data: { content: 'System Down' } });
+            expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ summary: 'System Broadcast' }));
         });
     });
 
@@ -283,6 +323,47 @@ describe('Dashboard Layout Suite', () => {
 
             await new Promise((r) => setTimeout(r, 20));
             expect(component.initialized()).toBe(true);
+        });
+
+        it('should return parentPath if item has no path in fullPath()', () => {
+            fixture.componentRef.setInput('item', { label: 'No Path' });
+            fixture.componentRef.setInput('parentPath', '/parent');
+            expect(component.fullPath()).toBe('/parent');
+        });
+
+        it('should return item path if parentPath is null in fullPath()', () => {
+            fixture.componentRef.setInput('item', { label: 'Has Path', path: '/child' });
+            fixture.componentRef.setInput('parentPath', null);
+            expect(component.fullPath()).toBe('/child');
+        });
+
+        it('should early return in updateActiveStateFromRoute if item has no routerLink', () => {
+            fixture.componentRef.setInput('item', { label: 'No routerLink' });
+            // Since it returns early, we expect no exceptions and no state updates.
+            expect(() => component.updateActiveStateFromRoute()).not.toThrow();
+        });
+
+        it('should update activePath if route is active', () => {
+            fixture.componentRef.setInput('item', { label: 'Route', routerLink: ['/active'] });
+            fixture.componentRef.setInput('parentPath', '/parent');
+            
+            const router = component.router;
+            vi.spyOn(router, 'isActive').mockReturnValue(true);
+            
+            component.updateActiveStateFromRoute();
+            
+            expect(layoutService.layoutState().activePath).toBe('/parent');
+        });
+
+        it('should trigger updateActiveStateFromRoute on NavigationEnd if item has routerLink', () => {
+            fixture.componentRef.setInput('item', { label: 'Route', routerLink: ['/nav'] });
+            
+            const router = component.router;
+            const spy = vi.spyOn(component, 'updateActiveStateFromRoute');
+            
+            (router.events as any).next(new NavigationEnd(1, '/nav', '/nav'));
+            
+            expect(spy).toHaveBeenCalled();
         });
     });
 });

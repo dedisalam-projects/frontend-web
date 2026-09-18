@@ -1,18 +1,18 @@
 import { CanActivateFn } from '@angular/router';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { environment } from '../../environments/environment';
 
-function getCookie(name: string): string | null {
-    if (typeof document === 'undefined') return null;
-    const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+export function getCookie(doc: Document | null, name: string): string | null {
+    if (!doc || typeof doc.cookie === 'undefined') return null;
+    const match = doc.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
     return match ? decodeURIComponent(match[3]) : null;
 }
 
-function isTokenValid(token: string | null): boolean {
-    if (!token) return false;
+export function isTokenValid(token: string): boolean {
     try {
         const parts = token.split('.');
-        if (parts.length < 2) return false;
-        const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const base64 = (parts[1] || '').replace(/-/g, '+').replace(/_/g, '/');
         const payload = JSON.parse(atob(base64));
         if (payload.exp && payload.exp * 1000 < Date.now()) {
             return false;
@@ -24,14 +24,19 @@ function isTokenValid(token: string | null): boolean {
 }
 
 export const guestGuard: CanActivateFn = (route, state) => {
-    if (typeof window !== 'undefined') {
-        const userSession = getCookie('user_session');
+    const platformId = inject(PLATFORM_ID);
+    const document = inject(DOCUMENT, { optional: true });
+
+    if (isPlatformBrowser(platformId)) {
+        const userSession = getCookie(document, 'user_session');
         if (userSession) {
-            window.location.href = `${environment.appUrls.dashboard}/`;
+            if (document?.location) {
+                document.location.href = `${environment.appUrls.dashboard}/`;
+            }
             return false;
         }
 
-        const cookieToken = getCookie('accessToken');
+        const cookieToken = getCookie(document, 'accessToken');
         if (!cookieToken) {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('currentUser');
@@ -40,7 +45,9 @@ export const guestGuard: CanActivateFn = (route, state) => {
         }
 
         if (isTokenValid(cookieToken)) {
-            window.location.href = `${environment.appUrls.dashboard}/`;
+            if (document?.location) {
+                document.location.href = `${environment.appUrls.dashboard}/`;
+            }
             return false;
         } else {
             // Expired cookie

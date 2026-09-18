@@ -40,7 +40,7 @@ interface ExportColumn {
         <p-toolbar styleClass="mb-6">
             <ng-template #start>
                 <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
-                <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedUsers()" [disabled]="!selectedUsers || !selectedUsers.length" />
+                <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedUsers()" [disabled]="!selectedUsers || !selectedUsers.length" [loading]="deleting" />
             </ng-template>
 
             <ng-template #end>
@@ -166,6 +166,7 @@ export class Users implements OnInit, OnDestroy {
     users = signal<User[]>([]);
     loading: boolean = true;
     saving: boolean = false;
+    deleting: boolean = false;
     socket: Socket | null = null;
 
     userDialog: boolean = false;
@@ -290,16 +291,28 @@ export class Users implements OnInit, OnDestroy {
             icon: 'pi pi-exclamation-triangle',
             accept: async () => {
                 if (!this.selectedUsers?.length) return;
+                this.deleting = true;
                 const idsToDelete = this.selectedUsers.map((u) => u.id || '');
-                await this.userService.deleteUsers(idsToDelete);
-                this.users.set(this.users().filter((val) => !idsToDelete.includes(val.id || '')));
-                this.selectedUsers = null;
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Selected users deleted',
-                    life: 3000
-                });
+                try {
+                    await this.userService.deleteUsers(idsToDelete);
+                    this.users.set(this.users().filter((val) => !idsToDelete.includes(val.id || '')));
+                    this.selectedUsers = null;
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Successful',
+                        detail: 'Selected users deleted',
+                        life: 3000
+                    });
+                } catch (error: any) {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: error.message || 'Gagal menghapus user',
+                        life: 3000
+                    });
+                } finally {
+                    this.deleting = false;
+                }
             }
         });
     }
@@ -463,6 +476,13 @@ export class Users implements OnInit, OnDestroy {
                 const deletedId = data?.userId || data?.id || (typeof data === 'string' ? data : null);
                 if (deletedId) {
                     this.users.update((list) => list.filter((u) => u.id !== deletedId && (u as any)._id !== deletedId));
+                }
+            });
+            this.socket.on('users:deletedMany', (payload: any) => {
+                const data = payload?.data || payload;
+                const deletedIds = data?.userIds;
+                if (Array.isArray(deletedIds) && deletedIds.length > 0) {
+                    this.users.update((list) => list.filter((u) => !deletedIds.includes(u.id) && !deletedIds.includes((u as any)._id)));
                 }
             });
 

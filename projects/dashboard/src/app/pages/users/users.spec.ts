@@ -349,4 +349,74 @@ describe('Users CRUD Component', () => {
         expect(mockSocketDisconnect).toHaveBeenCalled();
         expect(component.socket).toBeNull();
     });
+
+    it('should return early in loadUsers and initRealtimeSync on non-browser platform', () => {
+        try {
+            vi.stubGlobal('window', undefined);
+            // also modify platformId directly
+            (component as any).platformId = 'server';
+        } catch {
+            return;
+        }
+        component.loadUsers();
+        expect(component.loading).toBe(true); // Since it returns early, loading is unchanged from default
+    });
+
+    it('should remove multiple users when users:deletedMany event is received', () => {
+        component.users.set([...mockUsers, { id: 'usr-3', name: 'User 3' }]);
+        socketEventHandlers['users:deletedMany']?.({
+            data: { userIds: ['usr-1', 'usr-3'] }
+        });
+        expect(component.users().length).toBe(1);
+        expect(component.users()[0].id).toBe('usr-2');
+    });
+
+    it('should handle Socket.IO initialization errors without crashing', async () => {
+        const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+        // Force an error by stubbing io to throw
+        const ioSpy = (await import('socket.io-client')).io as unknown as import('vitest').Mock;
+        ioSpy.mockImplementationOnce(() => { throw new Error('Socket init error'); });
+        component.initRealtimeSync();
+
+        expect(consoleSpy).toHaveBeenCalledWith('Realtime Socket.IO initialization error:', expect.any(Error));
+    });
+
+    it('should return early in deleteSelectedUsers if no users are selected', async () => {
+        component.selectedUsers = [];
+        let acceptCallback: (() => Promise<void>) | undefined;
+        vi.spyOn(confirmationService, 'confirm').mockImplementation((opts: any) => {
+            acceptCallback = opts.accept;
+            return confirmationService;
+        });
+
+        component.deleteSelectedUsers();
+        await acceptCallback!(); // This triggers if (!this.selectedUsers?.length) return;
+        
+        expect(component.deleting).toBe(false);
+    });
+
+    it('should validate email format using isValidEmail', () => {
+        expect(component.isValidEmail('test@example.com')).toBe(true);
+        expect(component.isValidEmail('testexample.com')).toBe(false);
+        expect(component.isValidEmail('test@.com')).toBe(false);
+    });
+
+    it('should fallback to string error message in saveUser catch block', async () => {
+        const messageService = fixture.debugElement.injector.get(MessageService);
+        const toastSpy = vi.spyOn(messageService, 'add');
+        vi.spyOn(userService, 'createUser').mockRejectedValue('String Error');
+
+        component.openNew();
+        component.user.name = 'Test';
+        component.user.email = 'test@example.com';
+        component.userPassword = 'validpassword123';
+        
+        await component.saveUser();
+        
+        expect(toastSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                detail: 'String Error'
+            })
+        );
+    });
 });

@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -47,7 +48,7 @@ import { environment } from '../../../environments/environment';
 
                         <form (ngSubmit)="onLogin()">
                             <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                            <input pInputText id="email1" name="email" type="text" placeholder="Email address" class="w-full md:w-120 mb-8" [(ngModel)]="email" />
+                            <input pInputText id="email1" name="email" type="text" placeholder="Email address" class="w-full md:w-120 mb-8" [(ngModel)]="email" (keydown.enter)="onLogin()" />
 
                             <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
                             <p-password
@@ -62,6 +63,7 @@ import { environment } from '../../../environments/environment';
                                 ariaLabel="Password"
                                 hideIconAriaLabel="Hide password"
                                 showIconAriaLabel="Show password"
+                                (keydown.enter)="onLogin()"
                             ></p-password>
 
                             <div class="flex items-center justify-between mt-2 mb-8 gap-8">
@@ -86,34 +88,39 @@ export class Login implements OnInit {
 
     private authService = inject(AuthService);
 
+    private platformId = inject(PLATFORM_ID);
+    private document = inject(DOCUMENT, { optional: true });
+
     constructor(
         private router: Router,
         private messageService: MessageService
     ) {}
 
     ngOnInit() {
-        if (typeof window !== 'undefined') {
+        if (isPlatformBrowser(this.platformId)) {
             const userSession = this.getCookie('user_session');
             if (userSession) {
-                window.location.href = `${environment.appUrls.dashboard}/`;
+                if (this.document?.location) {
+                    this.document.location.href = `${environment.appUrls.dashboard}/`;
+                }
                 return;
             }
 
             const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
-            document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
-            document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-            if (typeof localStorage !== 'undefined') {
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                localStorage.removeItem('currentUser');
-                localStorage.removeItem('user');
+            if (this.document) {
+                this.document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
+                this.document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
             }
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('user');
         }
     }
 
     private getCookie(name: string): string | null {
-        if (typeof document === 'undefined') return null;
-        const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+        if (!this.document || typeof this.document.cookie === 'undefined') return null;
+        const match = this.document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
         return match ? decodeURIComponent(match[3]) : null;
     }
 
@@ -132,18 +139,20 @@ export class Login implements OnInit {
                 if (user) {
                     localStorage.setItem('user', JSON.stringify(user));
                     const userStr = encodeURIComponent(JSON.stringify(user));
-                    document.cookie = `user_session=${userStr}; path=/; max-age=604800; SameSite=Lax${domainAttr}${secureAttr}`;
+                    if (this.document) {
+                        this.document.cookie = `user_session=${userStr}; path=/; max-age=604800; SameSite=Lax${domainAttr}${secureAttr}`;
+                    }
                 }
 
                 // Clean up any legacy token artifacts from client storage
-                if (typeof localStorage !== 'undefined') {
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('refreshToken');
-                    localStorage.removeItem('currentUser');
-                }
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('currentUser');
 
                 // Redirect cleanly to dashboard (Backend has already issued HttpOnly accessToken & refreshToken cookies)
-                window.location.href = `${environment.appUrls.dashboard}/`;
+                if (this.document?.location) {
+                    this.document.location.href = `${environment.appUrls.dashboard}/`;
+                }
                 return;
             }
 

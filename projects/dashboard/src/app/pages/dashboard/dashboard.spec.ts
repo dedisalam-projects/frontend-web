@@ -38,6 +38,7 @@ describe('Dashboard & Core Components Suite', () => {
 
     it('should create StatsWidget', () => {
         const fixture = TestBed.createComponent(StatsWidget);
+        fixture.detectChanges();
         expect(fixture.componentInstance).toBeTruthy();
     });
 
@@ -45,12 +46,14 @@ describe('Dashboard & Core Components Suite', () => {
         const fixture = TestBed.createComponent(RecentSalesWidget);
         const component = fixture.componentInstance;
         component.ngOnInit();
+        fixture.detectChanges();
         await fixture.whenStable();
         expect(component.products().length).toBeGreaterThan(0);
     });
 
     it('should create BestSellingWidget', () => {
         const fixture = TestBed.createComponent(BestSellingWidget);
+        fixture.detectChanges();
         expect(fixture.componentInstance).toBeTruthy();
     });
 
@@ -58,6 +61,7 @@ describe('Dashboard & Core Components Suite', () => {
         const fixture = TestBed.createComponent(RevenueStreamWidget);
         const component = fixture.componentInstance;
         component.initChart();
+        fixture.detectChanges();
         expect(component.chartData()).toBeDefined();
         expect(component.chartData().labels).toEqual(['Q1', 'Q2', 'Q3', 'Q4']);
 
@@ -77,11 +81,13 @@ describe('Dashboard & Core Components Suite', () => {
 
     it('should create NotificationsWidget', () => {
         const fixture = TestBed.createComponent(NotificationsWidget);
+        fixture.detectChanges();
         expect(fixture.componentInstance).toBeTruthy();
     });
 
     it('should create Notfound page', () => {
         const fixture = TestBed.createComponent(Notfound);
+        fixture.detectChanges();
         expect(fixture.componentInstance).toBeTruthy();
     });
 

@@ -36,4 +36,17 @@ describe('AppFloatingConfigurator', () => {
         expect(layoutService.layoutConfig().darkTheme).toBe(false);
         expect(component.isDarkTheme()).toBe(false);
     });
+
+    it('should trigger toggleDarkMode on button click in template', () => {
+        const toggleSpy = vi.spyOn(component, 'toggleDarkMode');
+        const button = fixture.nativeElement.querySelector('p-button button'); // PrimeNG button renders as a button inside p-button usually or we can dispatch on p-button
+        if (button) {
+            button.click();
+            expect(toggleSpy).toHaveBeenCalled();
+        } else {
+            // Fallback for direct trigger
+            fixture.debugElement.query(el => el.name === 'p-button').triggerEventHandler('onClick', null);
+            expect(toggleSpy).toHaveBeenCalled();
+        }
+    });
 });

@@ -1,5 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { Router, RouterModule } from '@angular/router';
 import { AppFloatingConfigurator } from 'shared-ui';
@@ -130,6 +130,9 @@ export interface UserProfile {
         </div> `
 })
 export class TopbarWidget implements OnInit {
+    private platformId = inject(PLATFORM_ID);
+    private document = inject(DOCUMENT, { optional: true });
+
     currentUser = signal<UserProfile | null>(null);
 
     readonly dashboardUrl = environment.appUrls.dashboard;
@@ -143,7 +146,7 @@ export class TopbarWidget implements OnInit {
     }
 
     checkAuth(): void {
-        if (typeof window === 'undefined') return;
+        if (!isPlatformBrowser(this.platformId)) return;
 
         // 1. Check user_session cookie (shared across multi-subdomain wildcard SSO)
         const userSessionCookie = this.getCookie('user_session');
@@ -162,20 +165,18 @@ export class TopbarWidget implements OnInit {
         }
 
         // 2. Check localStorage user profile
-        if (typeof localStorage !== 'undefined') {
-            const userStorage = localStorage.getItem('user') || localStorage.getItem('currentUser');
-            if (userStorage) {
-                try {
-                    const user = JSON.parse(userStorage);
-                    this.currentUser.set({
-                        name: user.name || (user.email ? user.email.split('@')[0] : 'User'),
-                        email: user.email,
-                        role: user.role
-                    });
-                    return;
-                } catch (e) {
-                    console.error('Error decoding user profile from localStorage', e);
-                }
+        const userStorage = localStorage.getItem('user') || localStorage.getItem('currentUser');
+        if (userStorage) {
+            try {
+                const user = JSON.parse(userStorage);
+                this.currentUser.set({
+                    name: user.name || (user.email ? user.email.split('@')[0] : 'User'),
+                    email: user.email,
+                    role: user.role
+                });
+                return;
+            } catch (e) {
+                console.error('Error decoding user profile from localStorage', e);
             }
         }
 
@@ -193,37 +194,33 @@ export class TopbarWidget implements OnInit {
         const domainAttr = environment.cookieDomain ? `; domain=${environment.cookieDomain}` : '';
 
         // 1. Immediately and synchronously clear public user profile and state
-        if (typeof document !== 'undefined') {
-            document.cookie = `user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
-            document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        if (this.document) {
+            this.document.cookie = `user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
+            this.document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         }
-        if (typeof localStorage !== 'undefined') {
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('user');
-        }
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('user');
         this.currentUser.set(null);
 
         // 2. Dispatch HTTP logout to clear backend HttpOnly cookies
-        if (typeof window !== 'undefined' && typeof fetch !== 'undefined') {
-            try {
-                await fetch(`${environment.apiUrl}/auth/logout`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            } catch {
-                // Ignore network errors during logout
-            }
+        try {
+            await fetch(`${environment.apiUrl}/auth/logout`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } catch {
+            // Ignore network errors during logout
         }
 
-        if (typeof window !== 'undefined' && window.location) {
-            window.location.reload();
+        if (this.document?.defaultView?.location) {
+            this.document.defaultView.location.reload();
         }
     }
 
     private getCookie(name: string): string | null {
-        if (typeof document === 'undefined') return null;
-        const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+        if (!this.document || typeof this.document.cookie === 'undefined') return null;
+        const match = this.document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
         return match ? decodeURIComponent(match[3]) : null;
     }
 }

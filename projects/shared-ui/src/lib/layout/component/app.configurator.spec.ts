@@ -111,4 +111,16 @@ describe('AppConfigurator', () => {
         buttons[0].click();
         fixture.detectChanges();
     });
+
+    it('should handle non-Nora preset in getPresetExt (Lara/Aura)', () => {
+        layoutService.layoutConfig.update((c) => ({ ...c, preset: 'Lara', primary: 'green', surface: 'slate' }));
+        const ext = component.getPresetExt();
+        expect(ext.semantic.colorScheme.light.primary.color).toBe('{primary.500}');
+    });
+
+    it('should call updatePreset without surfacePalette if not found', () => {
+        layoutService.layoutConfig.update((c) => ({ ...c, preset: 'Aura', surface: 'non-existent' }));
+        component.onPresetChange('Aura');
+        expect(layoutService.layoutConfig().preset).toBe('Aura');
+    });
 });

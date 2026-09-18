@@ -38,33 +38,29 @@ export class UserService {
     private socket: Socket | null = null;
 
     constructor() {
-        if (isPlatformBrowser(this.platformId)) {
-            this.initSocket();
-        }
+        this.initSocket();
     }
 
     private initSocket(): Socket | null {
         if (!isPlatformBrowser(this.platformId)) return null;
         if (!this.socket) {
-            this.socket = io(`${environment.socketUrl}/users`, {
+            const s = io(`${environment.socketUrl}/users`, {
                 transports: ['websocket', 'polling'],
                 withCredentials: true,
                 autoConnect: true
             });
 
-            this.socket.on('connect', () => {
-                this.socket?.emit('admin:join', {});
+            s.on('connect', () => {
+                s.emit('admin:join', {});
             });
+            this.socket = s;
         }
         return this.socket;
     }
 
     getSocket(): Socket | null {
         if (!isPlatformBrowser(this.platformId)) return null;
-        if (!this.socket) {
-            return this.initSocket();
-        }
-        return this.socket;
+        return this.socket || this.initSocket();
     }
 
     private async ensureConnected(socket: Socket, timeoutMs = 4000): Promise<void> {
@@ -136,20 +132,13 @@ export class UserService {
                     withCredentials: true
                 })
             );
-            if (Array.isArray(res)) {
-                return res;
-            }
-            if (res && res.success && res.data) {
-                if (Array.isArray(res.data)) return res.data;
-                if (Array.isArray(res.data.users)) return res.data.users;
-                if (Array.isArray(res.data.items)) return res.data.items;
-                if (Array.isArray(res.data.data)) return res.data.data;
-            }
-            if (res && Array.isArray(res.data)) {
-                return res.data;
-            }
-            if (res && Array.isArray(res.users)) {
-                return res.users;
+            if (Array.isArray(res)) return res;
+            const payload = res?.data ?? res;
+            if (Array.isArray(payload)) return payload;
+            if (payload && typeof payload === 'object') {
+                if (Array.isArray(payload.users)) return payload.users;
+                if (Array.isArray(payload.items)) return payload.items;
+                if (Array.isArray(payload.data)) return payload.data;
             }
             return [];
         } catch (err: any) {
@@ -168,8 +157,7 @@ export class UserService {
         };
 
         const res = await this.emitAck<any>('admin:users:create', payload);
-        console.warn('[UserService.createUser response]:', JSON.stringify(res));
-        if (res.success && res.data) {
+        if (res?.success && res.data) {
             const created = res.data.user || res.data;
             return {
                 id: created.id || created._id || `usr_${Date.now()}`,
@@ -181,8 +169,8 @@ export class UserService {
             };
         }
         const errorMsg =
-            res.error?.message ||
-            (typeof res.error === 'string' ? res.error : null) ||
+            res?.error?.message ||
+            (typeof res?.error === 'string' ? res.error : null) ||
             (res as any)?.message ||
             'Gagal membuat user baru di server';
         throw new Error(errorMsg);
@@ -191,11 +179,11 @@ export class UserService {
     async updateUser(id: string, data: Partial<User>): Promise<User> {
         const effectiveId = id || (data as any)?._id || (data as any)?.id || '';
         const res = await this.emitAck<any>('admin:users:update', { id: effectiveId, userId: effectiveId, ...data });
-        if (res.success && res.data) {
+        if (res?.success && res.data) {
             const updated = res.data.user || res.data;
             return { id: effectiveId, ...data, ...updated };
         }
-        throw new Error(res.error?.message || `Gagal memperbarui user ${effectiveId} di server`);
+        throw new Error(res?.error?.message || `Gagal memperbarui user ${effectiveId} di server`);
     }
 
     async deleteUser(id: string): Promise<boolean> {
@@ -207,10 +195,12 @@ export class UserService {
     }
 
     async deleteUsers(ids: string[]): Promise<boolean> {
-        for (const id of ids) {
-            await this.deleteUser(id);
+        if (!ids || ids.length === 0) return true;
+        const res = await this.emitAck<any>('admin:users:deleteMany', { userIds: ids });
+        if (res.success) {
+            return true;
         }
-        return true;
+        throw new Error(res.error?.message || `Gagal menghapus user secara massal dari server`);
     }
 
     disconnect(): void {
