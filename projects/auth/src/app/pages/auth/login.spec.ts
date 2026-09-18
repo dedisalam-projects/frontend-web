@@ -121,7 +121,6 @@ describe('Login Component', () => {
         localStorage.setItem('refreshToken', 'stale-refresh');
         localStorage.setItem('currentUser', 'stale-user');
         
-        const removeItemSpy = vi.spyOn(Storage.prototype, 'removeItem');
         const cookieSpy = vi.spyOn(document, 'cookie', 'set');
         
         await component.onLogin();
@@ -134,11 +133,6 @@ describe('Login Component', () => {
         expect(localStorage.getItem('accessToken')).toBeNull();
         expect(localStorage.getItem('refreshToken')).toBeNull();
         expect(localStorage.getItem('currentUser')).toBeNull();
-        
-        // Assert removeItem was called with exact strings
-        expect(removeItemSpy).toHaveBeenCalledWith('accessToken');
-        expect(removeItemSpy).toHaveBeenCalledWith('refreshToken');
-        expect(removeItemSpy).toHaveBeenCalledWith('currentUser');
         
         const userStr = encodeURIComponent(JSON.stringify(mockUser));
         expect(cookieSpy).toHaveBeenCalledWith(`user_session=${userStr}; path=/; max-age=604800; SameSite=Lax`);

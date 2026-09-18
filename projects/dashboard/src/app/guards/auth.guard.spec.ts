@@ -199,7 +199,7 @@ describe('authGuard', () => {
             ]
         });
         const route = { queryParams: {} } as unknown as ActivatedRouteSnapshot;
-        let result: boolean | undefined;
+        let result: any;
         expect(() => {
             result = runInInjectionContext(isolatedInjector, () => authGuard(route, {} as any));
         }).not.toThrow();
@@ -235,7 +235,7 @@ describe('authGuard', () => {
         });
         const exp = Math.floor(Date.now() / 1000) + 3600;
         const route = { queryParams: { token: makeToken(exp) } } as unknown as ActivatedRouteSnapshot;
-        let result: boolean | undefined;
+        let result: any;
         expect(() => {
             result = runInInjectionContext(isolatedInjector, () => authGuard(route, {} as any));
         }).not.toThrow();

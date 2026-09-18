@@ -351,15 +351,13 @@ describe('Users CRUD Component', () => {
     });
 
     it('should return early in loadUsers and initRealtimeSync on non-browser platform', () => {
-        try {
-            vi.stubGlobal('window', undefined);
-            // also modify platformId directly
-            (component as any).platformId = 'server';
-        } catch {
-            return;
-        }
+        (component as any).platformId = 'server';
+        const getUsersSpy = vi.spyOn(userService, 'getUsers');
+        getUsersSpy.mockClear();
+        component.loading = false;
         component.loadUsers();
-        expect(component.loading).toBe(true); // Since it returns early, loading is unchanged from default
+        expect(component.loading).toBe(false);
+        expect(getUsersSpy).not.toHaveBeenCalled();
     });
 
     it('should remove multiple users when users:deletedMany event is received', () => {
@@ -376,7 +374,7 @@ describe('Users CRUD Component', () => {
         // Force an error by stubbing io to throw
         const ioSpy = (await import('socket.io-client')).io as unknown as import('vitest').Mock;
         ioSpy.mockImplementationOnce(() => { throw new Error('Socket init error'); });
-        component.initRealtimeSync();
+        (component as any).initRealtimeSync();
 
         expect(consoleSpy).toHaveBeenCalledWith('Realtime Socket.IO initialization error:', expect.any(Error));
     });

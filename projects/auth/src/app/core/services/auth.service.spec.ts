@@ -186,7 +186,7 @@ describe('AuthService', () => {
     });
 
     it('should POST /auth/refresh with payload when provided', async () => {
-        const payload = { token: 'dummy-token' };
+        const payload = { refreshToken: 'dummy-token' };
         const refreshPromise = service.refresh(payload);
 
         const req = httpMock.expectOne(`${environment.apiUrl}/auth/refresh`);
