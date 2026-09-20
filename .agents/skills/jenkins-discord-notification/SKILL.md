@@ -12,6 +12,9 @@ metadata:
 **Extracted:** 2026-09-14  
 **Context:** Use when sending real-time build and deployment notifications to Discord channels from Jenkins Declarative Pipelines without installing third-party Jenkins plugins.
 
+> [!CAUTION]
+> **Safety Guardrail**: Webhook notifications must guard secret credentials. Always request confirmation before modifying CI/CD pipeline triggers or rotating webhook secrets.
+
 ## Problem
 - Third-party Jenkins Discord plugins often introduce plugin dependency conflicts, require Jenkins service restarts, and offer limited control over custom embed layouts.
 - Naive webhook calls fail if commit messages contain special characters or quotes, or cause pipeline crashes if Discord's API rate-limits or returns non-200 responses.

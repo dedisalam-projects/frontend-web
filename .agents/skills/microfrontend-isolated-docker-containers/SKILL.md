@@ -12,6 +12,9 @@ metadata:
 **Extracted:** 2026-09-13  
 **Context:** Production containerization of Angular multi-project workspaces (`landing`, `auth`, `dashboard`) deployed behind Cloudflare Zero Trust (`cloudflared`) tunnels using standard unprivileged Nginx port `8080`.
 
+> [!CAUTION]
+> **Safety Guardrail**: Modifying Docker container ingress, ports, or image builds directly affects production web traffic. Always confirm container configurations and obtain approval before applying container changes to production.
+
 ## Problem
 
 When multiple Angular micro-frontends share a single monolithic Docker image or a single Nginx web container:

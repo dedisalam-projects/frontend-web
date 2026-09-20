@@ -12,6 +12,9 @@ metadata:
 **Extracted:** 2026-09-13  
 **Context:** Automatic, idempotent provisioning of mandatory root/superadmin accounts in NestJS microservices and containerized datastores (MongoDB).
 
+> [!CAUTION]
+> **Safety Guardrail**: Modifying superadmin credentials or seeding administrative users in production environments requires explicit user confirmation and authorization. Ensure permissions and environment variables are strictly guarded.
+
 ## Problem
 In containerized and microservice architectures, developers or CI pipelines frequently recreate datastore volumes (`docker compose down -v`). If initial admin seeding is isolated inside external manual scripts (e.g., `node scripts/seed.js`) or empty database init scripts (`mongo-init.js`), the mandatory `super_admin` account will be missing on application startup, causing authentication failures and breaking automated integration/E2E pipelines.
 
