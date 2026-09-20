@@ -172,12 +172,14 @@ pipeline {
             echo 'Archiving test reports and coverage results...'
             archiveArtifacts artifacts: 'coverage/**, reports/**', allowEmptyArchive: true
             sh 'rm -rf .stryker-tmp || true'
+            echo 'Membersihkan unused Docker images...'
+            sh 'docker image prune -af || true'
         }
         success {
             echo 'Frontend-web pipeline succeeded! All testing matrix quality gates passed.'
             sh '''
-                echo "Membersihkan dangling images..."
-                docker image prune -f
+                echo "Membersihkan unused images..."
+                docker image prune -af
                 
                 echo "Menyisakan hanya 2 versi image terbaru (saat ini & 1 versi sebelumnya) untuk tiap microservice..."
                 for repo in dedisalam/frontend-landing dedisalam/frontend-auth dedisalam/frontend-dashboard; do
