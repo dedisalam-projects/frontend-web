@@ -147,19 +147,15 @@ pipeline {
                     docker build -t dedisalam/frontend-dashboard:staging -f docker/dashboard/Dockerfile.prod .
                     docker tag dedisalam/frontend-dashboard:staging dedisalam/frontend-dashboard:${RELEASE_TAG}
                     docker tag dedisalam/frontend-dashboard:staging dedisalam/frontend-dashboard:latest
+                    
+                    echo 'Pushing Docker images to Docker Hub registry...'
+                    docker push dedisalam/frontend-landing:${RELEASE_TAG}
+                    docker push dedisalam/frontend-landing:latest
+                    docker push dedisalam/frontend-auth:${RELEASE_TAG}
+                    docker push dedisalam/frontend-auth:latest
+                    docker push dedisalam/frontend-dashboard:${RELEASE_TAG}
+                    docker push dedisalam/frontend-dashboard:latest
                 '''
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    echo 'Logging in and pushing Docker images to Docker Hub registry...'
-                    sh '''
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push dedisalam/frontend-landing:${RELEASE_TAG}
-                        docker push dedisalam/frontend-landing:latest
-                        docker push dedisalam/frontend-auth:${RELEASE_TAG}
-                        docker push dedisalam/frontend-auth:latest
-                        docker push dedisalam/frontend-dashboard:${RELEASE_TAG}
-                        docker push dedisalam/frontend-dashboard:latest
-                    '''
-                }
             }
         }
         
