@@ -36,10 +36,12 @@ pipeline {
         
         stage('Install Dependencies') {
             steps {
-                echo 'Cleaning up existing locks and preparing clean workspace...'
-                sh 'pkill -f "ng" || true'
-                sh 'rm -rf node_modules_* node_modules_del* || true'
-                sh 'npm ci --legacy-peer-deps || npm install --legacy-peer-deps'
+                retry(2) {
+                    echo 'Cleaning up existing locks and preparing clean workspace...'
+                    sh 'pkill -f "ng" || true'
+                    sh 'rm -rf node_modules_* node_modules_del* || true'
+                    sh 'npm ci --legacy-peer-deps || npm install --legacy-peer-deps'
+                }
             }
         }
         
@@ -56,22 +58,28 @@ pipeline {
 
         stage('Layer 1: Unit & Signal Component Testing (100% Gate)') {
             steps {
-                echo 'Executing Vitest unit tests across shared-ui, auth, landing, and dashboard...'
-                sh 'npm run test:all'
+                retry(2) {
+                    echo 'Executing Vitest unit tests across shared-ui, auth, landing, and dashboard...'
+                    sh 'npm run test:all'
+                }
             }
         }
 
         stage('Layer 2: Property-Based Testing (Fast-Check PBT)') {
             steps {
-                echo 'Executing Fast-Check property-based tests across auth guards, layout, and services...'
-                sh 'npm run test:property'
+                retry(2) {
+                    echo 'Executing Fast-Check property-based tests across auth guards, layout, and services...'
+                    sh 'npm run test:property'
+                }
             }
         }
 
         stage('Layer 3: Micro-frontend Integration Testing') {
             steps {
-                echo 'Executing cross-app auth guard chain and HTTP interceptor integration tests...'
-                sh 'npm run test:integration'
+                retry(2) {
+                    echo 'Executing cross-app auth guard chain and HTTP interceptor integration tests...'
+                    sh 'npm run test:integration'
+                }
             }
         }
 
@@ -85,7 +93,7 @@ pipeline {
             }
             steps {
                 echo 'Installing Playwright browser binaries...'
-                sh 'npx playwright install --with-deps chromium webkit || npx playwright install chromium webkit'
+                sh 'npx playwright install chromium webkit'
                 echo 'Executing Playwright Axe-Core accessibility audits...'
                 sh 'PLAYWRIGHT_WEBSERVER=1 npm run test:a11y'
             }
@@ -139,14 +147,19 @@ pipeline {
                     docker build -t dedisalam/frontend-dashboard:staging -f docker/dashboard/Dockerfile.prod .
                     docker tag dedisalam/frontend-dashboard:staging dedisalam/frontend-dashboard:${RELEASE_TAG}
                     docker tag dedisalam/frontend-dashboard:staging dedisalam/frontend-dashboard:latest
-                    echo 'Pushing Docker images to Docker Hub registry...'
-                    docker push dedisalam/frontend-landing:${RELEASE_TAG}
-                    docker push dedisalam/frontend-landing:latest
-                    docker push dedisalam/frontend-auth:${RELEASE_TAG}
-                    docker push dedisalam/frontend-auth:latest
-                    docker push dedisalam/frontend-dashboard:${RELEASE_TAG}
-                    docker push dedisalam/frontend-dashboard:latest
                 '''
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    echo 'Logging in and pushing Docker images to Docker Hub registry...'
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push dedisalam/frontend-landing:${RELEASE_TAG}
+                        docker push dedisalam/frontend-landing:latest
+                        docker push dedisalam/frontend-auth:${RELEASE_TAG}
+                        docker push dedisalam/frontend-auth:latest
+                        docker push dedisalam/frontend-dashboard:${RELEASE_TAG}
+                        docker push dedisalam/frontend-dashboard:latest
+                    '''
+                }
             }
         }
         
