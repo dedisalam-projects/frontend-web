@@ -175,6 +175,15 @@ pipeline {
         }
         success {
             echo 'Frontend-web pipeline succeeded! All testing matrix quality gates passed.'
+            sh '''
+                echo "Membersihkan dangling images..."
+                docker image prune -f
+                
+                echo "Menyisakan hanya 2 versi image terbaru (saat ini & 1 versi sebelumnya) untuk tiap microservice..."
+                for repo in dedisalam/frontend-landing dedisalam/frontend-auth dedisalam/frontend-dashboard; do
+                    docker images "$repo" -q | uniq | awk 'NR>2' | xargs -r docker rmi -f || true
+                done
+            '''
             sendDiscordNotification('SUCCESS')
         }
         failure {
