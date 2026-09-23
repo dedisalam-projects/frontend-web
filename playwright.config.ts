@@ -61,6 +61,7 @@ export default defineConfig({
             name: 'tablet',
             use: {
                 ...devices['iPad Pro 11'],
+                defaultBrowserType: 'chromium',
                 viewport: { width: 768, height: 1024 }
             }
         },
@@ -72,7 +73,10 @@ export default defineConfig({
         },
         {
             name: 'mobile-safari',
-            use: { ...devices['iPhone 13'] }
+            use: {
+                ...devices['iPhone 13'],
+                defaultBrowserType: 'chromium'
+            }
         },
 
         // ── Firefox & WebKit (CI only) ─────────────────────────────────────

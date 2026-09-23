@@ -100,7 +100,7 @@ pipeline {
             }
             steps {
                 echo 'Installing Playwright browser binaries...'
-                sh 'npx playwright install chromium webkit'
+                sh 'npx playwright install chromium'
                 echo 'Executing Playwright Axe-Core accessibility audits...'
                 sh 'PLAYWRIGHT_WEBSERVER=1 npm run test:a11y'
             }
