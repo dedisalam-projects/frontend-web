@@ -79,8 +79,8 @@ export default defineConfig({
             }
         },
 
-        // ── Firefox & WebKit (CI only) ─────────────────────────────────────
-        ...(isCI
+        // ── Firefox & WebKit (Only if explicitly enabled) ─────────────────
+        ...(process.env['ENABLE_ALL_BROWSERS']
             ? [
                   { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
                   { name: 'webkit', use: { ...devices['Desktop Safari'] } }
