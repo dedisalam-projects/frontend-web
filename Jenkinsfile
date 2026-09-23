@@ -83,6 +83,13 @@ pipeline {
             }
         }
 
+        stage('Build Angular (Production)') {
+            steps {
+                echo 'Compiling Angular micro-frontends with production environment and SSR...'
+                sh 'npm run build'
+            }
+        }
+
         stage('Layer 4: Accessibility (a11y) Quality Gate') {
             when {
                 anyOf {
@@ -116,13 +123,6 @@ pipeline {
         // =========================================================================
         // 🚀 BUILD & DOCKER DEPLOYMENT
         // =========================================================================
-
-        stage('Build Angular (Production)') {
-            steps {
-                echo 'Compiling Angular micro-frontends with production environment and SSR...'
-                sh 'npm run build'
-            }
-        }
         
         stage('Build & Push Docker Images') {
             steps {

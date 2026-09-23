@@ -38,9 +38,9 @@
     "test:load": "artillery run load-tests/landing-load.yml",
     "test:load:auth": "artillery run load-tests/auth-load.yml",
     "test:all-layers": "npm run test:all && npm run test:property && npm run test:integration && npm run test:ssr && npm run test:security",
-    "serve:ssr:landing": "node dist/landing/server/server.mjs",
-    "serve:ssr:auth": "node dist/auth/server/server.mjs",
-    "serve:ssr:dashboard": "node dist/dashboard/server/server.mjs"
+    "serve:ssr:landing": "cross-env PORT=4001 node dist/landing/server/server.mjs",
+    "serve:ssr:auth": "cross-env PORT=4002 node dist/auth/server/server.mjs",
+    "serve:ssr:dashboard": "cross-env PORT=4000 node dist/dashboard/server/server.mjs"
   },
   "private": true,
   "dependencies": {
