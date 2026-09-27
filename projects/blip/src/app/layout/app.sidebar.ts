@@ -1,0 +1,120 @@
+import { Component, effect, ElementRef, inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { filter, Subject, takeUntil } from 'rxjs';
+import { AppMenu } from './app.menu';
+import { LayoutService } from 'shared-ui';
+
+@Component({
+  selector: 'app-sidebar',
+  standalone: true,
+  imports: [AppMenu, RouterModule],
+  template: `
+    <div class="layout-sidebar">
+      <app-menu></app-menu>
+    </div>
+  `,
+})
+export class AppSidebar implements OnInit, OnDestroy {
+  layoutService = inject(LayoutService);
+  router = inject(Router);
+  el = inject(ElementRef);
+  platformId = inject(PLATFORM_ID);
+
+  private outsideClickListener: ((event: MouseEvent) => void) | null = null;
+  private destroy$ = new Subject<void>();
+
+  constructor() {
+    effect(() => {
+      const state = this.layoutService.layoutState();
+      if (this.layoutService.isDesktop()) {
+        if (state.overlayMenuActive) {
+          this.bindOutsideClickListener();
+        } else {
+          this.unbindOutsideClickListener();
+        }
+      } else {
+        if (state.mobileMenuActive) {
+          this.bindOutsideClickListener();
+        } else {
+          this.unbindOutsideClickListener();
+        }
+      }
+    });
+  }
+
+  ngOnInit() {
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((event) => {
+        const navEvent = event as NavigationEnd;
+        this.onRouteChange(navEvent.urlAfterRedirects);
+      });
+
+    this.onRouteChange(this.router.url);
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.unbindOutsideClickListener();
+  }
+
+  private onRouteChange(path: string) {
+    this.layoutService.layoutState.update((val) => ({
+      ...val,
+      activePath: path,
+      overlayMenuActive: false,
+      staticMenuMobileActive: false,
+      mobileMenuActive: false,
+      menuHoverActive: false,
+    }));
+  }
+
+  private bindOutsideClickListener() {
+    if (!this.outsideClickListener) {
+      this.outsideClickListener = (event: MouseEvent) => {
+        if (this.isOutsideClicked(event)) {
+          this.layoutService.layoutState.update((val) => ({
+            ...val,
+            overlayMenuActive: false,
+            staticMenuMobileActive: false,
+            mobileMenuActive: false,
+            menuHoverActive: false,
+          }));
+        }
+      };
+
+      if (isPlatformBrowser(this.platformId)) {
+        document.addEventListener('click', this.outsideClickListener);
+      }
+    }
+  }
+
+  private unbindOutsideClickListener() {
+    if (this.outsideClickListener) {
+      if (isPlatformBrowser(this.platformId)) {
+        document.removeEventListener('click', this.outsideClickListener);
+      }
+      this.outsideClickListener = null;
+    }
+  }
+
+  private isOutsideClicked(event: MouseEvent): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+    const topbarButtonEl = document.querySelector('.topbar-start > button');
+    const sidebarEl = this.el.nativeElement;
+
+    return !(
+      sidebarEl?.isSameNode(event.target as Node) ||
+      sidebarEl?.contains(event.target as Node) ||
+      topbarButtonEl?.isSameNode(event.target as Node) ||
+      topbarButtonEl?.contains(event.target as Node)
+    );
+  }
+}
