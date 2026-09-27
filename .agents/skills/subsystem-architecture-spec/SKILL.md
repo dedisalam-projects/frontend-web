@@ -117,6 +117,11 @@ Decompose execution into sequential phases:
 | **Audit Pairing** | Pair each architecture pillar with an automated audit rule in `audit/` | Leave architecture as a dead document that drifts from the codebase |
 | **Git Policy** | State explicit branch (`feat/<name>`) and quarantine against `master` | Allow unverified commits directly to main/master during development |
 
+## Safety Guardrails & Operational Constraints
+- **Production Guard**: Never deploy new subsystem Docker containers or migrations directly to production hosts without staging verification.
+- **Explicit Approval Gating**: Always require the user or tech lead to **approve** and **confirm** any merge to the default branch (`master`) or remote deployment.
+- **Audit Guard**: Block all releases and PRs unless `python audit/audit_runner.py --fail-on-error` passes with 100% compliance.
+
 ## When to Use
 - Designing a new micro-frontend or sub-application in a fullstack monorepo.
 - Bootstrapping a multi-tier subsystem that touches backend, database, WebSocket realtime, frontend, and rendering engines.
