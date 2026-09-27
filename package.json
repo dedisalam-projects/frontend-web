@@ -18,6 +18,7 @@
     "watch": "ng build --watch --configuration development",
     "format": "prettier --write \"**/*.{js,mjs,ts,mts,d.ts,html}\" --cache",
     "test": "ng test",
+    "test:blip": "vitest run --config vitest.blip.config.ts",
     "test:all": "ng test shared-ui --watch=false && ng test auth --watch=false && ng test landing --watch=false && ng test dashboard --watch=false",
     "test:coverage": "ng test shared-ui --watch=false --coverage && ng test auth --watch=false --coverage && ng test landing --watch=false --coverage && ng test dashboard --watch=false --coverage",
     "test:mutation": "npm run test:mutation:auth && npm run test:mutation:landing && npm run test:mutation:dashboard",
