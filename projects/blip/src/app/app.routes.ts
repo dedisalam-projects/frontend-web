@@ -2,15 +2,9 @@ import { Routes } from '@angular/router';
 import { AppLayout } from './layout/app.layout';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { DocumentPageComponent } from './pages/document/document-page.component';
-import { LoginComponent } from './pages/auth/login.component';
 import { authGuard } from './guards/auth.guard';
 
 export const appRoutes: Routes = [
-  {
-    path: 'login',
-    component: LoginComponent,
-    title: 'Login - Blip PDF Studio',
-  },
   {
     path: '',
     component: AppLayout,

@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
@@ -56,17 +57,31 @@ describe('AuthService', () => {
     });
   });
 
-  it('should clear session and navigate to login on logout', () => {
+  it('should clear session and redirect to dedicated auth on logout', () => {
+    const mockDoc = { location: { href: '' }, cookie: '' };
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: Router, useValue: routerSpy },
+        { provide: DOCUMENT, useValue: mockDoc },
+      ],
+    });
+    const s = TestBed.inject(AuthService);
+    const hMock = TestBed.inject(HttpTestingController);
+
     localStorage.setItem('user', JSON.stringify({ email: 'admin@dedisalam.my.id' }));
 
-    service.logout();
+    s.logout();
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/auth/logout`);
+    const req = hMock.expectOne(`${environment.apiUrl}/auth/logout`);
     expect(req.request.method).toBe('POST');
     req.flush({ success: true });
 
-    expect(service.currentUser()).toBeNull();
+    expect(s.currentUser()).toBeNull();
     expect(localStorage.getItem('user')).toBeNull();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+    expect(mockDoc.location.href).toBe(`${environment.appUrls.auth}/login`);
   });
 });

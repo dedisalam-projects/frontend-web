@@ -1,6 +1,7 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { environment } from '../../environments/environment';
 
 export function getCookie(doc: Document | null | undefined, name: string): string | null {
   if (!doc || typeof doc.cookie === 'undefined') return null;
@@ -54,10 +55,22 @@ export const authGuard: CanActivateFn = (route, state) => {
       return true;
     }
 
-    // No active session -> Clean up and redirect to /login
+    // No active session -> Clean up and redirect to dedicated auth frontend
     localStorage.removeItem('user');
+    localStorage.removeItem('currentUser');
     localStorage.removeItem('accessToken');
-    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    if (document) {
+      if (environment.cookieDomain) {
+        document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;; domain=${environment.cookieDomain}`;
+        document.cookie = `user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;; domain=${environment.cookieDomain}`;
+      }
+      document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+      document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+      if (document.location) {
+        const redirectParam = encodeURIComponent(document.location.href);
+        document.location.href = `${environment.appUrls.auth}/login?redirect=${redirectParam}`;
+      }
+    }
     return false;
   }
   return true;

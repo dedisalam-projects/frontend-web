@@ -105,8 +105,10 @@ export class AuthService {
         this.document.cookie = 'user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
         this.document.cookie = `accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;${domainAttr}`;
         this.document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        if (this.document.location) {
+          this.document.location.href = `${environment.appUrls.auth}/login`;
+        }
       }
-      this.router.navigate(['/login']);
     }
   }
 

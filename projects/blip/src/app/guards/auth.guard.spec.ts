@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
 import { authGuard, isTokenValid, getCookie } from './auth.guard';
 
 describe('authGuard', () => {
@@ -17,16 +18,26 @@ describe('authGuard', () => {
     localStorage.clear();
   });
 
-  it('should redirect to /login if unauthenticated', () => {
+  it('should redirect to dedicated auth frontend if unauthenticated', () => {
+    const mockDocument = {
+      location: { href: 'http://127.0.0.1:4300/generate-pdf/traveloka' },
+      cookie: '',
+    };
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: Router, useValue: routerSpy },
+        { provide: DOCUMENT, useValue: mockDocument },
+      ],
+    });
+
     const route: any = { queryParams: {} };
     const state: any = { url: '/generate-pdf/traveloka' };
 
     const result = TestBed.runInInjectionContext(() => authGuard(route, state));
 
     expect(result).toBe(false);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login'], {
-      queryParams: { returnUrl: '/generate-pdf/traveloka' },
-    });
+    expect(mockDocument.location.href).toContain('/login?redirect=');
   });
 
   it('should allow navigation if user exists in localStorage', () => {
