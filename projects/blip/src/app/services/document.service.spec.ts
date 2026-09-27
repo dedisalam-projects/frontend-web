@@ -81,6 +81,40 @@ describe('DocumentService', () => {
     req.flush(mockResponse);
   });
 
+  it('should fetch documents with default params', () => {
+    service.getDocuments('traveloka').subscribe((res) => {
+      expect(res.success).toBe(true);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/documents/traveloka`);
+    expect(req.request.method).toBe('GET');
+    req.flush({ success: true, data: { items: [], total: 0, page: 1, limit: 10, totalPages: 0 } });
+  });
+
+  it('should get single document via GET', () => {
+    service.getDocument('traveloka', '123').subscribe((res) => {
+      expect(res.success).toBe(true);
+      expect(res.data._id).toBe('123');
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/documents/traveloka/123`);
+    expect(req.request.method).toBe('GET');
+    req.flush({ success: true, data: { _id: '123' } });
+  });
+
+  it('should update document via PUT', () => {
+    const updateData = { notes: 'Updated' };
+    service.updateDocument('traveloka', '123', updateData).subscribe((res) => {
+      expect(res.success).toBe(true);
+      expect(res.data.notes).toBe('Updated');
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/documents/traveloka/123`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(updateData);
+    req.flush({ success: true, data: { _id: '123', ...updateData } });
+  });
+
   it('should request PDF blob via POST /generate', () => {
     const mockBlob = new Blob(['%PDF-1.4'], { type: 'application/pdf' });
 
