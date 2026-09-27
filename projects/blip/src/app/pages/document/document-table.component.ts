@@ -84,7 +84,7 @@ import { DocumentFormDialogComponent } from './document-form-dialog.component';
         tableStyleClass="min-w-full"
         class="p-datatable-sm"
       >
-        <ng-template pTemplate="header">
+        <ng-template #header>
           <tr>
             <th style="width: 60px">#</th>
             <!-- TRAVELOKA HEADERS -->
@@ -124,7 +124,7 @@ import { DocumentFormDialogComponent } from './document-form-dialog.component';
           </tr>
         </ng-template>
 
-        <ng-template pTemplate="body" let-doc let-i="rowIndex">
+        <ng-template #body let-doc let-i="rowIndex">
           <tr class="hover:bg-surface-50 dark:hover:bg-surface-800/50 transition-colors">
             <td>{{ (page() - 1) * limit() + i + 1 }}</td>
 
@@ -244,7 +244,7 @@ import { DocumentFormDialogComponent } from './document-form-dialog.component';
           </tr>
         </ng-template>
 
-        <ng-template pTemplate="emptymessage">
+        <ng-template #emptymessage>
           <tr>
             <td colspan="7" class="text-center p-8 text-surface-500">
               <div class="flex flex-col items-center justify-center gap-2">
