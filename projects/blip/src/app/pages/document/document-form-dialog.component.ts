@@ -58,7 +58,7 @@ import { SelectModule } from 'primeng/select';
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Total Pembayaran (Rp)</label>
-              <p-inputNumber formControlName="totalAmount" class="w-full" mode="currency" currency="IDR" locale="id-ID"></p-inputNumber>
+              <input pInputText type="number" formControlName="totalAmount" class="w-full" placeholder="120000" />
             </div>
           </div>
           <div class="border-t border-surface-200 dark:border-surface-700 pt-3">
@@ -174,7 +174,7 @@ import { SelectModule } from 'primeng/select';
             </div>
             <div>
               <label class="block text-xs text-surface-600 mb-1">Tarif (Rp)</label>
-              <p-inputNumber formControlName="fare" class="w-full" mode="currency" currency="IDR" locale="id-ID"></p-inputNumber>
+              <input pInputText type="number" formControlName="fare" class="w-full" placeholder="30000" />
             </div>
           </div>
         }
@@ -225,14 +225,31 @@ import { SelectModule } from 'primeng/select';
             </div>
             <div>
               <label class="block text-xs text-surface-600 mb-1">Total Bayar (Rp)</label>
-              <p-inputNumber formControlName="totalPaid" class="w-full" mode="currency" currency="IDR" locale="id-ID"></p-inputNumber>
+              <input pInputText type="number" formControlName="totalPaid" class="w-full" placeholder="119900" />
             </div>
           </div>
         }
 
-        <div class="flex justify-end gap-2 mt-4 pt-3 border-t border-surface-200 dark:border-surface-700">
+        <div class="flex justify-between items-center gap-2 mt-4 pt-3 border-t border-surface-200 dark:border-surface-700">
           <p-button label="Batal" severity="secondary" [text]="true" (onClick)="onClose()"></p-button>
-          <p-button type="submit" [label]="isEdit ? 'Simpan Perubahan' : 'Buat Dokumen'" severity="primary" [loading]="submitting"></p-button>
+          <div class="flex items-center gap-2">
+            <p-button
+              type="button"
+              [label]="isEdit ? 'Simpan Perubahan' : 'Simpan Draft'"
+              severity="secondary"
+              [outlined]="true"
+              [loading]="submitting"
+              (onClick)="submitForm(false)"
+            ></p-button>
+            <p-button
+              type="button"
+              [label]="isEdit ? 'Simpan & Generate PDF' : 'Generate PDF'"
+              icon="pi pi-print"
+              severity="success"
+              [loading]="submitting"
+              (onClick)="submitForm(true)"
+            ></p-button>
+          </div>
         </div>
       </form>
     </p-dialog>
@@ -345,6 +362,10 @@ export class DocumentFormDialogComponent implements OnInit {
   }
 
   onSubmit() {
+    this.submitForm(true);
+  }
+
+  submitForm(generateImmediately: boolean = false) {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -459,7 +480,7 @@ export class DocumentFormDialogComponent implements OnInit {
       };
     }
 
-    this.saved.emit(payload);
+    this.saved.emit({ payload, generateImmediately });
   }
 
   onClose() {

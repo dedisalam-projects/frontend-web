@@ -56,9 +56,10 @@ import { DocumentFormDialogComponent } from './document-form-dialog.component';
             />
           </span>
           <p-button
-            icon="pi pi-plus"
-            label="Tambah Dokumen"
-            severity="primary"
+            icon="pi pi-file-pdf"
+            label="Generate PDF Baru"
+            severity="success"
+            pTooltip="Buat dokumen baru & cetak PDF ground truth"
             (onClick)="openCreateDialog()"
           ></p-button>
           <p-button
@@ -142,7 +143,7 @@ import { DocumentFormDialogComponent } from './document-form-dialog.component';
                 <span class="text-xs text-surface-500">{{ doc.customer?.phone || '-' }}</span>
               </td>
               <td class="text-sm">{{ doc.transactionDate }}</td>
-              <td class="font-semibold">{{ doc.totalAmount | currency:'IDR':'symbol':'1.0-0':'id-ID' }}</td>
+              <td class="font-semibold">{{ formatRupiah(doc.totalAmount) }}</td>
             }
 
             <!-- GOJEK CELLS -->
@@ -162,7 +163,7 @@ import { DocumentFormDialogComponent } from './document-form-dialog.component';
                 <span class="block text-sm">{{ doc.vehicleType }}</span>
                 <span class="text-xs font-mono text-surface-500">{{ doc.vehiclePlate }}</span>
               </td>
-              <td class="font-semibold">{{ doc.totalPaid | currency:'IDR':'symbol':'1.0-0':'id-ID' }}</td>
+              <td class="font-semibold">{{ formatRupiah(doc.totalPaid) }}</td>
             }
 
             <!-- INDRIVE CELLS -->
@@ -179,7 +180,7 @@ import { DocumentFormDialogComponent } from './document-form-dialog.component';
                 <span class="text-xs text-surface-500">Driver: {{ doc.driverName }}</span>
               </td>
               <td class="text-sm">{{ doc.tripDate }}</td>
-              <td class="font-semibold">{{ doc.fare | currency:'IDR':'symbol':'1.0-0':'id-ID' }}</td>
+              <td class="font-semibold">{{ formatRupiah(doc.fare) }}</td>
             }
 
             <!-- JACKAL CELLS -->
@@ -199,7 +200,7 @@ import { DocumentFormDialogComponent } from './document-form-dialog.component';
               <td>
                 <span class="px-2 py-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 rounded font-bold text-xs">{{ doc.passengers?.[0]?.seat || '-' }}</span>
               </td>
-              <td class="font-semibold">{{ doc.payment?.totalPaid | currency:'IDR':'symbol':'1.0-0':'id-ID' }}</td>
+              <td class="font-semibold">{{ formatRupiah(doc.payment?.totalPaid) }}</td>
             }
 
             <!-- STATUS BADGE (REALTIME) -->
@@ -216,7 +217,7 @@ import { DocumentFormDialogComponent } from './document-form-dialog.component';
               <div class="flex items-center justify-end gap-1">
                 <p-button
                   icon="pi pi-print"
-                  label="Generate"
+                  label="Generate PDF"
                   severity="success"
                   size="small"
                   [loading]="generatingId() === doc._id"
@@ -247,10 +248,15 @@ import { DocumentFormDialogComponent } from './document-form-dialog.component';
         <ng-template #emptymessage>
           <tr>
             <td colspan="7" class="text-center p-8 text-surface-500">
-              <div class="flex flex-col items-center justify-center gap-2">
-                <i class="pi pi-inbox text-4xl text-surface-400"></i>
-                <span class="font-medium">Belum ada dokumen untuk provider {{ providerTitle }}.</span>
-                <p-button label="Tambah Dokumen Baru" icon="pi pi-plus" size="small" [text]="true" (onClick)="openCreateDialog()"></p-button>
+              <div class="flex flex-col items-center justify-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-green-50 dark:bg-green-950/40 flex items-center justify-center text-green-600">
+                  <i class="pi pi-file-pdf text-2xl"></i>
+                </div>
+                <div class="text-center">
+                  <p class="font-semibold text-surface-900 dark:text-surface-0 mb-1">Belum ada dokumen {{ providerTitle }}</p>
+                  <p class="text-xs text-surface-500 mb-0">Klik tombol di bawah untuk membuat dokumen dan mencetak PDF ground truth secara instan.</p>
+                </div>
+                <p-button label="Generate PDF Sekarang" icon="pi pi-file-pdf" severity="success" size="small" (onClick)="openCreateDialog()"></p-button>
               </div>
             </td>
           </tr>
@@ -296,6 +302,10 @@ export class DocumentTableComponent implements OnInit, OnDestroy, OnChanges {
       jackal: 'Jackal Holidays',
     };
     return titles[this.provider] || this.provider;
+  }
+
+  formatRupiah(amount: number): string {
+    return 'Rp ' + Number(amount || 0).toLocaleString('id-ID');
   }
 
   ngOnInit() {
@@ -452,7 +462,10 @@ export class DocumentTableComponent implements OnInit, OnDestroy, OnChanges {
     this.formDialogVisible = true;
   }
 
-  onDocumentSaved(payload: any) {
+  onDocumentSaved(event: any) {
+    const payload = event?.payload || event;
+    const generateImmediately = !!event?.generateImmediately;
+
     if (this.selectedDoc?._id) {
       // Update
       this.documentService.updateDocument(this.provider, this.selectedDoc._id, payload).subscribe({
@@ -464,6 +477,9 @@ export class DocumentTableComponent implements OnInit, OnDestroy, OnChanges {
             detail: 'Dokumen berhasil diperbarui.',
           });
           this.loadData();
+          if (generateImmediately) {
+            this.generatePdf(this.selectedDoc);
+          }
         },
         error: (err) => {
           this.messageService.add({
@@ -476,7 +492,7 @@ export class DocumentTableComponent implements OnInit, OnDestroy, OnChanges {
     } else {
       // Create
       this.documentService.createDocument(this.provider, payload).subscribe({
-        next: () => {
+        next: (res) => {
           this.formDialogVisible = false;
           this.messageService.add({
             severity: 'success',
@@ -484,6 +500,9 @@ export class DocumentTableComponent implements OnInit, OnDestroy, OnChanges {
             detail: 'Dokumen baru berhasil dibuat.',
           });
           this.loadData();
+          if (generateImmediately && res?.data) {
+            this.generatePdf(res.data);
+          }
         },
         error: (err) => {
           this.messageService.add({
