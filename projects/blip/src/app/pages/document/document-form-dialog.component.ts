@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -6,6 +6,14 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
+
+const INDO_DAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const INDO_SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const INDO_FULL_MONTHS = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+];
 
 @Component({
   selector: 'app-document-form-dialog',
@@ -19,6 +27,7 @@ import { SelectModule } from 'primeng/select';
     InputTextModule,
     InputNumberModule,
     SelectModule,
+    DatePickerModule,
   ],
   template: `
     <p-dialog
@@ -48,17 +57,36 @@ import { SelectModule } from 'primeng/select';
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Waktu Transaksi</label>
-              <input pInputText formControlName="transactionDate" class="w-full" placeholder="09 Jul 2025, 16:47 (Rabu)" />
+              <p-datepicker
+                formControlName="transactionDate"
+                [showTime]="true"
+                hourFormat="24"
+                [showIcon]="true"
+                class="w-full"
+                placeholder="Pilih tanggal & waktu"
+              ></p-datepicker>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium mb-1">Metode Pembayaran</label>
-              <input pInputText formControlName="paymentMethod" class="w-full" placeholder="GoPay / GoPay Tabungan" />
+              <p-select
+                [options]="travelokaPaymentMethods"
+                [editable]="true"
+                formControlName="paymentMethod"
+                class="w-full"
+                placeholder="Pilih atau ketik metode bayar"
+              ></p-select>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">Total Pembayaran (Rp)</label>
-              <input pInputText type="number" formControlName="totalAmount" class="w-full" placeholder="120000" />
+              <label class="block text-sm font-medium mb-1">Total Pembayaran</label>
+              <p-inputnumber
+                formControlName="totalAmount"
+                class="w-full"
+                mode="currency"
+                currency="IDR"
+                locale="id-ID"
+              ></p-inputnumber>
             </div>
           </div>
           <div class="border-t border-surface-200 dark:border-surface-700 pt-3">
@@ -95,7 +123,14 @@ import { SelectModule } from 'primeng/select';
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium mb-1">Tanggal Transaksi</label>
-              <input pInputText formControlName="transactionDate" class="w-full" placeholder="Rabu, 3 Desember 2025" />
+              <p-datepicker
+                formControlName="transactionDate"
+                [showTime]="true"
+                hourFormat="24"
+                [showIcon]="true"
+                class="w-full"
+                placeholder="Pilih tanggal & waktu"
+              ></p-datepicker>
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Nama Pelanggan</label>
@@ -125,8 +160,14 @@ import { SelectModule } from 'primeng/select';
               <input pInputText formControlName="duration" class="w-full" placeholder="78 menit" />
             </div>
             <div>
-              <label class="block text-xs text-surface-600 mb-1">Total Pembayaran (Rp)</label>
-              <p-inputNumber formControlName="totalPaid" class="w-full" mode="currency" currency="IDR" locale="id-ID"></p-inputNumber>
+              <label class="block text-xs text-surface-600 mb-1">Total Pembayaran</label>
+              <p-inputnumber
+                formControlName="totalPaid"
+                class="w-full"
+                mode="currency"
+                currency="IDR"
+                locale="id-ID"
+              ></p-inputnumber>
             </div>
           </div>
         }
@@ -160,7 +201,13 @@ import { SelectModule } from 'primeng/select';
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Tanggal Perjalanan</label>
-              <input pInputText formControlName="tripDate" class="w-full" placeholder="21 September 2026" />
+              <p-datepicker
+                formControlName="tripDate"
+                [showTime]="false"
+                [showIcon]="true"
+                class="w-full"
+                placeholder="Pilih tanggal perjalanan"
+              ></p-datepicker>
             </div>
           </div>
           <div class="grid grid-cols-3 gap-3">
@@ -170,11 +217,23 @@ import { SelectModule } from 'primeng/select';
             </div>
             <div>
               <label class="block text-xs text-surface-600 mb-1">Metode Bayar</label>
-              <input pInputText formControlName="paymentMethod" class="w-full" placeholder="Tunai" />
+              <p-select
+                [options]="indrivePaymentMethods"
+                [editable]="true"
+                formControlName="paymentMethod"
+                class="w-full"
+                placeholder="Pilih metode bayar"
+              ></p-select>
             </div>
             <div>
-              <label class="block text-xs text-surface-600 mb-1">Tarif (Rp)</label>
-              <input pInputText type="number" formControlName="fare" class="w-full" placeholder="30000" />
+              <label class="block text-xs text-surface-600 mb-1">Tarif</label>
+              <p-inputnumber
+                formControlName="fare"
+                class="w-full"
+                mode="currency"
+                currency="IDR"
+                locale="id-ID"
+              ></p-inputnumber>
             </div>
           </div>
         }
@@ -188,7 +247,14 @@ import { SelectModule } from 'primeng/select';
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Waktu Booking</label>
-              <input pInputText formControlName="bookingDate" class="w-full" placeholder="21 Juli 2025 15:00" />
+              <p-datepicker
+                formControlName="bookingDate"
+                [showTime]="true"
+                hourFormat="24"
+                [showIcon]="true"
+                class="w-full"
+                placeholder="Pilih tanggal & waktu booking"
+              ></p-datepicker>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
@@ -207,11 +273,23 @@ import { SelectModule } from 'primeng/select';
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium mb-1">Titik Keberangkatan</label>
-              <input pInputText formControlName="departurePoint" class="w-full" placeholder="DIPATIUKUR 89 SEBRANG UNIKOM" />
+              <p-select
+                [options]="jackalPools"
+                [editable]="true"
+                formControlName="departurePoint"
+                class="w-full"
+                placeholder="Pilih atau ketik pool keberangkatan"
+              ></p-select>
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Titik Tujuan</label>
-              <input pInputText formControlName="destinationPoint" class="w-full" placeholder="CENTRAL PARK (VIRTUAL POOL)" />
+              <p-select
+                [options]="jackalPools"
+                [editable]="true"
+                formControlName="destinationPoint"
+                class="w-full"
+                placeholder="Pilih atau ketik pool tujuan"
+              ></p-select>
             </div>
           </div>
           <div class="grid grid-cols-3 gap-3">
@@ -221,11 +299,23 @@ import { SelectModule } from 'primeng/select';
             </div>
             <div>
               <label class="block text-xs text-surface-600 mb-1">Metode Bayar</label>
-              <input pInputText formControlName="paymentMethod" class="w-full" placeholder="BCA VIRTUAL ACCOUNT" />
+              <p-select
+                [options]="jackalPaymentMethods"
+                [editable]="true"
+                formControlName="paymentMethod"
+                class="w-full"
+                placeholder="Pilih metode bayar"
+              ></p-select>
             </div>
             <div>
-              <label class="block text-xs text-surface-600 mb-1">Total Bayar (Rp)</label>
-              <input pInputText type="number" formControlName="totalPaid" class="w-full" placeholder="119900" />
+              <label class="block text-xs text-surface-600 mb-1">Total Bayar</label>
+              <p-inputnumber
+                formControlName="totalPaid"
+                class="w-full"
+                mode="currency"
+                currency="IDR"
+                locale="id-ID"
+              ></p-inputnumber>
             </div>
           </div>
         }
@@ -255,7 +345,7 @@ import { SelectModule } from 'primeng/select';
     </p-dialog>
   `,
 })
-export class DocumentFormDialogComponent implements OnInit {
+export class DocumentFormDialogComponent implements OnInit, OnChanges {
   @Input() visible = false;
   @Input() provider = 'gojek';
   @Input() editData: any = null;
@@ -271,6 +361,14 @@ export class DocumentFormDialogComponent implements OnInit {
     { label: 'Hotel / Akomodasi', value: 'Hotel / Akomodasi' },
   ];
 
+  travelokaPaymentMethods = [
+    { label: 'GoPay / GoPay Tabungan', value: 'GoPay / GoPay Tabungan' },
+    { label: 'BCA Virtual Account', value: 'BCA Virtual Account' },
+    { label: 'Mandiri Virtual Account', value: 'Mandiri Virtual Account' },
+    { label: 'Kartu Kredit / Debit', value: 'Kartu Kredit / Debit' },
+    { label: 'Traveloka PayLater', value: 'Traveloka PayLater' },
+  ];
+
   gojekServices = [
     { label: 'GoCar', value: 'gocar' },
     { label: 'GoCar Hemat', value: 'gocar-hemat' },
@@ -282,6 +380,29 @@ export class DocumentFormDialogComponent implements OnInit {
   indriveServices = [
     { label: 'inDrive Mobil', value: 'indrive-mobil' },
     { label: 'inDrive Motor', value: 'indrive-motor' },
+  ];
+
+  indrivePaymentMethods = [
+    { label: 'Tunai', value: 'Tunai' },
+    { label: 'OVO', value: 'OVO' },
+    { label: 'GoPay', value: 'GoPay' },
+    { label: 'Kartu Kredit / Debit', value: 'Kartu Kredit / Debit' },
+  ];
+
+  jackalPaymentMethods = [
+    { label: 'BCA VIRTUAL ACCOUNT', value: 'BCA VIRTUAL ACCOUNT' },
+    { label: 'MANDIRI VIRTUAL ACCOUNT', value: 'MANDIRI VIRTUAL ACCOUNT' },
+    { label: 'BRI VIRTUAL ACCOUNT', value: 'BRI VIRTUAL ACCOUNT' },
+    { label: 'QRIS', value: 'QRIS' },
+    { label: 'TUNAI POOL', value: 'TUNAI POOL' },
+  ];
+
+  jackalPools = [
+    { label: 'DIPATIUKUR 89 SEBRANG UNIKOM', value: 'DIPATIUKUR 89 SEBRANG UNIKOM' },
+    { label: 'CENTRAL PARK (VIRTUAL POOL)', value: 'CENTRAL PARK (VIRTUAL POOL)' },
+    { label: 'PASTEUR 28 BANDUNG', value: 'PASTEUR 28 BANDUNG' },
+    { label: 'BLOK M PLAZA JAKARTA', value: 'BLOK M PLAZA JAKARTA' },
+    { label: 'BANDARA SOEKARNO HATTA (TERMINAL 3)', value: 'BANDARA SOEKARNO HATTA (TERMINAL 3)' },
   ];
 
   get isEdit(): boolean {
@@ -306,16 +427,81 @@ export class DocumentFormDialogComponent implements OnInit {
     this.buildForm();
   }
 
+  private parseDateFromProvider(dateVal: any): Date {
+    if (!dateVal) return new Date();
+    if (dateVal instanceof Date) return dateVal;
+    if (typeof dateVal === 'string') {
+      const parsed = new Date(dateVal);
+      if (!isNaN(parsed.getTime())) return parsed;
+
+      // Extract parts using Indonesian regex
+      // Matches e.g. "09 Jul 2025, 16:47" or "Selasa, 23 September 2025 jam 19:16" or "21 Juli 2025 15:00"
+      const dayMatch = dateVal.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+      if (dayMatch) {
+        const day = parseInt(dayMatch[1], 10);
+        const monthStr = dayMatch[2].toLowerCase();
+        const year = parseInt(dayMatch[3], 10);
+
+        let monthIdx = INDO_FULL_MONTHS.findIndex(m => m.toLowerCase() === monthStr);
+        if (monthIdx === -1) {
+          monthIdx = INDO_SHORT_MONTHS.findIndex(m => m.toLowerCase() === monthStr);
+        }
+        if (monthIdx !== -1) {
+          let hours = 9;
+          let minutes = 0;
+          const timeMatch = dateVal.match(/(\d{1,2}):(\d{2})/);
+          if (timeMatch) {
+            hours = parseInt(timeMatch[1], 10);
+            minutes = parseInt(timeMatch[2], 10);
+          }
+          return new Date(year, monthIdx, day, hours, minutes);
+        }
+      }
+    }
+    return new Date();
+  }
+
+  private formatDateForProvider(dateObj: Date, provider: string): string {
+    const d = dateObj instanceof Date && !isNaN(dateObj.getTime()) ? dateObj : new Date();
+    const dayName = INDO_DAYS[d.getDay()];
+    const day = d.getDate();
+    const dayPadded = String(day).padStart(2, '0');
+    const monthShort = INDO_SHORT_MONTHS[d.getMonth()];
+    const monthFull = INDO_FULL_MONTHS[d.getMonth()];
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+
+    switch (provider) {
+      case 'traveloka':
+        // Format: 09 Jul 2025, 16:47 (Rabu)
+        return `${dayPadded} ${monthShort} ${year}, ${hours}:${minutes} (${dayName})`;
+      case 'gojek':
+        // Format: Selasa, 23 September 2025 jam 19:16
+        return `${dayName}, ${day} ${monthFull} ${year} jam ${hours}:${minutes}`;
+      case 'indrive':
+        // Format: 21 September 2026
+        return `${day} ${monthFull} ${year}`;
+      case 'jackal':
+        // Format: 21 Juli 2025 15:00
+        return `${day} ${monthFull} ${year} ${hours}:${minutes}`;
+      default:
+        return d.toISOString();
+    }
+  }
+
   private buildForm() {
     const d = this.editData || {};
+    const shortTs = Math.floor(Date.now() / 1000);
+
     if (this.provider === 'traveloka') {
       this.form = this.fb.group({
         category: [d.category || 'Tiket Bus & Shuttle', Validators.required],
-        receiptNo: [d.receiptNo || '', Validators.required],
-        poNumber: [d.poNumber || '', Validators.required],
-        transactionDate: [d.transactionDate || '', Validators.required],
+        receiptNo: [d.receiptNo || `#183716${shortTs}`, Validators.required],
+        poNumber: [d.poNumber || `126${shortTs}`, Validators.required],
+        transactionDate: [this.parseDateFromProvider(d.transactionDate), Validators.required],
         paymentMethod: [d.paymentMethod || 'GoPay / GoPay Tabungan', Validators.required],
-        totalAmount: [d.totalAmount || 120000, Validators.required],
+        totalAmount: [d.totalAmount !== undefined ? d.totalAmount : 120000, [Validators.required, Validators.min(0)]],
         customerName: [d.customer?.name || 'Dedi Salam Permana', Validators.required],
         customerEmail: [d.customer?.email || 'dedis@example.com'],
         customerPhone: [d.customer?.phone || '+6285856416338'],
@@ -323,32 +509,32 @@ export class DocumentFormDialogComponent implements OnInit {
     } else if (this.provider === 'gojek') {
       this.form = this.fb.group({
         serviceType: [d.serviceType || 'gocar', Validators.required],
-        orderId: [d.orderId || '', Validators.required],
-        transactionDate: [d.transactionDate || 'Rabu, 3 Desember 2025', Validators.required],
-        customerName: [d.customerName || 'Dedi S. Permana', Validators.required],
+        orderId: [d.orderId || `RB-${shortTs}-47103883`, Validators.required],
+        transactionDate: [this.parseDateFromProvider(d.transactionDate), Validators.required],
+        customerName: [d.customerName || 'Hai Dedi S. Permana', Validators.required],
         driverName: [d.driverName || 'Robby Asyatra', Validators.required],
         vehiclePlate: [d.vehiclePlate || 'D1481YCA', Validators.required],
         vehicleType: [d.vehicleType || 'Daihatsu Sigra', Validators.required],
         distance: [d.distance || '39.1 km', Validators.required],
         duration: [d.duration || '78 menit', Validators.required],
-        totalPaid: [d.totalPaid || 178000, Validators.required],
+        totalPaid: [d.totalPaid !== undefined ? d.totalPaid : 178000, [Validators.required, Validators.min(0)]],
       });
     } else if (this.provider === 'indrive') {
       this.form = this.fb.group({
         serviceType: [d.serviceType || 'indrive-mobil', Validators.required],
-        invoiceNumber: [d.invoiceNumber || '', Validators.required],
+        invoiceNumber: [d.invoiceNumber || `ID${shortTs}a4CU`, Validators.required],
         recipientName: [d.recipientName || 'Dedi', Validators.required],
         driverName: [d.driverName || 'John Hariadi Sitepu', Validators.required],
         vehicleDetail: [d.vehicleDetail || 'Toyota Avanza Silver D1105AHA', Validators.required],
-        tripDate: [d.tripDate || '21 September 2026', Validators.required],
+        tripDate: [this.parseDateFromProvider(d.tripDate), Validators.required],
         distance: [d.distance || '7.6 km', Validators.required],
         paymentMethod: [d.paymentMethod || 'Tunai', Validators.required],
-        fare: [d.fare || 30000, Validators.required],
+        fare: [d.fare !== undefined ? d.fare : 30000, [Validators.required, Validators.min(0)]],
       });
     } else if (this.provider === 'jackal') {
       this.form = this.fb.group({
-        bookingCode: [d.bookingCode || '', Validators.required],
-        bookingDate: [d.bookingDate || '21 Juli 2025 15:00', Validators.required],
+        bookingCode: [d.bookingCode || `BJKL${shortTs}`, Validators.required],
+        bookingDate: [this.parseDateFromProvider(d.bookingDate), Validators.required],
         customerName: [d.customer?.name || 'DEDI SALAM PERMANA', Validators.required],
         customerPhone: [d.customer?.phone || '085856416338', Validators.required],
         customerEmail: [d.customer?.email || 'dedis@example.com'],
@@ -356,7 +542,7 @@ export class DocumentFormDialogComponent implements OnInit {
         destinationPoint: [d.destination?.point || 'CENTRAL PARK (VIRTUAL POOL)', Validators.required],
         passengerSeat: [d.passengers?.[0]?.seat || '3', Validators.required],
         paymentMethod: [d.payment?.method || 'BCA VIRTUAL ACCOUNT', Validators.required],
-        totalPaid: [d.payment?.totalPaid || 119900, Validators.required],
+        totalPaid: [d.payment?.totalPaid !== undefined ? d.payment.totalPaid : 119900, [Validators.required, Validators.min(0)]],
       });
     }
   }
@@ -375,14 +561,15 @@ export class DocumentFormDialogComponent implements OnInit {
     let payload: any = {};
 
     if (this.provider === 'traveloka') {
+      const formattedDate = this.formatDateForProvider(val.transactionDate, 'traveloka');
       payload = {
         category: val.category,
         receiptNo: val.receiptNo,
         poNumber: val.poNumber,
-        transactionDate: val.transactionDate,
+        transactionDate: formattedDate,
         paymentMethod: val.paymentMethod,
         paymentStatus: 'Lunas',
-        totalAmount: val.totalAmount,
+        totalAmount: Number(val.totalAmount),
         customer: {
           name: val.customerName,
           email: val.customerEmail,
@@ -395,17 +582,21 @@ export class DocumentFormDialogComponent implements OnInit {
             itemType: val.category === 'Hotel / Akomodasi' ? 'Akomodasi' : 'Tiket Bus',
             descriptionLines: ['Rute Perjalanan Standar'],
             quantity: 1,
-            unitPrice: val.totalAmount,
-            totalPrice: val.totalAmount,
+            unitPrice: Number(val.totalAmount),
+            totalPrice: Number(val.totalAmount),
             rowHeight: 83.25,
           },
         ],
       };
     } else if (this.provider === 'gojek') {
+      const formattedDate = this.formatDateForProvider(val.transactionDate, 'gojek');
+      const timeStr = val.transactionDate instanceof Date 
+        ? `${String(val.transactionDate.getHours()).padStart(2, '0')}:${String(val.transactionDate.getMinutes()).padStart(2, '0')}`
+        : '09:43';
       payload = {
         serviceType: val.serviceType,
         orderId: val.orderId,
-        transactionDate: val.transactionDate,
+        transactionDate: formattedDate,
         customerName: val.customerName,
         driverName: val.driverName,
         vehiclePlate: val.vehiclePlate,
@@ -413,40 +604,45 @@ export class DocumentFormDialogComponent implements OnInit {
         distance: val.distance,
         duration: val.duration,
         pickup: {
-          date: val.transactionDate,
-          time: '09:43',
+          date: formattedDate,
+          time: timeStr,
           placeName: 'Lokasi Penjemputan',
           address: 'Jl. Penjemputan No. 1, Kota Bandung',
         },
         destination: {
-          date: val.transactionDate,
+          date: formattedDate,
           time: '11:02',
           placeName: 'Lokasi Tujuan',
           address: 'Jl. Tujuan No. 100, Kota Bandung',
         },
-        paymentRows: [{ item: 'Biaya perjalanan', amount: val.totalPaid }],
-        totalPaid: val.totalPaid,
+        paymentRows: [{ item: 'Biaya perjalanan', amount: Number(val.totalPaid) }],
+        totalPaid: Number(val.totalPaid),
       };
     } else if (this.provider === 'indrive') {
+      const formattedDate = this.formatDateForProvider(val.tripDate, 'indrive');
       payload = {
         serviceType: val.serviceType,
         invoiceNumber: val.invoiceNumber,
         recipientName: val.recipientName,
         driverName: val.driverName,
         vehicleDetail: val.vehicleDetail,
-        tripDate: val.tripDate,
-        invoiceDate: val.tripDate,
+        tripDate: formattedDate,
+        invoiceDate: formattedDate,
         pickup: { location: 'Bandung, Jawa Barat', time: '05:07 WIB' },
         dropoff: { location: 'Stasiun Bandung', time: '05:23 WIB' },
         distance: val.distance,
         paymentMethod: val.paymentMethod,
-        fare: val.fare,
+        fare: Number(val.fare),
       };
     } else if (this.provider === 'jackal') {
+      const formattedDate = this.formatDateForProvider(val.bookingDate, 'jackal');
+      const timeStr = val.bookingDate instanceof Date 
+        ? `${String(val.bookingDate.getHours()).padStart(2, '0')}:${String(val.bookingDate.getMinutes()).padStart(2, '0')}`
+        : '05:15';
       payload = {
         serviceType: 'jackal-shuttle',
         bookingCode: val.bookingCode,
-        bookingDate: val.bookingDate,
+        bookingDate: formattedDate,
         customer: {
           name: val.customerName,
           phone: val.customerPhone,
@@ -456,8 +652,8 @@ export class DocumentFormDialogComponent implements OnInit {
         departure: {
           point: val.departurePoint,
           address: val.departurePoint,
-          date: 'Selasa, 22 Juli 2025',
-          time: '05:15',
+          date: formattedDate,
+          time: timeStr,
         },
         destination: {
           point: val.destinationPoint,
@@ -468,14 +664,14 @@ export class DocumentFormDialogComponent implements OnInit {
             name: val.customerName,
             seat: val.passengerSeat,
             route: 'DU - CP',
-            schedule: '05:15',
+            schedule: timeStr,
           },
         ],
         payment: {
-          totalPrice: val.totalPaid,
-          totalPaid: val.totalPaid,
+          totalPrice: Number(val.totalPaid),
+          totalPaid: Number(val.totalPaid),
           method: val.paymentMethod,
-          time: val.bookingDate,
+          time: formattedDate,
         },
       };
     }
