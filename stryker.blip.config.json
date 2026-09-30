@@ -1,0 +1,22 @@
+{
+  "$schema": "https://stryker-mutator.io/schemas/stryker-schema.json",
+  "testRunner": "vitest",
+  "vitest": {
+    "configFile": "vitest.blip.config.ts",
+    "related": false
+  },
+  "mutate": [
+    "projects/blip/src/app/services/document.service.ts"
+  ],
+  "coverageAnalysis": "all",
+  "reporters": ["clear-text", "progress"],
+  "thresholds": {
+    "high": 80,
+    "low": 60,
+    "break": null
+  },
+  "timeoutMS": 60000,
+  "timeoutFactor": 2.5,
+  "concurrency": 6,
+  "tempDirName": ".stryker-tmp/blip"
+}

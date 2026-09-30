@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -96,12 +96,22 @@ export class Login implements OnInit {
         private messageService: MessageService
     ) {}
 
+    private route = inject(ActivatedRoute);
+
+    private getRedirectUrl(): string {
+        const queryRedirect = this.route.snapshot.queryParams['redirect'] || this.route.snapshot.queryParams['returnUrl'];
+        if (queryRedirect) {
+            return decodeURIComponent(queryRedirect);
+        }
+        return `${environment.appUrls.dashboard}/`;
+    }
+
     ngOnInit() {
         if (isPlatformBrowser(this.platformId)) {
             const userSession = this.getCookie('user_session');
             if (userSession) {
                 if (this.document?.location) {
-                    this.document.location.href = `${environment.appUrls.dashboard}/`;
+                    this.document.location.href = this.getRedirectUrl();
                 }
                 return;
             }
@@ -149,9 +159,9 @@ export class Login implements OnInit {
                 localStorage.removeItem('refreshToken');
                 localStorage.removeItem('currentUser');
 
-                // Redirect cleanly to dashboard (Backend has already issued HttpOnly accessToken & refreshToken cookies)
+                // Redirect cleanly to destination (Backend has already issued HttpOnly accessToken & refreshToken cookies)
                 if (this.document?.location) {
-                    this.document.location.href = `${environment.appUrls.dashboard}/`;
+                    this.document.location.href = this.getRedirectUrl();
                 }
                 return;
             }

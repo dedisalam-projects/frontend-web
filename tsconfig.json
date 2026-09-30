@@ -52,6 +52,13 @@
       },
       {
         "path": "./projects/auth/tsconfig.spec.json"
+      },
+      {
+        "path": "./projects/blip/tsconfig.app.json"
+      },
+      {
+        "path": "./projects/blip/tsconfig.spec.json"
       }
     ]
 }
+
