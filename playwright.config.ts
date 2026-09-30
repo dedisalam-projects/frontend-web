@@ -27,7 +27,7 @@ export default defineConfig({
 
     use: {
         // Auth app is the entry point for login
-        baseURL: 'http://localhost:4002',
+        baseURL: process.env.BASE_URL || process.env.AUTH_URL || 'http://localhost:4002',
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'on-first-retry',
@@ -40,7 +40,7 @@ export default defineConfig({
     },
 
     projects: [
-        // ── Desktop ────────────────────────────────────────────────────────
+        // Desktop
         {
             name: 'chromium-desktop',
             use: {
@@ -56,7 +56,7 @@ export default defineConfig({
             }
         },
 
-        // ── Tablet ─────────────────────────────────────────────────────────
+        // Tablet
         {
             name: 'tablet',
             use: {
@@ -66,7 +66,7 @@ export default defineConfig({
             }
         },
 
-        // ── Mobile ─────────────────────────────────────────────────────────
+        // Mobile
         {
             name: 'mobile-chrome',
             use: { ...devices['Pixel 5'] }
@@ -79,7 +79,7 @@ export default defineConfig({
             }
         },
 
-        // ── Firefox & WebKit (Only if explicitly enabled) ─────────────────
+        // Firefox & WebKit (Only if explicitly enabled)
         ...(process.env['ENABLE_ALL_BROWSERS']
             ? [
                   { name: 'firefox', use: { ...devices['Desktop Firefox'] } },

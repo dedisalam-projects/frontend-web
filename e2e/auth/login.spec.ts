@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { AUTH_URL, TEST_CREDENTIALS, clearAuthState } from '../fixtures/auth.fixture';
+import { AUTH_URL, DASHBOARD_URL, TEST_CREDENTIALS, clearAuthState } from '../fixtures/auth.fixture';
 
 const LOGIN_URL = `${AUTH_URL}/auth/login`;
 
@@ -8,7 +8,7 @@ test.describe('Login Flow — Auth Application', () => {
         await clearAuthState(page);
     });
 
-    // ── Happy Path ────────────────────────────────────────────────────────
+    // Happy Path
 
     test('should display login form with email and password fields', async ({ page }) => {
         await page.goto(LOGIN_URL);
@@ -48,8 +48,9 @@ test.describe('Login Flow — Auth Application', () => {
         await page.getByRole('button', { name: /sign in|login/i }).click();
 
         // Verify redirect to dashboard without token in query param
-        await page.waitForURL(/localhost:4000/, { timeout: 15000 });
-        expect(page.url()).toContain('localhost:4000');
+        const dashboardHost = new URL(DASHBOARD_URL).host;
+        await page.waitForURL(new RegExp(dashboardHost), { timeout: 15000 });
+        expect(page.url()).toContain(dashboardHost);
         expect(page.url()).not.toContain('token=');
 
         // User session should be preserved in cookie
@@ -110,10 +111,11 @@ test.describe('Login Flow — Auth Application', () => {
 
         await page.waitForTimeout(2000);
         // Should still be on auth domain
-        expect(page.url()).toContain('localhost:4002');
+        const authHost = new URL(AUTH_URL).host;
+        expect(page.url()).toContain(authHost);
     });
 
-    // ── Form Validation ───────────────────────────────────────────────────
+    // Form Validation
 
     test('should have submit button and handle empty submission without crashing', async ({ page }) => {
         await page.goto(LOGIN_URL);
@@ -125,10 +127,11 @@ test.describe('Login Flow — Auth Application', () => {
 
         // Should still be on login page
         await page.waitForTimeout(1000);
-        expect(page.url()).toContain('localhost:4002');
+        const authHost = new URL(AUTH_URL).host;
+        expect(page.url()).toContain(authHost);
     });
 
-    // ── Security ─────────────────────────────────────────────────────────
+    // Security
 
     test('should not expose credentials in URL query params', async ({ page }) => {
         await page.goto(LOGIN_URL);

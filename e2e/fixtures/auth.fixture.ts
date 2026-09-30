@@ -1,9 +1,9 @@
 import { Page, BrowserContext } from '@playwright/test';
 
-export const AUTH_URL = 'http://localhost:4002';
-export const DASHBOARD_URL = 'http://localhost:4000';
-export const LANDING_URL = 'http://localhost:4001';
-export const API_URL = 'http://localhost:3000';
+export const AUTH_URL = process.env.AUTH_URL || 'http://localhost:4002';
+export const DASHBOARD_URL = process.env.DASHBOARD_URL || 'http://localhost:4000';
+export const LANDING_URL = process.env.LANDING_URL || 'http://localhost:4001';
+export const API_URL = process.env.API_URL || 'http://localhost:3000';
 
 export const TEST_CREDENTIALS = {
     admin: { email: 'admin@company.local', password: 'password123' },
@@ -24,7 +24,7 @@ export async function loginViaUI(page: Page, credentials = TEST_CREDENTIALS.admi
     await page.getByRole('button', { name: /sign in|login/i }).click();
 
     // Wait for redirect to dashboard or token in cookie
-    await page.waitForURL(/localhost:4000/, { timeout: 15000 });
+    await page.waitForURL(new RegExp(new URL(DASHBOARD_URL).host), { timeout: 15000 });
 
     // Extract token from cookie
     const cookies = await page.context().cookies();
@@ -41,7 +41,7 @@ export async function injectAuthToken(context: BrowserContext, token: string, da
         {
             name: 'accessToken',
             value: token,
-            domain: 'localhost',
+            domain: new URL(AUTH_URL).hostname || 'localhost',
             path: '/',
             httpOnly: false,
             secure: false
@@ -49,7 +49,7 @@ export async function injectAuthToken(context: BrowserContext, token: string, da
         {
             name: 'user_session',
             value: encodeURIComponent(JSON.stringify({ email: 'admin@company.local', role: 'admin' })),
-            domain: 'localhost',
+            domain: new URL(AUTH_URL).hostname || 'localhost',
             path: '/',
             httpOnly: false,
             secure: false
