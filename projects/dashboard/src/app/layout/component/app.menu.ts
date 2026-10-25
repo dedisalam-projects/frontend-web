@@ -29,6 +29,16 @@ export class AppMenu {
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
                     { label: 'Manajemen User', icon: 'pi pi-fw pi-users', routerLink: ['/users'] }
                 ]
+            },
+            {
+                label: 'KlikIndogrosir',
+                items: [
+                    { label: 'Rekapitulasi', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/indogrosir'] },
+                    { label: 'Produk', icon: 'pi pi-fw pi-box', routerLink: ['/products'] },
+                    { label: 'Cabang', icon: 'pi pi-fw pi-map-marker', routerLink: ['/branches'] },
+                    { label: 'Kategori', icon: 'pi pi-fw pi-tags', routerLink: ['/categories'] },
+                    { label: 'Brand / Merek', icon: 'pi pi-fw pi-bookmark', routerLink: ['/brands'] }
+                ]
             }
         ];
     }
