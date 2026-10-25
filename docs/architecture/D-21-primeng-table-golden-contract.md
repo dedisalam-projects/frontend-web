@@ -37,7 +37,7 @@ Dokumen ini mendefinisikan vektor uji deterministik (*Deterministic Test Vectors
 ### Vector TV-03: Pencarian Global (`Global Filter`)
 | Parameter | Spesifikasi Wajib |
 |---|---|
-| **Component Primitives** | `<p-iconfield>` + `<p-inputicon styleClass="pi pi-search">` + `<input pInputText>` |
+| **Component Primitives** | `<p-iconfield>` + `<p-inputicon><i class="pi pi-search"></i></p-inputicon>` + `<input pInputText>` |
 | **Event Binding** | `(input)="dt.filterGlobal($any($event.target).value, 'contains')"` |
 | **Global Filter Fields** | Didefinisikan eksplisit pada `[globalFilterFields]` di setiap modul |
 | **Acceptance Criteria** | 1. Input teks pada kolom search memfilter baris tabel secara instan berdasarkan substring match pada seluruh field yang terdaftar di `globalFilterFields`.<br>2. Input "Bandung" pada modul Branches menampilkan cabang yang memiliki kota atau nama Bandung.<br>3. Menghapus input hingga kosong mengembalikan seluruh data tabel ke kondisi semula tanpa refresh halaman.<br>4. Pencarian yang tidak menemukan hasil menampilkan pesan `#emptymessage` ("Tidak ada data ditemukan"). |

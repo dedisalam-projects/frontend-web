@@ -108,7 +108,9 @@ import { IndogrosirProductService, Brand } from '../service/indogrosir-product.s
                     <div class="flex items-center justify-between gap-4">
                         <span class="text-xl font-semibold text-surface-900 dark:text-surface-0">Daftar Brand / Merk</span>
                         <p-iconfield>
-                            <p-inputicon styleClass="pi pi-search" />
+                            <p-inputicon>
+                                <i class="pi pi-search"></i>
+                            </p-inputicon>
                             <input
                                 pInputText
                                 type="text"

@@ -256,7 +256,9 @@ import {
                         <div class="flex items-center justify-between gap-4">
                             <span class="text-base font-semibold text-surface-900 dark:text-surface-0">Data Gerai Indogrosir</span>
                             <p-iconfield>
-                                <p-inputicon styleClass="pi pi-search" />
+                                <p-inputicon>
+                                    <i class="pi pi-search"></i>
+                                </p-inputicon>
                                 <input
                                     pInputText
                                     type="text"
@@ -400,7 +402,9 @@ import {
                         <div class="flex items-center justify-between gap-4">
                             <span class="text-base font-semibold text-surface-900 dark:text-surface-0">Data Divisi Retail</span>
                             <p-iconfield>
-                                <p-inputicon styleClass="pi pi-search" />
+                                <p-inputicon>
+                                    <i class="pi pi-search"></i>
+                                </p-inputicon>
                                 <input
                                     pInputText
                                     type="text"

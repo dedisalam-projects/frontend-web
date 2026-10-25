@@ -85,7 +85,9 @@ interface ExportColumn {
                 <div class="flex items-center justify-between">
                     <h5 class="m-0">Manage Products</h5>
                     <p-iconfield>
-                        <p-inputicon styleClass="pi pi-search" />
+                        <p-inputicon>
+                            <i class="pi pi-search"></i>
+                        </p-inputicon>
                         <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
                     </p-iconfield>
                 </div>

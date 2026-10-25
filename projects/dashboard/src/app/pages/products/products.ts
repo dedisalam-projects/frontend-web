@@ -156,7 +156,9 @@ interface Column {
                                 class="w-full sm:w-48"
                             />
                             <p-iconfield class="w-full sm:w-64">
-                                <p-inputicon styleClass="pi pi-search" />
+                                <p-inputicon>
+                                    <i class="pi pi-search"></i>
+                                </p-inputicon>
                                 <input
                                     pInputText
                                     type="text"

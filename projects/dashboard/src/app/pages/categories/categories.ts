@@ -217,7 +217,9 @@ import { IndogrosirProductService, Category } from '../service/indogrosir-produc
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
                             <h5 class="m-0 text-xl font-bold">Daftar Divisi</h5>
                             <p-iconfield class="w-full sm:w-72">
-                                <p-inputicon styleClass="pi pi-search" />
+                                <p-inputicon>
+                                    <i class="pi pi-search"></i>
+                                </p-inputicon>
                                 <input
                                     pInputText
                                     type="text"
@@ -293,7 +295,9 @@ import { IndogrosirProductService, Category } from '../service/indogrosir-produc
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
                             <h5 class="m-0 text-xl font-bold">Daftar Departemen</h5>
                             <p-iconfield class="w-full sm:w-72">
-                                <p-inputicon styleClass="pi pi-search" />
+                                <p-inputicon>
+                                    <i class="pi pi-search"></i>
+                                </p-inputicon>
                                 <input
                                     pInputText
                                     type="text"
@@ -372,7 +376,9 @@ import { IndogrosirProductService, Category } from '../service/indogrosir-produc
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
                             <h5 class="m-0 text-xl font-bold">Daftar Kategori</h5>
                             <p-iconfield class="w-full sm:w-72">
-                                <p-inputicon styleClass="pi pi-search" />
+                                <p-inputicon>
+                                    <i class="pi pi-search"></i>
+                                </p-inputicon>
                                 <input
                                     pInputText
                                     type="text"
@@ -453,7 +459,9 @@ import { IndogrosirProductService, Category } from '../service/indogrosir-produc
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
                             <h5 class="m-0 text-xl font-bold">Semua Taksonomi</h5>
                             <p-iconfield class="w-full sm:w-72">
-                                <p-inputicon styleClass="pi pi-search" />
+                                <p-inputicon>
+                                    <i class="pi pi-search"></i>
+                                </p-inputicon>
                                 <input
                                     pInputText
                                     type="text"

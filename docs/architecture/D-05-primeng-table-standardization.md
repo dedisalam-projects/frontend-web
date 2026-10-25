@@ -61,7 +61,9 @@ Setiap tabel data pada modul Dashboard wajib mematuhi template kanonikal berikut
                 </div>
                 <div class="flex items-center gap-3 w-full sm:w-auto">
                     <p-iconfield class="w-full sm:w-72">
-                        <p-inputicon styleClass="pi pi-search" />
+                        <p-inputicon>
+                            <i class="pi pi-search"></i>
+                        </p-inputicon>
                         <input
                             pInputText
                             type="text"
@@ -199,6 +201,6 @@ Setiap tabel data pada modul Dashboard wajib mematuhi template kanonikal berikut
 2. **FORBIDDEN: Missing 100 Option in Dropdown**:
    Seluruh tabel wajib menyediakan opsi `[10, 20, 50, 100]`.
 3. **MANDATORY: Global Search via PrimeNG Primitives**:
-   Pencarian harus menggunakan `<p-iconfield>` dan `<p-inputicon styleClass="pi pi-search">` yang terstandarisasi di Sakai-NG.
+   Pencarian harus menggunakan `<p-iconfield>` dan `<p-inputicon><i class="pi pi-search"></i></p-inputicon>` yang terstandarisasi di Sakai-NG. Dilarang self-closing tanpa tag `<i>` icon child.
 4. **MANDATORY: Sorting Header Contract**:
    Setiap header kolom yang mendukung sort harus memiliki `[pSortableColumn]="field"` dan tag `<p-sortIcon field="field" />` di dalamnya.
