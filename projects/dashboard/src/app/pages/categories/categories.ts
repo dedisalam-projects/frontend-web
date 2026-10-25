@@ -42,8 +42,8 @@ import { IndogrosirProductService, Category } from '../service/indogrosir-produc
         <p-toast></p-toast>
         <p-confirmdialog></p-confirmdialog>
 
-        <!-- KPI Hierarchy Summary Cards (4 Cards) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- KPI Hierarchy Summary Cards (3 Cards) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <!-- 1. Divisi -->
             <div
                 (click)="selectedTab.set('division')"
@@ -106,27 +106,6 @@ import { IndogrosirProductService, Category } from '../service/indogrosir-produc
                     <span>Katalog Belanja Langsung</span>
                 </div>
             </div>
-
-            <!-- 4. Total -->
-            <div
-                (click)="selectedTab.set('all')"
-                class="bg-surface-0 dark:bg-surface-900 p-4 rounded-xl border transition-all cursor-pointer shadow-sm select-none"
-                [ngClass]="selectedTab() === 'all' ? 'border-primary ring-2 ring-primary/20 bg-primary/5' : 'border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600'"
-            >
-                <div class="flex justify-between mb-3">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-1 text-sm">Total Master</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-bold text-2xl">{{ categories().length }}</div>
-                    </div>
-                    <div class="flex items-center justify-center bg-amber-100 dark:bg-amber-950 rounded-lg w-10 h-10">
-                        <i class="pi pi-database text-amber-600 dark:text-amber-400 text-xl"></i>
-                    </div>
-                </div>
-                <div class="flex items-center gap-1.5 text-xs text-muted-color">
-                    <span class="text-emerald-500 font-semibold">{{ activeCount() }} Aktif</span>
-                    <span>• SOT KlikIndogrosir</span>
-                </div>
-            </div>
         </div>
 
         <!-- Hierarchy Navigation Pills -->
@@ -138,7 +117,7 @@ import { IndogrosirProductService, Category } from '../service/indogrosir-produc
                 [ngClass]="selectedTab() === 'division' ? 'bg-primary text-primary-contrast shadow-sm' : 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700'"
             >
                 <i class="pi pi-th-large"></i>
-                Tabel Divisi ({{ divisionCount() }})
+                Divisi ({{ divisionCount() }})
             </button>
 
             <button
@@ -148,7 +127,7 @@ import { IndogrosirProductService, Category } from '../service/indogrosir-produc
                 [ngClass]="selectedTab() === 'department' ? 'bg-primary text-primary-contrast shadow-sm' : 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700'"
             >
                 <i class="pi pi-sitemap"></i>
-                Tabel Departemen ({{ departmentCount() }})
+                Departemen ({{ departmentCount() }})
             </button>
 
             <button
@@ -158,17 +137,7 @@ import { IndogrosirProductService, Category } from '../service/indogrosir-produc
                 [ngClass]="selectedTab() === 'category' ? 'bg-primary text-primary-contrast shadow-sm' : 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700'"
             >
                 <i class="pi pi-tags"></i>
-                Tabel Kategori ({{ categoryCount() }})
-            </button>
-
-            <button
-                type="button"
-                (click)="selectedTab.set('all')"
-                class="px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2"
-                [ngClass]="selectedTab() === 'all' ? 'bg-primary text-primary-contrast shadow-sm' : 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700'"
-            >
-                <i class="pi pi-list"></i>
-                Semua Taksonomi ({{ categories().length }})
+                Kategori ({{ categoryCount() }})
             </button>
         </div>
 
@@ -436,95 +405,6 @@ import { IndogrosirProductService, Category } from '../service/indogrosir-produc
                     </ng-template>
                 </p-table>
             </div>
-
-            <!-- 4. TABEL SEMUA TAKSONOMI -->
-            <div *ngIf="selectedTab() === 'all'">
-                <p-table
-                    #dtAll
-                    [value]="categories()"
-                    [rows]="10"
-                    [paginator]="true"
-                    [rowsPerPageOptions]="[10, 20, 50, 100]"
-                    [loading]="loading()"
-                    [rowHover]="true"
-                    [customSort]="true"
-                    (sortFunction)="customSort($event)"
-                    [globalFilterFields]="['code', 'name', 'type', 'divisionCode', 'departmentCode']"
-                    responsiveLayout="scroll"
-                    currentPageReportTemplate="Menampilkan {first} sampai {last} dari {totalRecords} kategori"
-                    [showCurrentPageReport]="true"
-                    class="w-full"
-                >
-                    <ng-template #caption>
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
-                            <h5 class="m-0 text-xl font-bold">Semua Taksonomi</h5>
-                            <p-iconfield class="w-full sm:w-72">
-                                <p-inputicon>
-                                    <i class="pi pi-search"></i>
-                                </p-inputicon>
-                                <input
-                                    pInputText
-                                    type="text"
-                                    (input)="dtAll.filterGlobal($any($event.target).value, 'contains')"
-                                    placeholder="Cari taksonomi..."
-                                    class="w-full"
-                                />
-                            </p-iconfield>
-                        </div>
-                    </ng-template>
-                    <ng-template #header>
-                        <tr class="border-b border-surface-200 dark:border-surface-700">
-                            <th pSortableColumn="code" class="p-3 text-left font-semibold text-sm cursor-pointer select-none w-36">
-                                Kode <p-sorticon field="code" />
-                            </th>
-                            <th pSortableColumn="name" class="p-3 text-left font-semibold text-sm cursor-pointer select-none">
-                                Nama Kategori <p-sorticon field="name" />
-                            </th>
-                            <th pSortableColumn="level" class="p-3 text-left font-semibold text-sm cursor-pointer select-none w-36">
-                                Hirarki <p-sorticon field="level" />
-                            </th>
-                            <th class="p-3 text-left font-semibold text-sm">Induk Taksonomi</th>
-                            <th pSortableColumn="isActive" class="p-3 text-left font-semibold text-sm cursor-pointer select-none w-28">
-                                Status <p-sorticon field="isActive" />
-                            </th>
-                            <th class="p-3 text-center font-semibold text-sm w-32">Aksi</th>
-                        </tr>
-                    </ng-template>
-                    <ng-template #body let-cat>
-                        <tr class="border-b border-surface-100 dark:border-surface-800 hover:bg-surface-50 dark:hover:bg-surface-800/50">
-                            <td class="p-3 font-mono font-bold text-primary">{{ cat.code }}</td>
-                            <td class="p-3 font-medium">{{ cat.name }}</td>
-                            <td class="p-3">
-                                <p-tag
-                                    [value]="cat.level || 'category'"
-                                    [severity]="cat.level === 'division' ? 'contrast' : cat.level === 'department' ? 'info' : 'success'"
-                                    class="text-xs uppercase"
-                                />
-                            </td>
-                            <td class="p-3 text-xs text-muted-color">
-                                <div *ngIf="cat.level === 'category'">
-                                    {{ getDivisionName(cat.divisionCode) }} &gt; {{ getDepartmentName(cat.departmentCode) }}
-                                </div>
-                                <div *ngIf="cat.level === 'department'">
-                                    Divisi: {{ getDivisionName(cat.divisionCode) }}
-                                </div>
-                                <div *ngIf="cat.level === 'division'">
-                                    -
-                                </div>
-                            </td>
-                            <td class="p-3">
-                                <p-tag [value]="cat.isActive ? 'Aktif' : 'Nonaktif'" [severity]="cat.isActive ? 'success' : 'warn'" class="text-xs" />
-                            </td>
-                            <td class="p-3 text-center">
-                                <div class="flex justify-center gap-2">
-                                    <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true" severity="info" size="small" (onClick)="editCategory(cat)" />
-                                    <p-button icon="pi pi-trash" [rounded]="true" [outlined]="true" severity="danger" size="small" (onClick)="deleteCategory(cat)" />
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </div>
         </div>
 
         <!-- Dialog Form Tambah / Edit -->
@@ -584,7 +464,7 @@ export class Categories implements OnInit {
     categories = signal<Category[]>([]);
     loading = signal<boolean>(false);
     activeCount = signal<number>(0);
-    selectedTab = signal<'division' | 'department' | 'category' | 'all'>('division');
+    selectedTab = signal<'division' | 'department' | 'category'>('division');
 
     categoryDialog = false;
     isNew = false;
@@ -680,7 +560,7 @@ export class Categories implements OnInit {
     openNew() {
         this.category = {
             isActive: true,
-            level: this.selectedTab() === 'all' ? 'category' : this.selectedTab()
+            level: this.selectedTab()
         };
         this.isNew = true;
         this.submitted = false;
