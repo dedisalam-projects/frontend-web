@@ -71,10 +71,14 @@ import {
             </div>
         </div>
 
-        <!-- KPI Summary Cards (4 Columns) -->
+        <!-- KPI Summary Cards (4 Columns) - Interactive Controllers -->
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
             <!-- 1. Cabang Nasional -->
-            <div class="bg-surface-0 dark:bg-surface-900 p-4 rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm">
+            <div
+                (click)="activeTab.set('cabang')"
+                class="bg-surface-0 dark:bg-surface-900 p-4 rounded-xl border transition-all cursor-pointer shadow-sm select-none"
+                [ngClass]="activeTab() === 'cabang' ? 'border-primary ring-2 ring-primary/20 bg-primary/5' : 'border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600'"
+            >
                 <div class="flex justify-between mb-3">
                     <div>
                         <span class="block text-muted-color font-medium mb-1 text-sm">Total Cabang</span>
@@ -93,7 +97,11 @@ import {
             </div>
 
             <!-- 2. Kategori Taksonomi -->
-            <div class="bg-surface-0 dark:bg-surface-900 p-4 rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm">
+            <div
+                (click)="activeTab.set('kategori')"
+                class="bg-surface-0 dark:bg-surface-900 p-4 rounded-xl border transition-all cursor-pointer shadow-sm select-none"
+                [ngClass]="activeTab() === 'kategori' ? 'border-primary ring-2 ring-primary/20 bg-primary/5' : 'border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600'"
+            >
                 <div class="flex justify-between mb-3">
                     <div>
                         <span class="block text-muted-color font-medium mb-1 text-sm">Total Kategori</span>
@@ -112,7 +120,11 @@ import {
             </div>
 
             <!-- 3. Produk Terdaftar -->
-            <div class="bg-surface-0 dark:bg-surface-900 p-4 rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm">
+            <div
+                (click)="activeTab.set('produk')"
+                class="bg-surface-0 dark:bg-surface-900 p-4 rounded-xl border transition-all cursor-pointer shadow-sm select-none"
+                [ngClass]="activeTab() === 'produk' ? 'border-primary ring-2 ring-primary/20 bg-primary/5' : 'border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600'"
+            >
                 <div class="flex justify-between mb-3">
                     <div>
                         <span class="block text-muted-color font-medium mb-1 text-sm">Katalog Produk</span>
@@ -148,39 +160,6 @@ import {
                     <span class="text-muted-color">• MitraIndogrosir</span>
                 </div>
             </div>
-        </div>
-
-        <!-- Section Navigation Pills -->
-        <div class="flex flex-wrap items-center gap-2 mb-6">
-            <button
-                type="button"
-                (click)="activeTab.set('cabang')"
-                class="px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2"
-                [ngClass]="activeTab() === 'cabang' ? 'bg-primary text-primary-contrast shadow-sm' : 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700'"
-            >
-                <i class="pi pi-map-marker"></i>
-                Rekapitulasi Cabang ({{ recap()?.branches?.total || 0 }})
-            </button>
-
-            <button
-                type="button"
-                (click)="activeTab.set('kategori')"
-                class="px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2"
-                [ngClass]="activeTab() === 'kategori' ? 'bg-primary text-primary-contrast shadow-sm' : 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700'"
-            >
-                <i class="pi pi-tags"></i>
-                Rekapitulasi Kategori ({{ recap()?.categories?.total || 0 }})
-            </button>
-
-            <button
-                type="button"
-                (click)="activeTab.set('produk')"
-                class="px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2"
-                [ngClass]="activeTab() === 'produk' ? 'bg-primary text-primary-contrast shadow-sm' : 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700'"
-            >
-                <i class="pi pi-box"></i>
-                Rekapitulasi Produk & Harga ({{ recap()?.products?.total || 0 }})
-            </button>
         </div>
 
         <!-- TAB 1: REKAPITULASI CABANG -->

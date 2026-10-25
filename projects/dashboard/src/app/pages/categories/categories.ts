@@ -108,39 +108,6 @@ import { IndogrosirProductService, Category } from '../service/indogrosir-produc
             </div>
         </div>
 
-        <!-- Hierarchy Navigation Pills -->
-        <div class="flex flex-wrap items-center gap-2 mb-6">
-            <button
-                type="button"
-                (click)="selectedTab.set('division')"
-                class="px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2"
-                [ngClass]="selectedTab() === 'division' ? 'bg-primary text-primary-contrast shadow-sm' : 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700'"
-            >
-                <i class="pi pi-th-large"></i>
-                Divisi ({{ divisionCount() }})
-            </button>
-
-            <button
-                type="button"
-                (click)="selectedTab.set('department')"
-                class="px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2"
-                [ngClass]="selectedTab() === 'department' ? 'bg-primary text-primary-contrast shadow-sm' : 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700'"
-            >
-                <i class="pi pi-sitemap"></i>
-                Departemen ({{ departmentCount() }})
-            </button>
-
-            <button
-                type="button"
-                (click)="selectedTab.set('category')"
-                class="px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2"
-                [ngClass]="selectedTab() === 'category' ? 'bg-primary text-primary-contrast shadow-sm' : 'bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700'"
-            >
-                <i class="pi pi-tags"></i>
-                Kategori ({{ categoryCount() }})
-            </button>
-        </div>
-
         <!-- Main Cardless Data Table Container -->
         <div class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm p-4">
             <p-toolbar styleClass="mb-4 gap-2">
