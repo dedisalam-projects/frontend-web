@@ -85,7 +85,7 @@
     "@stryker-mutator/vitest-runner": "^10.0.0",
     "@types/express": "^5.0.1",
     "@types/jasmine": "~5.1.0",
-    "@types/node": "^20.17.19",
+    "@types/node": "^22.0.0",
     "@vitest/coverage-v8": "^4.1.11",
     "artillery": "^2.0.34",
     "autoprefixer": "^10.4.20",
